@@ -8,11 +8,26 @@
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Sans&family=Roboto&display=swap" rel="stylesheet">
 
+  <!-- Favicon (optional) -->
+  <link rel="icon" href="https://yzybully.online/favicon.ico" type="image/x-icon">
+
+  <!-- Meta Tags for SEO and Social -->
+  <meta name="description" content="YZY – Owned by yzydotcom">
+  <meta name="author" content="yzydotcom">
+  <meta property="og:title" content="YZY">
+  <meta property="og:description" content="Official YZY site.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://yzybully.online/preview.png">
+
   <style>
     :root {
       --font-roboto: "Roboto", sans-serif;
       --font-ibm-plex-mono: "IBM Plex Mono", monospace;
       --font-ibm-plex-sans: "IBM Plex Sans", sans-serif;
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
@@ -30,30 +45,51 @@
 
     h1 {
       font-family: var(--font-roboto);
-      font-size: 64px;
+      font-size: clamp(32px, 8vw, 64px);
       margin: 0;
       letter-spacing: 0.08em;
     }
 
+    h1 a {
+      color: inherit;
+      text-decoration: none;
+      transition: opacity 0.2s ease;
+    }
+
+    h1 a:hover {
+      opacity: 0.6;
+    }
+
     p {
       font-family: var(--font-ibm-plex-mono);
-      font-size: 18px;
+      font-size: clamp(14px, 2vw, 18px);
       margin-top: 10px;
     }
 
     .middle-section {
       height: 300px; /* reserve middle space */
     }
+
+    footer {
+      text-align: center;
+      padding: 20px 0;
+      font-size: 14px;
+      color: #666;
+    }
   </style>
 </head>
 <body>
   <div class="top-section">
-    <h1>YZY</h1>
+    <h1><a href="https://yzybully.online/" target="_blank" rel="noopener noreferrer">YZY</a></h1>
     <p>owned by yzydotcom</p>
   </div>
 
   <div class="middle-section">
     <!-- Empty space for future content -->
   </div>
+
+  <footer>
+    &copy; 2025 yzydotcom
+  </footer>
 </body>
 </html>
