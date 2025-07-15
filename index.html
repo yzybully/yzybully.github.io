@@ -20,13 +20,12 @@
       padding: 0;
       background-color: white;
       color: black;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
       font-family: var(--font-ibm-plex-sans);
+    }
+
+    .top-section {
       text-align: center;
+      padding-top: 40px;
     }
 
     h1 {
@@ -39,12 +38,22 @@
     p {
       font-family: var(--font-ibm-plex-mono);
       font-size: 18px;
-      margin-top: 12px;
+      margin-top: 10px;
+    }
+
+    .middle-section {
+      height: 300px; /* reserve middle space */
     }
   </style>
 </head>
 <body>
-  <h1>YZY</h1>
-  <p>owned by yzydotcom</p>
+  <div class="top-section">
+    <h1>YZY</h1>
+    <p>owned by yzydotcom</p>
+  </div>
+
+  <div class="middle-section">
+    <!-- Empty space for future content -->
+  </div>
 </body>
 </html>
