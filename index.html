@@ -1,38 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>YZY</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Sans&family=Roboto&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Sans&family=Roboto&display=swap" rel="stylesheet">
 
   <style>
     :root {
       --font-roboto: "Roboto", sans-serif;
       --font-ibm-plex-mono: "IBM Plex Mono", monospace;
       --font-ibm-plex-sans: "IBM Plex Sans", sans-serif;
-
-      --primary-color: #000000;
-      --background-color: #ffffff;
-      --button-bg: #000000;
-      --button-text: #ffffff;
-      --border-radius: 12px;
     }
 
     body {
       margin: 0;
       padding: 0;
-      background-color: var(--background-color);
-      color: var(--primary-color);
+      background-color: white;
+      color: black;
       font-family: var(--font-ibm-plex-sans);
     }
 
     .top-section {
       text-align: center;
       padding-top: 40px;
-      margin-bottom: 40px;
     }
 
     h1 {
@@ -48,76 +41,8 @@
       margin-top: 10px;
     }
 
-    .downloads-container {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 32px;
-      padding: 0 40px 60px;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    .download-box {
-      border: 2px solid var(--primary-color);
-      border-radius: var(--border-radius);
-      padding: 24px;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      min-height: 260px;
-      background-color: #fafafa;
-    }
-
-    .download-title {
-      font-family: var(--font-ibm-plex-mono);
-      font-size: 18px;
-      font-weight: 700;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-
-    .download-desc {
-      font-family: var(--font-ibm-plex-mono);
-      font-size: 14px;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: #444;
-      margin-bottom: auto;
-    }
-
-    .download-button {
-      margin-top: 24px;
-      background-color: var(--button-bg);
-      color: var(--button-text);
-      border: none;
-      padding: 10px 20px;
-      border-radius: var(--border-radius);
-      font-family: var(--font-ibm-plex-sans);
-      font-size: 14px;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-      text-decoration: none;
-    }
-
-    .download-button:hover {
-      background-color: #222;
-    }
-
-    @media (max-width: 1200px) {
-      .downloads-container {
-        grid-template-columns: repeat(2, 1fr);
-        padding: 0 20px 40px;
-        max-width: 800px;
-      }
-    }
-
-    @media (max-width: 600px) {
-      .downloads-container {
-        grid-template-columns: 1fr;
-        padding: 0 10px 30px;
-        max-width: 100%;
-      }
+    .middle-section {
+      height: 300px; /* reserve middle space */
     }
   </style>
 </head>
@@ -127,27 +52,8 @@
     <p>owned by yzydotcom</p>
   </div>
 
-  <div class="downloads-container">
-    <div class="download-box">
-      <div class="download-title">FILE 1 NAME HERE</div>
-      <div class="download-desc">DESCRIPTION FOR FILE 1</div>
-      <a href="https://example.com/file1.zip" class="download-button" download>Download</a>
-    </div>
-    <div class="download-box">
-      <div class="download-title">FILE 2 NAME HERE</div>
-      <div class="download-desc">DESCRIPTION FOR FILE 2</div>
-      <a href="https://example.com/file2.zip" class="download-button" download>Download</a>
-    </div>
-    <div class="download-box">
-      <div class="download-title">FILE 3 NAME HERE</div>
-      <div class="download-desc">DESCRIPTION FOR FILE 3</div>
-      <a href="https://example.com/file3.zip" class="download-button" download>Download</a>
-    </div>
-    <div class="download-box">
-      <div class="download-title">FILE 4 NAME HERE</div>
-      <div class="download-desc">DESCRIPTION FOR FILE 4</div>
-      <a href="https://example.com/file4.zip" class="download-button" download>Download</a>
-    </div>
+  <div class="middle-section">
+    <!-- Empty space for future content -->
   </div>
 </body>
 </html>
