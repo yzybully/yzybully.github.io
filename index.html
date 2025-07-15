@@ -11,7 +11,7 @@
   <!-- Favicon (optional) -->
   <link rel="icon" href="https://yzybully.online/favicon.ico" type="image/x-icon">
 
-  <!-- Meta Tags for SEO and Social -->
+  <!-- Meta Tags -->
   <meta name="description" content="YZY – Owned by yzydotcom">
   <meta name="author" content="yzydotcom">
   <meta property="og:title" content="YZY">
@@ -26,13 +26,16 @@
       --font-ibm-plex-sans: "IBM Plex Sans", sans-serif;
     }
 
-    html {
-      scroll-behavior: smooth;
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
     }
 
     body {
-      margin: 0;
-      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
       background-color: white;
       color: black;
       font-family: var(--font-ibm-plex-sans);
@@ -67,7 +70,7 @@
     }
 
     .middle-section {
-      height: 300px; /* reserve middle space */
+      flex-grow: 1;
     }
 
     footer {
