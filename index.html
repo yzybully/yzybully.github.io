@@ -3,32 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <title>YZY</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Sans&family=Roboto&display=swap" rel="stylesheet">
+
   <style>
-    @font-face {
-      font-family: 'VCR OSD Mono';
-      src: url('VCR_OSD_MONO_1.001.ttf') format('truetype');
+    :root {
+      --font-roboto: "Roboto", sans-serif;
+      --font-ibm-plex-mono: "IBM Plex Mono", monospace;
+      --font-ibm-plex-sans: "IBM Plex Sans", sans-serif;
     }
 
     body {
+      margin: 0;
+      padding: 0;
       background-color: white;
       color: black;
-      font-family: 'VCR OSD Mono', monospace;
+      height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
-      height: 100vh;
-      margin: 0;
+      justify-content: center;
+      font-family: var(--font-ibm-plex-sans);
+      text-align: center;
     }
 
     h1 {
+      font-family: var(--font-roboto);
       font-size: 64px;
-      margin-bottom: 10px;
+      margin: 0;
+      letter-spacing: 0.08em;
     }
 
     p {
+      font-family: var(--font-ibm-plex-mono);
       font-size: 18px;
-      color: black;
+      margin-top: 12px;
     }
   </style>
 </head>
