@@ -78,26 +78,29 @@
       top: 120px;
       left: 30px;
       font-family: var(--font-ibm-plex-mono);
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
     .sort-section p {
       font-weight: bold;
       text-transform: uppercase;
       font-size: 14px;
-      margin-bottom: 12px;
+      margin: 0;
     }
 
     .sort-links {
       display: flex;
-      flex-direction: column;
-      gap: 8px;
+      flex-direction: row;
+      gap: 12px;
     }
 
     .sort-links a {
       text-decoration: none;
       color: inherit;
-      transition: opacity 0.2s ease;
       font-size: 14px;
+      transition: opacity 0.2s ease;
     }
 
     .sort-links a:hover {
@@ -120,7 +123,7 @@
 
   <!-- Sort by section -->
   <div class="sort-section">
-    <p>Sort by:</p>
+    <p>SORT BY:</p>
     <div class="sort-links">
       <a href="/">Home</a>
       <a href="/status">Status Archive</a>
@@ -129,7 +132,7 @@
   </div>
 
   <div class="middle-section">
-    <!-- Empty space for future content -->
+    <!-- Add your future content here -->
   </div>
 
   <footer>
