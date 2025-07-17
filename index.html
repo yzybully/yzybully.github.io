@@ -8,7 +8,7 @@
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Sans&family=Roboto&display=swap" rel="stylesheet">
 
-  <!-- Favicon (optional) -->
+  <!-- Favicon -->
   <link rel="icon" href="https://yzybully.online/favicon.ico" type="image/x-icon">
 
   <!-- Meta Tags -->
@@ -73,6 +73,37 @@
       flex-grow: 1;
     }
 
+    .sort-section {
+      position: absolute;
+      top: 120px;
+      left: 30px;
+      font-family: var(--font-ibm-plex-mono);
+    }
+
+    .sort-section p {
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    .sort-links {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .sort-links a {
+      text-decoration: none;
+      color: inherit;
+      transition: opacity 0.2s ease;
+      font-size: 14px;
+    }
+
+    .sort-links a:hover {
+      opacity: 0.6;
+    }
+
     footer {
       text-align: center;
       padding: 20px 0;
@@ -83,8 +114,18 @@
 </head>
 <body>
   <div class="top-section">
-    <h1><a href="https://yzybully.online/" target="_blank" rel="noopener noreferrer">YEEZY</a></h1>
-    <p>owned and managed by @yzydotcom</p>
+    <h1><a href="https://yzybully.online/" target="_blank" rel="noopener noreferrer">YZY</a></h1>
+    <p>owned by yzydotcom</p>
+  </div>
+
+  <!-- Sort by section -->
+  <div class="sort-section">
+    <p>Sort by:</p>
+    <div class="sort-links">
+      <a href="/">Home</a>
+      <a href="/status">Status Archive</a>
+      <a href="/unrsld">Unrsld</a>
+    </div>
   </div>
 
   <div class="middle-section">
