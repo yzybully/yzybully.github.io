@@ -1,23 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>YZY Archive</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Sans&family=Roboto&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Sans&family=Roboto&display=swap" rel="stylesheet" />
 
   <!-- Favicon -->
-  <link rel="icon" href="https://yzybully.online/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="https://yzybully.online/favicon.ico" type="image/x-icon" />
 
   <!-- Meta Tags -->
-  <meta name="description" content="YZY – Archive">
-  <meta name="author" content="yzydotcom">
-  <meta property="og:title" content="YZY Archive">
-  <meta property="og:description" content="Official YZY archive.">
-  <meta property="og:type" content="website">
-  <meta property="og:image" content="https://yzybully.online/preview.png">
+  <meta name="description" content="YZY – Archive" />
+  <meta name="author" content="yzydotcom" />
+  <meta property="og:title" content="YZY Archive" />
+  <meta property="og:description" content="Official YZY archive." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://yzybully.online/preview.png" />
 
   <style>
     :root {
@@ -32,6 +32,8 @@
       background-color: white;
       color: black;
       font-family: var(--font-ibm-plex-sans);
+      height: 100%;
+      min-height: 100vh;
     }
 
     body {
@@ -102,39 +104,77 @@
       opacity: 0.6;
     }
 
+    /* Container with horizontal padding for centering */
     .grid-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 24px;
-      padding: 160px 30px 60px; /* Push content below top section */
+      padding: 160px 40px 60px;
       flex-grow: 1;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px;
+      justify-content: center;
+      max-width: 1200px;
+      margin: 0 auto;
     }
 
+    /* Square cards with equal width and height */
     .card {
+      position: relative;
+      width: 100%;
+      padding-top: 100%; /* 1:1 aspect ratio */
       border: 1px solid black;
-      padding: 12px;
+      border-radius: 12px;
+      overflow: hidden;
+      background-color: white;
+      box-sizing: border-box;
+      cursor: default;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      font-family: var(--font-ibm-plex-mono);
+      transition: box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .card-content {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
       display: flex;
       flex-direction: column;
       gap: 10px;
-      font-family: var(--font-ibm-plex-mono);
+      overflow: hidden;
     }
 
     .card img {
       width: 100%;
       height: auto;
+      border-radius: 8px;
       object-fit: cover;
-      border: 1px solid #000;
+      flex-shrink: 0;
+      max-height: 50%;
+      border: 1px solid black;
     }
 
     .card h3 {
       font-size: 16px;
       margin: 0;
+      text-transform: uppercase;
+      flex-shrink: 0;
+      user-select: none;
     }
 
     .card p {
       font-size: 14px;
       margin: 0;
       color: #444;
+      flex-grow: 1;
+      overflow: hidden;
+      user-select: text;
     }
 
     footer {
@@ -142,6 +182,21 @@
       padding: 20px 0;
       font-size: 14px;
       color: #666;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      .sort-section {
+        position: static;
+        margin: 20px 40px 0;
+        justify-content: center;
+      }
+
+      .grid-container {
+        padding: 20px 20px 40px;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        max-width: 100%;
+      }
     }
   </style>
 </head>
@@ -155,34 +210,46 @@
   <div class="sort-section">
     <p>SORT BY:</p>
     <div class="sort-links">
-      <a href="/">HOME</a>
-      <a href="/statusarchive.html">ARCHIVE</a>
-      <a href="/unrsld">UNRLSD</a>
+      <a href="index.html">HOME</a>
+      <a href="statusarchive.html">ARCHIVE</a>
+      <a href="unrsld.html">UNRLSD</a>
     </div>
   </div>
 
   <!-- Main content grid -->
   <div class="grid-container">
     <div class="card">
-      <img src="https://via.placeholder.com/300x200" alt="Preview 1">
-      <h3>Track Name 1</h3>
-      <p>Description or notes go here</p>
+      <div class="card-content">
+        <img src="https://via.placeholder.com/300x300" alt="Preview 1" />
+        <h3>Track Name 1</h3>
+        <p>Description or notes go here</p>
+      </div>
     </div>
+
     <div class="card">
-      <img src="https://via.placeholder.com/300x200" alt="Preview 2">
-      <h3>Track Name 2</h3>
-      <p>Description or notes go here</p>
+      <div class="card-content">
+        <img src="https://via.placeholder.com/300x300" alt="Preview 2" />
+        <h3>Track Name 2</h3>
+        <p>Description or notes go here</p>
+      </div>
     </div>
+
     <div class="card">
-      <img src="https://via.placeholder.com/300x200" alt="Preview 3">
-      <h3>Track Name 3</h3>
-      <p>Description or notes go here</p>
+      <div class="card-content">
+        <img src="https://via.placeholder.com/300x300" alt="Preview 3" />
+        <h3>Track Name 3</h3>
+        <p>Description or notes go here</p>
+      </div>
     </div>
+
     <div class="card">
-      <img src="https://via.placeholder.com/300x200" alt="Preview 4">
-      <h3>Track Name 4</h3>
-      <p>Description or notes go here</p>
+      <div class="card-content">
+        <img src="https://via.placeholder.com/300x300" alt="Preview 4" />
+        <h3>Track Name 4</h3>
+        <p>Description or notes go here</p>
+      </div>
     </div>
+
     <!-- Add more cards as needed -->
   </div>
 
