@@ -105,7 +105,7 @@
       opacity: 0.6;
     }
 
-    /* Grid container with square cards */
+    /* Grid container with taller cards */
     .grid-container {
       padding: 20px 40px 60px;
       margin-top: 160px; /* below header + sort */
@@ -113,7 +113,7 @@
 
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      grid-auto-rows: 220px; /* equal height to width for square */
+      grid-auto-rows: 300px; /* taller cards, width ~220px, height 300px */
       gap: 24px;
 
       max-width: 1200px;
@@ -187,7 +187,7 @@
         margin-top: 20px;
         padding: 20px 20px 40px;
         grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        grid-auto-rows: 180px;
+        grid-auto-rows: 250px;
         max-width: 100%;
       }
     }
@@ -247,6 +247,16 @@
     <div class="card">
       <img src="https://via.placeholder.com/300x300" alt="Preview 8" />
       <h3>Track Name 8</h3>
+      <p>Description or notes go here</p>
+    </div>
+    <div class="card">
+      <img src="https://via.placeholder.com/300x300" alt="Preview 9" />
+      <h3>Track Name 9</h3>
+      <p>Description or notes go here</p>
+    </div>
+    <div class="card">
+      <img src="https://via.placeholder.com/300x300" alt="Preview 10" />
+      <h3>Track Name 10</h3>
       <p>Description or notes go here</p>
     </div>
   </div>
