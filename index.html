@@ -1,23 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>YZY</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Sans&family=Roboto&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Sans&family=Roboto&display=swap" rel="stylesheet">
 
-  <!-- Favicon -->
-  <link rel="icon" href="https://yzybully.online/favicon.ico" type="image/x-icon" />
+  <!-- Favicon (optional) -->
+  <link rel="icon" href="https://yzybully.online/favicon.ico" type="image/x-icon">
 
   <!-- Meta Tags -->
-  <meta name="description" content="YZY – Owned by yzydotcom" />
-  <meta name="author" content="yzydotcom" />
-  <meta property="og:title" content="YZY" />
-  <meta property="og:description" content="Official YZY site." />
-  <meta property="og:type" content="website" />
-  <meta property="og:image" content="https://yzybully.online/preview.png" />
+  <meta name="description" content="YZY – Owned by yzydotcom">
+  <meta name="author" content="yzydotcom">
+  <meta property="og:title" content="YZY">
+  <meta property="og:description" content="Official YZY site.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://yzybully.online/preview.png">
 
   <style>
     :root {
@@ -26,8 +26,7 @@
       --font-ibm-plex-sans: "IBM Plex Sans", sans-serif;
     }
 
-    html,
-    body {
+    html, body {
       height: 100%;
       margin: 0;
       padding: 0;
@@ -36,18 +35,15 @@
     body {
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      align-items: center;
+      justify-content: space-between;
       background-color: white;
       color: black;
       font-family: var(--font-ibm-plex-sans);
-      text-align: center;
-      padding: 20px;
-      min-height: 100vh;
     }
 
     .top-section {
-      margin-bottom: 30px;
+      text-align: center;
+      padding-top: 40px;
     }
 
     h1 {
@@ -70,63 +66,18 @@
     p {
       font-family: var(--font-ibm-plex-mono);
       font-size: clamp(14px, 2vw, 18px);
-      margin: 8px 0;
-      color: #222;
-    }
-
-    .bio {
-      max-width: 480px;
-      font-style: italic;
-      margin-bottom: 30px;
-      color: #444;
-    }
-
-    .official-info {
-      max-width: 450px;
-      font-family: var(--font-ibm-plex-mono);
-      font-size: 16px;
-      line-height: 1.6;
-      color: #222;
-      margin-bottom: 30px;
-    }
-
-    .official-info p {
-      margin: 10px 0;
-    }
-
-    .official-info a {
-      color: #1DB954;
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .official-info a:hover {
-      text-decoration: underline;
-    }
-
-    .spotify-embed {
-      margin-bottom: 30px;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgb(0 0 0 / 0.1);
-      width: 100%;
-      max-width: 320px;
-      height: 380px;
-      border: none;
-    }
-
-    .contact-section {
       margin-top: 10px;
-      font-family: var(--font-ibm-plex-mono);
-      font-size: 16px;
-      font-weight: 600;
-      color: #111;
+    }
+
+    .middle-section {
+      flex-grow: 1;
     }
 
     footer {
-      margin-top: 40px;
+      text-align: center;
+      padding: 20px 0;
       font-size: 14px;
       color: #666;
-      font-family: var(--font-ibm-plex-mono);
     }
   </style>
 </head>
@@ -136,45 +87,12 @@
     <p>owned by yzydotcom</p>
   </div>
 
-  <div class="bio" aria-label="Artist biography">
-    <p>
-      YZYDOTCOM creates innovative, raw, and energetic music blending modern hip-hop vibes with
-      authentic storytelling. Passionate about connecting with fans worldwide and pushing creative
-      boundaries.
-    </p>
+  <div class="middle-section">
+    <!-- Empty space for future content -->
   </div>
 
-  <iframe
-    class="spotify-embed"
-    src="https://open.spotify.com/embed/artist/4AMdDJhTRbbENCV7CP3lg7"
-    allow="encrypted-media"
-    title="Spotify Player for YZYDOTCOM"
-  ></iframe>
-
-  <div class="official-info" aria-label="Official artist information for verification">
-    <p><strong>Official Artist Info</strong></p>
-    <p>Artist Name: <strong>YZYDOTCOM</strong></p>
-    <p>
-      Spotify Artist Page: <br />
-      <a href="https://open.spotify.com/artist/4AMdDJhTRbbENCV7CP3lg7" target="_blank" rel="noopener noreferrer">
-        https://open.spotify.com/artist/4AMdDJhTRbbENCV7CP3lg7
-      </a>
-    </p>
-    <p>Email: <strong><a href="mailto:swachbuckling@gmail.com">swachbuckling@gmail.com</a></strong></p>
-    <p>
-      Instagram: <br />
-      <a href="https://instagram.com/yzydotcomonspotify" target="_blank" rel="noopener noreferrer">@yzydotcomonspotify</a>
-    </p>
-    <p>
-      Twitter: <br />
-      <a href="https://x.com/yzydotcom_1" target="_blank" rel="noopener noreferrer">@yzydotcom_1</a>
-    </p>
-  </div>
-
-  <div class="contact-section" aria-label="Contact call to action">
-    <p>Follow me on social media and stay tuned for new music!</p>
-  </div>
-
-  <footer>&copy; 2025 yzydotcom</footer>
+  <footer>
+    &copy; 2025 yzydotcom
+  </footer>
 </body>
 </html>
