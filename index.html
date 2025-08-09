@@ -13,7 +13,7 @@
       --bg-color: #000;
       --text-color: #fff;
       --accent-color: #999;
-      --accent-hover: #fff;
+      --accent-hover: #fff; 
       --progress-bg: #282828;
       --progress-fill: #1db954; /* Spotify green */
       --player-bg: #181818;
@@ -644,7 +644,6 @@
     const audio = new Audio();
     audio.volume = 0.8;
 
-    // SHA-256 Hash function for password hashing
     async function sha256(message) {
       const msgBuffer = new TextEncoder().encode(message);
       const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
@@ -652,7 +651,6 @@
       return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    // Password hash of 'CUCK'
     const correctHash = '3a0e02b82a29e8ff77d340dd80ee0e4258017b84a59a5a6292a36bf92dfd7c2b';
 
     adminLoginBtn.addEventListener('click', async () => {
