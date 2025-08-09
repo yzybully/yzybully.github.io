@@ -2,564 +2,543 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>YZY Player</title>
+  <title>YZY Music Player</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap"
+    rel="stylesheet"
+  />
 
   <style>
-    :root {
-      --bg-color: #000;
-      --text-color: #fff;
-      --accent-color: #999;
-      --accent-hover: #fff; 
-      --progress-bg: #282828;
-      --progress-fill: #1db954; /* Spotify green */
-      --player-bg: #181818;
-    }
-
+    /* Reset and basics */
     * {
+      box-sizing: border-box;
+    }
+    body, html {
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
-      font-family: 'IBM Plex Mono', monospace !important;
-      user-select: none;
+      height: 100%;
+      font-family: 'IBM Plex Mono', monospace;
+      background-color: #000;
+      color: #fff;
+      overflow-y: scroll;
     }
-
-    body {
+    #app {
       display: flex;
-      background-color: var(--bg-color);
-      color: var(--text-color);
       height: 100vh;
       overflow: hidden;
-      flex-direction: row;
     }
 
     /* Sidebar */
     .sidebar {
-      width: 220px;
-      background-color: #0a0a0a;
-      padding: 20px;
+      width: 90px;
+      background-color: #111;
       display: flex;
       flex-direction: column;
-      border-right: 1px solid #111;
-      font-family: 'IBM Plex Mono', monospace;
+      align-items: center;
+      padding-top: 40px;
+      gap: 24px;
     }
-
-    .sidebar h1 {
-      font-size: 28px;
-      margin-bottom: 4px;
-    }
-
-    .sidebar small {
-      font-size: 12px;
-      color: var(--accent-color);
-    }
-
-    .nav-btn {
-      margin-top: 30px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .nav-btn button {
+    .sidebar button {
       background: none;
       border: none;
-      color: var(--text-color);
-      font-size: 16px;
-      text-align: left;
+      color: #ccc;
+      font-size: 14px;
       cursor: pointer;
-      padding: 8px 0;
-      transition: color 0.3s ease;
-      font-family: 'IBM Plex Mono', monospace;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      letter-spacing: 0.15em;
+      transition: color 0.25s;
+      user-select: none;
+      padding: 8px;
+    }
+    .sidebar button.active,
+    .sidebar button:hover {
+      color: #1db954; /* Spotify green highlight on hover and active */
     }
 
-    .nav-btn button:hover {
-      color: var(--accent-hover);
-    }
-
-    /* Content */
-    .content {
-      flex: 1;
-      padding: 20px;
-      overflow-y: auto;
-      position: relative;
-      margin-bottom: 110px; /* space for player bar */
-      scrollbar-width: none; /* Firefox */
-    }
-    .content::-webkit-scrollbar {
-      display: none; /* Chrome, Safari, Opera */
-    }
-
-    .page {
-      opacity: 0;
-      transform: translateY(10px);
-      position: absolute;
-      width: 100%;
-      transition: opacity 0.4s ease, transform 0.4s ease;
-      font-family: 'IBM Plex Mono', monospace;
-      background-color: var(--bg-color);
-      min-height: 100%;
-      padding-bottom: 50px;
-    }
-
-    .page.active {
-      opacity: 1;
-      transform: translateY(0);
-      position: relative;
-    }
-
-    /* Centered Square Modal */
-    .center-box {
-      background: #111;
-      padding: 20px;
-      border-radius: 8px;
-      width: 400px;
-      margin: auto;
+    /* Main Content */
+    .main-content {
+      flex-grow: 1;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      font-family: 'IBM Plex Mono', monospace;
+      background-color: #000;
+      overflow-y: auto;
+      padding: 20px 40px 120px 40px; /* bottom space for player bar */
+      position: relative;
     }
 
-    .center-wrapper {
+    /* Pages */
+    .page {
+      display: none;
+      animation: fadeIn 0.3s ease forwards;
+    }
+    .page.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Release lists */
+    .release-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: flex-start;
+    }
+
+    .song-card {
+      background: #111;
+      border-radius: 8px;
+      width: 140px;
+      padding: 12px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+      transition: background-color 0.25s ease;
+    }
+    .song-card:hover {
+      background-color: #222;
+    }
+    .song-card img {
+      width: 140px;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+    .song-card .artist-name {
+      font-size: 14px;
+      color: #aaa;
+      text-align: center;
+      user-select: none;
+      margin-bottom: 6px;
+    }
+    .song-card .play-release-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background-color: #1db954;
+      border: none;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      color: #000;
+      font-weight: bold;
+      font-size: 18px;
+      cursor: pointer;
+      opacity: 0.9;
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100%;
-      font-family: 'IBM Plex Mono', monospace;
+      transition: opacity 0.2s ease;
+      user-select: none;
+    }
+    .song-card .play-release-btn:hover {
+      opacity: 1;
     }
 
-    .center-box input,
-    .center-box select {
-      background: #000;
-      border: 1px solid #333;
-      color: #fff;
-      padding: 8px;
-      border-radius: 4px;
-      font-size: 14px;
-      font-family: 'IBM Plex Mono', monospace;
+    /* Release detail */
+    #release-detail {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0,0,0,0.9);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      overflow-y: auto;
+      z-index: 10;
     }
 
-    .center-box button {
-      background: #1db954;
-      color: #000;
-      padding: 10px;
-      border: none;
-      cursor: pointer;
-      border-radius: 20px;
-      font-weight: bold;
-      font-size: 14px;
-      transition: background-color 0.3s ease;
-      font-family: 'IBM Plex Mono', monospace;
+    #release-detail.active {
+      display: flex;
+      animation: fadeIn 0.3s ease forwards;
     }
 
-    .center-box button:hover {
-      background: #1ed760;
+    .background-fade {
+      position: fixed;
+      inset: 0;
+      filter: blur(20px);
+      opacity: 0.3;
+      z-index: -1;
+      transition: background 0.4s ease;
     }
 
-    /* Song Cards */
-    .song-card {
-      background: #111;
-      padding: 10px;
-      border-radius: 8px;
-      display: inline-block;
-      width: 150px;
-      margin: 10px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-      font-family: 'IBM Plex Mono', monospace;
-    }
-
-    .song-card:hover {
-      background: #1a1a1a;
-    }
-
-    .song-card img {
+    .content-wrapper {
+      max-width: 700px;
       width: 100%;
-      border-radius: 6px;
-      margin-bottom: 8px;
+      color: white;
+      text-align: center;
     }
 
-    .song-card .artist-name {
-      font-size: 12px;
-      color: var(--accent-color);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .release-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      font-size: 28px;
+      color: #1db954;
+      cursor: pointer;
+      user-select: none;
+      padding: 0;
+      line-height: 1;
+      transition: color 0.2s ease;
+    }
+    .back-btn:hover {
+      color: #1ed760;
+    }
+
+    #release-title {
+      font-size: 36px;
+      font-weight: 700;
+      margin: 0;
+      user-select: none;
+    }
+
+    #release-art-large {
+      width: 300px;
+      height: 300px;
+      border-radius: 8px;
+      object-fit: cover;
+      margin: 0 auto 20px auto;
+      box-shadow: 0 0 12px 2px rgba(29, 185, 84, 0.6);
+      user-select: none;
+    }
+
+    #release-artist-name {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      user-select: none;
+    }
+
+    #release-type-name {
+      font-size: 16px;
+      color: #aaa;
+      margin-bottom: 20px;
+      user-select: none;
+    }
+
+    #track-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 600px;
+      margin: 0 auto;
+      font-size: 16px;
+      user-select: none;
+    }
+
+    #track-list div {
+      padding: 8px 12px;
+      background: #222;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #track-list div:hover {
+      background-color: #1db954;
+      color: #000;
+    }
+    #track-list div span {
+      user-select: text;
+    }
+    #track-list div button {
+      background: none;
+      border: none;
+      color: inherit;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 0;
+      user-select: none;
+      transition: color 0.2s ease;
+    }
+    #track-list div button:hover {
+      color: #000;
     }
 
     /* Player Bar */
     .player-bar {
       position: fixed;
       bottom: 0;
-      left: 220px;
+      left: 90px;
       right: 0;
-      height: 110px;
-      background: var(--player-bg);
-      border-top: 1px solid #282828;
+      height: 100px;
+      background-color: #181818;
+      border-top: 1px solid #333;
       display: flex;
       flex-direction: column;
-      padding: 10px 30px;
-      font-family: 'IBM Plex Mono', monospace;
+      justify-content: center;
+      padding: 0 24px;
+      box-sizing: border-box;
       user-select: none;
-      z-index: 1000;
-      color: #b3b3b3;
+      font-size: 14px;
+      color: white;
+      z-index: 20;
     }
 
     .player-top-row {
       display: flex;
       align-items: center;
-      justify-content: flex-start;
-      position: relative;
-      padding-bottom: 10px;
-      gap: 15px;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 8px;
     }
 
-    /* Left side container with skip back + track info */
     .left-controls {
       display: flex;
       align-items: center;
       gap: 12px;
-      flex: 1;
-      min-width: 0;
+      min-width: 240px;
     }
-
-    /* Skip back and track info in one row */
-    .skip-back {
-      font-size: 32px;
-      cursor: pointer;
-      background: none;
-      border: none;
-      color: var(--text-color);
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: color 0.25s ease;
-      flex-shrink: 0;
-    }
-    .skip-back:hover {
-      color: #1db954;
-    }
-
     .track-info-short {
       display: flex;
       align-items: center;
-      gap: 10px;
-      min-width: 0;
-      cursor: default;
-      color: var(--text-color);
-      white-space: nowrap;
+      gap: 12px;
       overflow: hidden;
-      text-overflow: ellipsis;
     }
-
     .track-info-short img {
-      width: 40px;
-      height: 40px;
+      width: 48px;
+      height: 48px;
       border-radius: 4px;
       object-fit: cover;
       flex-shrink: 0;
+      user-select: none;
     }
-
     .track-info-text {
       display: flex;
       flex-direction: column;
-      min-width: 0;
+      overflow: hidden;
+      white-space: nowrap;
     }
-
-    .track-info-text .track-name {
-      font-weight: 600;
-      font-size: 14px;
+    .track-name {
+      font-weight: 700;
+      font-size: 16px;
       color: white;
       overflow: hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
     }
-
-    .track-info-text .artist-name {
-      font-size: 12px;
-      color: var(--accent-color);
+    .artist-name {
+      font-weight: 400;
+      font-size: 13px;
+      color: #b3b3b3;
       overflow: hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
     }
 
-    /* Play/Pause button absolute center */
     .play-pause-container {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 10;
+      flex-shrink: 0;
+      text-align: center;
     }
-
     .play-pause-btn {
-      background: none;
+      background: #1db954;
       border: none;
-      color: var(--text-color);
-      font-size: 48px;
-      cursor: pointer;
-      transition: color 0.25s ease;
-      width: 60px;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      font-size: 24px;
+      color: #000;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.2s ease;
     }
     .play-pause-btn:hover {
-      color: #1db954;
+      background-color: #1ed760;
     }
 
-    /* Skip forward on the right */
-    .skip-forward {
-      font-size: 32px;
-      cursor: pointer;
+    .skip-back, .skip-forward {
       background: none;
       border: none;
-      color: var(--text-color);
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: color 0.25s ease;
-      flex-shrink: 0;
-      margin-left: auto;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.2s ease;
     }
-    .skip-forward:hover {
+    .skip-back:hover, .skip-forward:hover {
       color: #1db954;
     }
 
     .player-bottom-row {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 10px;
+      gap: 12px;
     }
 
     .progress-container {
-      flex: 1;
-      height: 6px;
-      background: var(--progress-bg);
-      border-radius: 3px;
+      background: #404040;
+      border-radius: 4px;
       cursor: pointer;
+      flex-grow: 1;
+      height: 6px;
       position: relative;
-      user-select: none;
-      margin-right: 10px;
     }
-
     .progress-filled {
-      background: var(--progress-fill);
+      background: #1db954;
       height: 100%;
       width: 0%;
-      border-radius: 3px;
+      border-radius: 4px;
       transition: width 0.1s linear;
     }
 
     .volume-container {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--text-color);
-      cursor: pointer;
       width: 120px;
-      justify-content: flex-end;
     }
 
     .volume-slider {
-      width: 100px;
-      -webkit-appearance: none;
-      height: 6px;
-      background: var(--progress-bg);
-      border-radius: 3px;
+      width: 100%;
       cursor: pointer;
-      transition: background-color 0.3s ease;
     }
 
-    .volume-slider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 16px;
-      height: 16px;
-      background: #1db954;
-      cursor: pointer;
-      border-radius: 50%;
-      border: none;
-      transition: background-color 0.3s ease;
-      margin-top: -5px;
+    /* Scrollbar hidden but scrollable */
+    .main-content::-webkit-scrollbar {
+      width: 8px;
     }
-
-    .volume-slider::-moz-range-thumb {
-      width: 16px;
-      height: 16px;
-      background: #1db954;
-      cursor: pointer;
-      border-radius: 50%;
-      border: none;
-      transition: background-color 0.3s ease;
+    .main-content::-webkit-scrollbar-track {
+      background: #000;
     }
-
-    /* Release detail page background with fade overlay */
-    #release-detail {
-      position: relative;
-      min-height: 100%;
-      padding: 20px;
-      color: #eee;
-      overflow-y: auto;
-      box-sizing: border-box;
-    }
-
-    #release-detail .background-fade {
-      position: absolute;
-      inset: 0;
-      background: var(--bg-color);
-      opacity: 0.7;
-      filter: blur(24px);
-      z-index: 0;
-      border-radius: 12px;
-    }
-
-    #release-detail .content-wrapper {
-      position: relative;
-      z-index: 2;
-      max-width: 800px;
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    #release-detail img {
-      border-radius: 12px;
-      max-width: 300px;
-      object-fit: cover;
-      margin-bottom: 16px;
-    }
-
-    #release-detail button.back-btn {
-      background: none;
-      border: none;
-      color: #999;
-      cursor: pointer;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 14px;
-      margin-bottom: 20px;
-      transition: color 0.3s ease;
-    }
-    #release-detail button.back-btn:hover {
-      color: #1db954;
-    }
-
-    #track-list > div {
-      padding: 8px;
-      border-bottom: 1px solid #222;
-      color: #ccc;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-family: 'IBM Plex Mono', monospace;
-    }
-
-    #track-list > div:hover {
-      background: #222;
+    .main-content::-webkit-scrollbar-thumb {
+      background-color: #1db954;
+      border-radius: 10px;
     }
   </style>
 </head>
 <body>
-  <div class="sidebar">
-    <h1>YZYPlayer</h1>
-    <small>https://discord.gg/5qC4NQmPdv</small>
-    <div class="nav-btn">
-      <button onclick="showPage('home')">Home</button>
-      <button onclick="showPage('liked')">Liked Songs</button>
-      <button onclick="showPage('profile')">Profile</button>
-      <button onclick="showPage('admin')">Admin</button>
-    </div>
-  </div>
+  <div id="app">
+    <nav class="sidebar">
+      <button id="btn-home" class="active" aria-label="Home">HOME</button>
+      <button id="btn-liked" aria-label="Liked Songs">LIKED</button>
+      <button id="btn-profile" aria-label="Profile">PROFILE</button>
+      <button id="btn-admin" aria-label="Admin">ADMIN</button>
+    </nav>
 
-  <div class="content">
-    <!-- HOME -->
-    <div id="home" class="page active">
-      <h2>Albums</h2>
-      <div id="albums"></div>
-      <h2>EPs</h2>
-      <div id="eps"></div>
-      <h2>Singles</h2>
-      <div id="singles"></div>
-    </div>
+    <main class="main-content">
+      <!-- HOME PAGE -->
+      <section id="home" class="page active">
+        <h2>Albums</h2>
+        <div id="albums" class="release-list"></div>
 
-    <!-- LIKED -->
-    <div id="liked" class="page">
-      <h2>Liked Songs</h2>
-      <p>No liked songs yet.</p>
-    </div>
+        <h2>EPs</h2>
+        <div id="eps" class="release-list"></div>
 
-    <!-- PROFILE -->
-    <div id="profile" class="page">
-      <h2>Profile</h2>
-      <p>Coming soon...</p>
-    </div>
+        <h2>Singles</h2>
+        <div id="singles" class="release-list"></div>
+      </section>
 
-    <!-- ADMIN LOGIN -->
-    <div id="admin" class="page center-wrapper">
-      <div id="admin-login" class="center-box">
-        <h3>Admin Login</h3>
-        <input
-          type="password"
-          id="admin-pass"
-          placeholder="Enter password"
-          autocomplete="off"
-        />
-        <button id="admin-login-btn">Login</button>
-        <p id="admin-login-error" style="color:#f44336; display:none;">Incorrect password</p>
-      </div>
+      <!-- LIKED SONGS PAGE -->
+      <section id="liked" class="page">
+        <p>Liked Songs coming soon...</p>
+      </section>
 
-      <div id="admin-panel" class="center-box" style="display:none;">
-        <h3>Add New Release</h3>
-        <select id="release-type">
-          <option value="albums">Album</option>
-          <option value="eps">EP</option>
-          <option value="singles">Single</option>
-        </select>
+      <!-- PROFILE PAGE -->
+      <section id="profile" class="page">
+        <p>Profile page coming soon...</p>
+      </section>
 
-        <input
-          type="url"
-          id="release-art-url"
-          placeholder="Album Art URL"
-          required
-        />
-        <input
-          type="text"
-          id="release-artist-name"
-          placeholder="Artist Name"
-          required
-        />
-        <div id="tracks-container"></div>
-        <button id="add-track-btn">Add Track</button>
-        <button id="upload-release-btn">Upload Release</button>
-        <button id="admin-logout-btn" style="margin-top:10px; background:#f44336; color:#fff;">Logout</button>
-      </div>
-    </div>
+      <!-- ADMIN LOGIN & PANEL -->
+      <section id="admin" class="page center-wrapper" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%;">
+        <div id="admin-login" class="center-box" style="background:#111; padding:24px; border-radius:12px; width:300px; text-align:center;">
+          <h3>Admin Login</h3>
+          <input
+            type="password"
+            id="admin-pass"
+            placeholder="Enter password"
+            autocomplete="off"
+            style="width:100%; padding:8px; margin:12px 0; border-radius:6px; border:none; font-family:'IBM Plex Mono', monospace;"
+          />
+          <button id="admin-login-btn" style="padding:10px 20px; background:#1db954; border:none; border-radius:6px; cursor:pointer; font-weight:bold; font-family:'IBM Plex Mono', monospace;">
+            Login
+          </button>
+          <p id="admin-login-error" style="color:#f44336; display:none; margin-top:8px;">Incorrect password</p>
+        </div>
 
-    <!-- RELEASE DETAIL -->
-    <div id="release-detail" class="page" style="display:none;">
-      <div class="background-fade"></div>
-      <div class="content-wrapper">
-        <button class="back-btn" onclick="closeReleaseDetail()">← Back to releases</button>
-        <img id="release-art-large" src="" alt="Album Art" />
-        <div id="release-artist-name" style="font-weight:700; font-size:24px; margin-bottom:8px; color:#fff;"></div>
-        <div id="release-type-name" style="color:#aaa; margin-bottom:20px;"></div>
-        <div id="track-list"></div>
-      </div>
-    </div>
+        <div id="admin-panel" style="display:none; background:#111; padding:24px; border-radius:12px; width:400px; text-align:center;">
+          <h3>Add New Release</h3>
+          <select id="release-type" style="width:100%; padding:8px; margin:10px 0; border-radius:6px; border:none; font-family:'IBM Plex Mono', monospace;">
+            <option value="albums">Album</option>
+            <option value="eps">EP</option>
+            <option value="singles">Single</option>
+          </select>
+
+          <input
+            type="url"
+            id="release-art-url"
+            placeholder="Album Art URL"
+            required
+            style="width:100%; padding:8px; margin:10px 0; border-radius:6px; border:none; font-family:'IBM Plex Mono', monospace;"
+          />
+          <input
+            type="text"
+            id="release-artist-name"
+            placeholder="Artist Name"
+            required
+            style="width:100%; padding:8px; margin:10px 0; border-radius:6px; border:none; font-family:'IBM Plex Mono', monospace;"
+          />
+          <div id="tracks-container" style="margin: 10px 0;"></div>
+          <button
+            id="add-track-btn"
+            style="padding:8px 16px; background:#333; border:none; border-radius:6px; cursor:pointer; color:#ccc; margin-bottom:10px; font-family:'IBM Plex Mono', monospace;"
+          >
+            Add Track
+          </button>
+          <button
+            id="upload-release-btn"
+            style="padding:10px 20px; background:#1db954; border:none; border-radius:6px; cursor:pointer; font-weight:bold; font-family:'IBM Plex Mono', monospace;"
+          >
+            Upload Release
+          </button>
+          <button
+            id="admin-logout-btn"
+            style="margin-top:10px; background:#f44336; color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-family:'IBM Plex Mono', monospace;"
+          >
+            Logout
+          </button>
+        </div>
+      </section>
+
+      <!-- RELEASE DETAIL PAGE -->
+      <section id="release-detail" class="page">
+        <div class="background-fade"></div>
+        <div class="content-wrapper">
+          <div class="release-header">
+            <button class="back-btn" onclick="closeReleaseDetail()" aria-label="Back">&#8592;</button>
+            <h2 id="release-title"></h2>
+          </div>
+          <img id="release-art-large" src="" alt="Album Art" />
+          <div id="release-artist-name"></div>
+          <div id="release-type-name"></div>
+          <div id="track-list"></div>
+        </div>
+      </section>
+    </main>
   </div>
 
   <!-- Player Bar -->
-  <div class="player-bar">
+  <div class="player-bar" role="region" aria-label="Music Player Controls">
     <div class="player-top-row">
       <div class="left-controls">
         <button class="skip-back" id="prevBtn" aria-label="Previous Track">&#9664;&#9664;</button>
@@ -580,7 +559,7 @@
     </div>
 
     <div class="player-bottom-row">
-      <div class="progress-container" id="progressContainer">
+      <div class="progress-container" id="progressContainer" aria-label="Track Progress">
         <div class="progress-filled" id="progressFilled"></div>
       </div>
 
@@ -602,362 +581,448 @@
   <script>
     // Elements
     const pages = [...document.querySelectorAll('.page')];
-    const albumsEl = document.getElementById('albums');
-    const epsEl = document.getElementById('eps');
-    const singlesEl = document.getElementById('singles');
-    const likedEl = document.getElementById('liked');
-    const profileEl = document.getElementById('profile');
-    const adminLoginEl = document.getElementById('admin-login');
-    const adminPanelEl = document.getElementById('admin-panel');
-    const adminPassInput = document.getElementById('admin-pass');
-    const adminLoginBtn = document.getElementById('admin-login-btn');
-    const adminLoginError = document.getElementById('admin-login-error');
+    const sidebarButtons = {
+      home: document.getElementById('btn-home'),
+      liked: document.getElementById('btn-liked'),
+      profile: document.getElementById('btn-profile'),
+      admin: document.getElementById('btn-admin')
+    };
+
+    const releasesContainers = {
+      albums: document.getElementById('albums'),
+      eps: document.getElementById('eps'),
+      singles: document.getElementById('singles')
+    };
+
+    // Release detail elements
     const releaseDetail = document.getElementById('release-detail');
+    const releaseTitle = document.getElementById('release-title');
     const releaseArtLarge = document.getElementById('release-art-large');
     const releaseArtistName = document.getElementById('release-artist-name');
     const releaseTypeName = document.getElementById('release-type-name');
-    const trackListEl = document.getElementById('track-list');
+    const trackList = document.getElementById('track-list');
+
+    // Admin elements
+    const adminLoginBox = document.getElementById('admin-login');
+    const adminPanel = document.getElementById('admin-panel');
+    const adminPassInput = document.getElementById('admin-pass');
+    const adminLoginBtn = document.getElementById('admin-login-btn');
+    const adminLoginError = document.getElementById('admin-login-error');
+    const releaseTypeSelect = document.getElementById('release-type');
+    const releaseArtInput = document.getElementById('release-art-url');
+    const releaseArtistInput = document.getElementById('release-artist-name');
     const tracksContainer = document.getElementById('tracks-container');
     const addTrackBtn = document.getElementById('add-track-btn');
     const uploadReleaseBtn = document.getElementById('upload-release-btn');
-    const logoutBtn = document.getElementById('admin-logout-btn');
+    const adminLogoutBtn = document.getElementById('admin-logout-btn');
 
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const playPauseBtn = document.getElementById('playPauseBtn');
+    // Player Elements
+    const playerArt = document.getElementById('player-art');
     const playerTrackName = document.getElementById('playerTrackName');
     const playerArtistName = document.getElementById('playerArtistName');
-    const playerArt = document.getElementById('player-art');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
     const progressContainer = document.getElementById('progressContainer');
     const progressFilled = document.getElementById('progressFilled');
     const volumeSlider = document.getElementById('volumeSlider');
 
+    // App state
     let releases = {
       albums: [],
       eps: [],
       singles: []
     };
 
-    let playlist = [];
+    let currentReleaseType = null;
+    let currentReleaseIndex = null;
     let currentTrackIndex = 0;
-
-    const audio = new Audio();
+    let audio = new Audio();
     audio.volume = 0.8;
 
-    async function sha256(message) {
-      const msgBuffer = new TextEncoder().encode(message);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    // Load releases from localStorage
+    function loadReleases() {
+      const saved = localStorage.getItem('yzyReleases');
+      if (saved) {
+        try {
+          releases = JSON.parse(saved);
+        } catch {
+          releases = { albums: [], eps: [], singles: [] };
+        }
+      }
     }
 
-    const correctHash = '3a0e02b82a29e8ff77d340dd80ee0e4258017b84a59a5a6292a36bf92dfd7c2b';
+    // Save releases to localStorage
+    function saveReleases() {
+      localStorage.setItem('yzyReleases', JSON.stringify(releases));
+    }
+
+    // Clear all release containers
+    function clearReleaseContainers() {
+      Object.values(releasesContainers).forEach(container => (container.innerHTML = ''));
+    }
+
+    // Create release card with play button and art
+    function createReleaseCard(release, typeKey, index) {
+      const card = document.createElement('div');
+      card.className = 'song-card';
+
+      // Album art
+      const art = document.createElement('img');
+      art.src = release.art;
+      art.alt = release.artist + ' - ' + release.type;
+
+      // Clicking art shows release detail page
+      art.addEventListener('click', () => {
+        openReleaseDetail(typeKey, index);
+      });
+
+      card.appendChild(art);
+
+      // Artist name below art
+      const artistName = document.createElement('div');
+      artistName.className = 'artist-name';
+      artistName.textContent = release.artist;
+      card.appendChild(artistName);
+
+      // Play whole release button top right
+      const playBtn = document.createElement('button');
+      playBtn.className = 'play-release-btn';
+      playBtn.innerHTML = '▶';
+      playBtn.title = 'Play ' + release.type;
+      playBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        playRelease(typeKey, index);
+      });
+      card.appendChild(playBtn);
+
+      return card;
+    }
+
+    // Render all releases on home page
+    function renderReleases() {
+      clearReleaseContainers();
+
+      ['albums', 'eps', 'singles'].forEach(typeKey => {
+        releases[typeKey].forEach((release, index) => {
+          const card = createReleaseCard(release, typeKey, index);
+          releasesContainers[typeKey].appendChild(card);
+        });
+      });
+    }
+
+    // Open release detail page
+    function openReleaseDetail(typeKey, releaseIndex) {
+      currentReleaseType = typeKey;
+      currentReleaseIndex = releaseIndex;
+      currentTrackIndex = 0;
+      const release = releases[typeKey][releaseIndex];
+
+      releaseTitle.textContent = release.type.charAt(0).toUpperCase() + release.type.slice(1);
+      releaseArtLarge.src = release.art;
+      releaseArtistName.textContent = release.artist;
+      releaseTypeName.textContent = release.type.charAt(0).toUpperCase() + release.type.slice(1);
+
+      // Background fade color: album art blurred and tinted
+      const bgFade = document.querySelector('.background-fade');
+      bgFade.style.background = `url(${release.art}) no-repeat center center / cover`;
+      bgFade.style.filter = 'blur(40px) brightness(0.2)';
+      bgFade.style.transition = 'background 0.4s ease';
+
+      // Build track list
+      trackList.innerHTML = '';
+      release.tracks.forEach((track, i) => {
+        const trackDiv = document.createElement('div');
+
+        const trackNameSpan = document.createElement('span');
+        trackNameSpan.textContent = track.name;
+
+        const playTrackBtn = document.createElement('button');
+        playTrackBtn.innerHTML = '▶';
+        playTrackBtn.title = 'Play Track';
+        playTrackBtn.addEventListener('click', () => {
+          currentTrackIndex = i;
+          playCurrentTrack();
+        });
+
+        trackDiv.appendChild(trackNameSpan);
+        trackDiv.appendChild(playTrackBtn);
+        trackList.appendChild(trackDiv);
+      });
+
+      switchPage('release-detail');
+    }
+
+    function closeReleaseDetail() {
+      switchPage('home');
+      audio.pause();
+      resetPlayerInfo();
+    }
+
+    // Switch page helper
+    function switchPage(pageId) {
+      pages.forEach(page => {
+        if (page.id === pageId) {
+          page.classList.add('active');
+        } else {
+          page.classList.remove('active');
+        }
+      });
+      clearActiveSidebar(pageId);
+    }
+
+    // Clear active sidebar button and highlight current
+    function clearActiveSidebar(activePageId) {
+      Object.entries(sidebarButtons).forEach(([key, btn]) => {
+        if (key === activePageId) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+    }
+
+    // Player Controls
+
+    function playCurrentTrack() {
+      if (currentReleaseType === null || currentReleaseIndex === null) return;
+      const release = releases[currentReleaseType][currentReleaseIndex];
+      if (!release) return;
+      const track = release.tracks[currentTrackIndex];
+      if (!track) return;
+
+      audio.src = track.url;
+      audio.play();
+
+      playerArt.src = release.art;
+      playerTrackName.textContent = track.name;
+      playerArtistName.textContent = release.artist;
+      playPauseBtn.innerHTML = '⏸';
+    }
+
+    function playRelease(typeKey, releaseIndex) {
+      currentReleaseType = typeKey;
+      currentReleaseIndex = releaseIndex;
+      currentTrackIndex = 0;
+      playCurrentTrack();
+      switchPage('home'); // Stay on home, or you can open detail if you want
+    }
+
+    playPauseBtn.addEventListener('click', () => {
+      if (audio.paused) {
+        audio.play();
+        playPauseBtn.innerHTML = '⏸';
+      } else {
+        audio.pause();
+        playPauseBtn.innerHTML = '▶';
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (currentReleaseType === null || currentReleaseIndex === null) return;
+      const release = releases[currentReleaseType][currentReleaseIndex];
+      if (!release) return;
+      currentTrackIndex = (currentTrackIndex + 1) % release.tracks.length;
+      playCurrentTrack();
+    });
+
+    prevBtn.addEventListener('click', () => {
+      if (currentReleaseType === null || currentReleaseIndex === null) return;
+      const release = releases[currentReleaseType][currentReleaseIndex];
+      if (!release) return;
+      currentTrackIndex = (currentTrackIndex - 1 + release.tracks.length) % release.tracks.length;
+      playCurrentTrack();
+    });
+
+    audio.addEventListener('ended', () => {
+      nextBtn.click();
+    });
+
+    audio.addEventListener('timeupdate', () => {
+      if (audio.duration) {
+        const percent = (audio.currentTime / audio.duration) * 100;
+        progressFilled.style.width = percent + '%';
+      }
+    });
+
+    progressContainer.addEventListener('click', e => {
+      const width = progressContainer.clientWidth;
+      const clickX = e.offsetX;
+      if (!audio.duration) return;
+      audio.currentTime = (clickX / width) * audio.duration;
+    });
+
+    volumeSlider.addEventListener('input', () => {
+      audio.volume = volumeSlider.value;
+    });
+
+    function resetPlayerInfo() {
+      playerArt.src = '';
+      playerTrackName.textContent = 'No Track';
+      playerArtistName.textContent = 'No Artist';
+      playPauseBtn.innerHTML = '▶';
+      progressFilled.style.width = '0%';
+    }
+
+    // Admin login
+    const passwordHash = 'r9fNZyDjozYxsfHGHrkQfsBj/IFHC8D3y4dEBvKuhrA8=';
+
+    async function hashPassword(pass) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(pass);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return btoa(String.fromCharCode(...hashArray));
+    }
 
     adminLoginBtn.addEventListener('click', async () => {
-      const val = adminPassInput.value;
-      const hashedVal = await sha256(val);
-      if (hashedVal === correctHash) {
+      const entered = adminPassInput.value.trim();
+      if (!entered) return;
+
+      const enteredHash = await hashPassword(entered);
+      if (enteredHash === passwordHash) {
         adminLoginError.style.display = 'none';
-        adminLoginEl.style.display = 'none';
-        adminPanelEl.style.display = 'flex';
+        adminLoginBox.style.display = 'none';
+        adminPanel.style.display = 'block';
         adminPassInput.value = '';
+        switchPage('admin');
       } else {
         adminLoginError.style.display = 'block';
       }
     });
 
-    logoutBtn.addEventListener('click', () => {
-      adminPanelEl.style.display = 'none';
-      adminLoginEl.style.display = 'flex';
+    adminLogoutBtn.addEventListener('click', () => {
+      adminLoginBox.style.display = 'block';
+      adminPanel.style.display = 'none';
+      switchPage('home');
     });
 
-    function showPage(name) {
-      pages.forEach(p => {
-        if (p.id === name) {
-          p.classList.add('active');
-          p.style.display = 'block';
-        } else {
-          p.classList.remove('active');
-          if (p.id !== 'release-detail') p.style.display = 'none';
-        }
-      });
-      // hide release-detail on normal page change
-      if (name !== 'release-detail') {
-        releaseDetail.style.display = 'none';
-      }
-    }
-
-    addTrackBtn.addEventListener('click', () => {
+    // Admin add tracks UI
+    function createTrackInput(index) {
       const div = document.createElement('div');
       div.style.marginBottom = '8px';
-      div.innerHTML = `
-        <input type="text" placeholder="Track Name" class="track-name" required style="width: 100%; margin-bottom: 4px;" />
-        <input type="url" placeholder="MP3 URL" class="track-url" required style="width: 100%;" />
-      `;
-      tracksContainer.appendChild(div);
+      div.style.display = 'flex';
+      div.style.gap = '8px';
+
+      const nameInput = document.createElement('input');
+      nameInput.type = 'text';
+      nameInput.placeholder = 'Track name';
+      nameInput.required = true;
+      nameInput.style.flex = '2';
+      nameInput.style.padding = '6px';
+      nameInput.style.borderRadius = '6px';
+      nameInput.style.border = 'none';
+      nameInput.style.fontFamily = "'IBM Plex Mono', monospace";
+
+      const urlInput = document.createElement('input');
+      urlInput.type = 'url';
+      urlInput.placeholder = 'MP3 URL';
+      urlInput.required = true;
+      urlInput.style.flex = '3';
+      urlInput.style.padding = '6px';
+      urlInput.style.borderRadius = '6px';
+      urlInput.style.border = 'none';
+      urlInput.style.fontFamily = "'IBM Plex Mono', monospace";
+
+      div.appendChild(nameInput);
+      div.appendChild(urlInput);
+
+      return { container: div, nameInput, urlInput };
+    }
+
+    function clearTracksContainer() {
+      tracksContainer.innerHTML = '';
+    }
+
+    let trackInputs = [];
+
+    addTrackBtn.addEventListener('click', () => {
+      const { container, nameInput, urlInput } = createTrackInput(trackInputs.length);
+      tracksContainer.appendChild(container);
+      trackInputs.push({ container, nameInput, urlInput });
     });
 
+    // Add first track input on page load
+    addTrackBtn.click();
+
+    // Upload release handler
     uploadReleaseBtn.addEventListener('click', () => {
-      const type = document.getElementById('release-type').value;
-      const art = document.getElementById('release-art-url').value.trim();
-      const artist = document.getElementById('release-artist-name').value.trim();
+      const type = releaseTypeSelect.value;
+      const artUrl = releaseArtInput.value.trim();
+      const artistName = releaseArtistInput.value.trim();
 
-      if (!art || !artist) {
-        alert('Album art URL and Artist name are required');
+      if (!artUrl || !artistName) {
+        alert('Please fill in Album Art URL and Artist Name');
         return;
       }
 
-      const trackNames = [...tracksContainer.querySelectorAll('.track-name')].map(i => i.value.trim());
-      const trackUrls = [...tracksContainer.querySelectorAll('.track-url')].map(i => i.value.trim());
+      const tracks = [];
+      for (const ti of trackInputs) {
+        const trackName = ti.nameInput.value.trim();
+        const trackUrl = ti.urlInput.value.trim();
 
-      if (trackNames.length === 0 || trackUrls.length === 0) {
-        alert('Add at least one track');
-        return;
-      }
-
-      for (let i = 0; i < trackNames.length; i++) {
-        if (!trackNames[i] || !trackUrls[i]) {
-          alert('All tracks must have name and url');
+        if (!trackName || !trackUrl) {
+          alert('Please fill in all track names and MP3 URLs');
           return;
         }
+
+        tracks.push({ name: trackName, url: trackUrl });
       }
 
+      if (tracks.length === 0) {
+        alert('Please add at least one track');
+        return;
+      }
+
+      // Add to releases
       releases[type].push({
-        art,
-        artist,
-        tracks: trackNames.map((name, i) => ({ name, url: trackUrls[i] }))
+        art: artUrl,
+        artist: artistName,
+        tracks: tracks,
+        type: type.slice(0, -1), // album/ep/single
       });
 
       saveReleases();
       renderReleases();
 
-      // Reset form
-      tracksContainer.innerHTML = '';
+      // Clear inputs and hide admin panel
+      releaseArtInput.value = '';
+      releaseArtistInput.value = '';
+      clearTracksContainer();
+      trackInputs = [];
       addTrackBtn.click();
-      document.getElementById('release-art-url').value = '';
-      document.getElementById('release-artist-name').value = '';
-
-      // Hide admin panel and show login
-      adminPanelEl.style.display = 'none';
-      adminLoginEl.style.display = 'flex';
-
-      alert('Release uploaded!');
-      showPage('home');
+      adminPanel.style.display = 'none';
+      adminLoginBox.style.display = 'block';
+      switchPage('home');
     });
 
-    function saveReleases() {
-      localStorage.setItem('yzyReleases', JSON.stringify(releases));
-    }
-
-    function loadReleases() {
-      const data = localStorage.getItem('yzyReleases');
-      if (data) {
-        releases = JSON.parse(data);
-      }
-    }
-
-    function renderReleases() {
-      albumsEl.innerHTML = '';
-      epsEl.innerHTML = '';
-      singlesEl.innerHTML = '';
-
-      function createReleaseCard(release, typeIndex, releaseIndex) {
-        const releaseDiv = document.createElement('div');
-        releaseDiv.classList.add('song-card');
-
-        const artImg = document.createElement('img');
-        artImg.src = release.art;
-        artImg.alt = release.artist;
-        artImg.style.cursor = 'pointer';
-
-        artImg.onclick = () => {
-          openReleaseDetail(typeIndex, releaseIndex);
-        };
-
-        const artistDiv = document.createElement('div');
-        artistDiv.textContent = release.artist;
-        artistDiv.className = 'artist-name';
-
-        releaseDiv.appendChild(artImg);
-        releaseDiv.appendChild(artistDiv);
-
-        return releaseDiv;
-      }
-
-      releases.albums.forEach((release, idx) => {
-        albumsEl.appendChild(createReleaseCard(release, 0, idx));
-      });
-
-      releases.eps.forEach((release, idx) => {
-        epsEl.appendChild(createReleaseCard(release, 1, idx));
-      });
-
-      releases.singles.forEach((release, idx) => {
-        singlesEl.appendChild(createReleaseCard(release, 2, idx));
-      });
-    }
-
-    // Set faded background color based on album art average color
-    function setReleaseBackgroundColor(imgUrl) {
-      const img = new Image();
-      img.crossOrigin = "Anonymous";
-      img.src = imgUrl;
-
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
-
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        let r = 0, g = 0, b = 0, count = 0;
-
-        for (let i = 0; i < imageData.data.length; i += 4) {
-          r += imageData.data[i];
-          g += imageData.data[i + 1];
-          b += imageData.data[i + 2];
-          count++;
+    // Sidebar nav
+    Object.entries(sidebarButtons).forEach(([key, btn]) => {
+      btn.addEventListener('click', () => {
+        if (key === 'admin') {
+          if (adminPanel.style.display === 'block') {
+            switchPage('admin');
+          } else {
+            switchPage('admin');
+          }
+        } else {
+          switchPage(key);
         }
-
-        r = Math.floor(r / count);
-        g = Math.floor(g / count);
-        b = Math.floor(b / count);
-
-        // Set background fade color with transparency
-        const bgFade = document.querySelector('#release-detail .background-fade');
-        bgFade.style.background = `rgba(${r},${g},${b},0.3)`;
-      };
-    }
-
-    // Show release detail with tracks and background fade
-    function openReleaseDetail(typeIndex, releaseIndex) {
-      const typeKeys = ['albums', 'eps', 'singles'];
-      const release = releases[typeKeys[typeIndex]][releaseIndex];
-
-      showPage('release-detail');
-      releaseDetail.style.display = 'block';
-
-      releaseArtLarge.src = release.art;
-      releaseArtistName.textContent = release.artist;
-      releaseTypeName.textContent = typeKeys[typeIndex].slice(0, -1).toUpperCase();
-
-      // Set background fade color
-      setReleaseBackgroundColor(release.art);
-
-      trackListEl.innerHTML = '';
-      release.tracks.forEach((track, idx) => {
-        const trackDiv = document.createElement('div');
-        trackDiv.textContent = track.name;
-        trackDiv.onclick = () => {
-          playTrack(typeIndex, releaseIndex, idx);
-          closeReleaseDetail();
-        };
-        trackListEl.appendChild(trackDiv);
       });
-    }
-
-    function closeReleaseDetail() {
-      releaseDetail.style.display = 'none';
-      showPage('home');
-    }
-
-    // Player functionality
-    function playTrack(typeIndex, releaseIndex, trackIndex) {
-      playlist = [];
-      const typeKeys = ['albums', 'eps', 'singles'];
-      const rel = releases[typeKeys[typeIndex]][releaseIndex];
-      playlist = rel.tracks.map(track => ({
-        ...track,
-        artist: rel.artist,
-        art: rel.art
-      }));
-      currentTrackIndex = trackIndex;
-      loadTrack();
-      playAudio();
-      showPage('home');
-    }
-
-    function loadTrack() {
-      if (currentTrackIndex < 0 || currentTrackIndex >= playlist.length) return;
-      const track = playlist[currentTrackIndex];
-      audio.src = track.url;
-      playerTrackName.textContent = track.name;
-      playerArtistName.textContent = track.artist;
-      playerArt.src = track.art;
-    }
-
-    function playAudio() {
-      audio.play();
-      playPauseBtn.innerHTML = '&#10074;&#10074;'; // pause icon
-    }
-
-    function pauseAudio() {
-      audio.pause();
-      playPauseBtn.innerHTML = '&#9654;'; // play icon
-    }
-
-    function togglePlay() {
-      if (audio.paused) playAudio();
-      else pauseAudio();
-    }
-
-    function playPrev() {
-      if (currentTrackIndex > 0) {
-        currentTrackIndex--;
-        loadTrack();
-        playAudio();
-      }
-    }
-
-    function playNext() {
-      if (currentTrackIndex < playlist.length - 1) {
-        currentTrackIndex++;
-        loadTrack();
-        playAudio();
-      }
-    }
-
-    // Progress bar update
-    audio.addEventListener('timeupdate', () => {
-      if (!audio.duration) return;
-      const percent = (audio.currentTime / audio.duration) * 100;
-      progressFilled.style.width = percent + '%';
-    });
-
-    // Seek on progress bar click
-    progressContainer.addEventListener('click', e => {
-      const rect = progressContainer.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      const width = rect.width;
-      const percent = clickX / width;
-      audio.currentTime = percent * audio.duration;
-    });
-
-    // Volume control
-    volumeSlider.addEventListener('input', e => {
-      audio.volume = e.target.value;
-    });
-
-    // Play/pause and skip buttons
-    playPauseBtn.addEventListener('click', togglePlay);
-    prevBtn.addEventListener('click', playPrev);
-    nextBtn.addEventListener('click', playNext);
-
-    // Auto next on end
-    audio.addEventListener('ended', () => {
-      if (currentTrackIndex < playlist.length - 1) {
-        currentTrackIndex++;
-        loadTrack();
-        playAudio();
-      } else {
-        pauseAudio();
-      }
     });
 
     // Initialize
     loadReleases();
     renderReleases();
+    resetPlayerInfo();
+
+    // Helpers
+    function playRelease(typeKey, index) {
+      currentReleaseType = typeKey;
+      currentReleaseIndex = index;
+      currentTrackIndex = 0;
+      playCurrentTrack();
+    }
   </script>
 </body>
 </html>
