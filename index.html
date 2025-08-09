@@ -2,30 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>YZY Player 02</title>
+  <title>YZY Player 03 beta</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Sans&family=Roboto&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap" rel="stylesheet" />
 
   <style>
     :root {
-      --font-roboto: "Roboto", sans-serif;
-      --font-ibm-plex-mono: "IBM Plex Mono", monospace;
-      --font-ibm-plex-sans: "IBM Plex Sans", sans-serif;
       --bg-color: #000;
       --text-color: #fff;
       --accent-color: #999;
       --accent-hover: #fff;
-      --progress-bg: #222;
-      --progress-fill: #fff;
+      --progress-bg: #282828;
+      --progress-fill: #1db954; /* Spotify green */
+      --player-bg: #181818;
     }
 
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: var(--font-ibm-plex-sans);
+      font-family: 'IBM Plex Mono', monospace !important;
       user-select: none;
     }
 
@@ -46,10 +44,10 @@
       display: flex;
       flex-direction: column;
       border-right: 1px solid #111;
+      font-family: 'IBM Plex Mono', monospace;
     }
 
     .sidebar h1 {
-      font-family: var(--font-roboto);
       font-size: 28px;
       margin-bottom: 4px;
     }
@@ -75,6 +73,7 @@
       cursor: pointer;
       padding: 8px 0;
       transition: color 0.3s ease;
+      font-family: 'IBM Plex Mono', monospace;
     }
 
     .nav-btn button:hover {
@@ -88,6 +87,10 @@
       overflow-y: auto;
       position: relative;
       margin-bottom: 80px; /* space for player bar */
+      scrollbar-width: none; /* Firefox */
+    }
+    .content::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Opera */
     }
 
     .page {
@@ -96,6 +99,7 @@
       position: absolute;
       width: 100%;
       transition: opacity 0.4s ease, transform 0.4s ease;
+      font-family: 'IBM Plex Mono', monospace;
     }
 
     .page.active {
@@ -114,6 +118,7 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
+      font-family: 'IBM Plex Mono', monospace;
     }
 
     .center-wrapper {
@@ -121,6 +126,7 @@
       align-items: center;
       justify-content: center;
       height: 100%;
+      font-family: 'IBM Plex Mono', monospace;
     }
 
     .center-box input,
@@ -131,22 +137,24 @@
       padding: 8px;
       border-radius: 4px;
       font-size: 14px;
+      font-family: 'IBM Plex Mono', monospace;
     }
 
     .center-box button {
-      background: #fff;
+      background: #1db954;
       color: #000;
-      padding: 8px;
+      padding: 10px;
       border: none;
       cursor: pointer;
-      border-radius: 4px;
+      border-radius: 20px;
       font-weight: bold;
       font-size: 14px;
       transition: background-color 0.3s ease;
+      font-family: 'IBM Plex Mono', monospace;
     }
 
     .center-box button:hover {
-      background: #ccc;
+      background: #1ed760;
     }
 
     /* Song Cards */
@@ -159,6 +167,7 @@
       margin: 10px;
       cursor: pointer;
       transition: background 0.3s ease;
+      font-family: 'IBM Plex Mono', monospace;
     }
 
     .song-card:hover {
@@ -188,66 +197,113 @@
       text-overflow: ellipsis;
     }
 
-    /* Player Bar */
+    /* Player Bar - Spotify style */
     .player-bar {
       position: fixed;
       bottom: 0;
       left: 220px;
       right: 0;
-      height: 60px;
-      background: #111;
-      border-top: 1px solid #222;
+      height: 90px;
+      background: var(--player-bg);
+      border-top: 1px solid #282828;
       display: flex;
       align-items: center;
       padding: 0 20px;
-      gap: 15px;
+      gap: 20px;
+      font-family: 'IBM Plex Mono', monospace;
       user-select: none;
       z-index: 1000;
+      color: #b3b3b3;
+    }
+
+    .player-bar .track-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      width: 30%;
+      min-width: 180px;
+    }
+
+    .player-bar .track-info img {
+      width: 60px;
+      height: 60px;
+      border-radius: 4px;
+    }
+
+    .player-bar .track-details {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .player-bar .track-name {
+      font-weight: 600;
+      color: white;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 14px;
+    }
+
+    .player-bar .artist-name {
+      font-size: 12px;
+      color: var(--accent-color);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 3px;
     }
 
     .player-bar .controls {
       display: flex;
       align-items: center;
-      gap: 15px;
+      justify-content: center;
+      gap: 20px;
+      width: 40%;
     }
 
     button.control-btn {
       background: none;
       border: none;
       color: var(--text-color);
-      font-size: 24px;
+      font-size: 28px;
       cursor: pointer;
       transition: color 0.25s ease;
     }
 
     button.control-btn:hover {
-      color: var(--accent-hover);
+      color: #1db954;
     }
 
     .progress-container {
       flex: 1;
-      height: 6px;
+      height: 4px;
       background: var(--progress-bg);
-      border-radius: 3px;
+      border-radius: 2px;
       cursor: pointer;
       position: relative;
+      margin: 0 10px;
+      align-self: center;
+      user-select: none;
     }
 
     .progress-filled {
       background: var(--progress-fill);
       height: 100%;
       width: 0%;
-      border-radius: 3px;
+      border-radius: 2px;
       transition: width 0.1s linear;
     }
 
     .time {
-      font-size: 12px;
+      font-size: 11px;
       width: 40px;
       text-align: center;
       color: var(--accent-color);
       user-select: none;
-      font-family: var(--font-ibm-plex-mono);
+      font-family: 'IBM Plex Mono', monospace;
+      user-select: none;
     }
 
     .volume-container {
@@ -257,15 +313,18 @@
       color: var(--text-color);
       cursor: pointer;
       position: relative;
+      width: 120px;
+      justify-content: flex-end;
     }
 
     .volume-icon {
       font-size: 18px;
       transition: color 0.3s ease;
+      color: var(--accent-color);
     }
 
     .volume-icon:hover {
-      color: var(--accent-hover);
+      color: #1db954;
     }
 
     .volume-slider {
@@ -275,7 +334,7 @@
       background: var(--progress-bg);
       border-radius: 2px;
       cursor: pointer;
-      transition: width 0.3s ease;
+      transition: background-color 0.3s ease;
     }
 
     .volume-slider::-webkit-slider-thumb {
@@ -283,7 +342,7 @@
       appearance: none;
       width: 14px;
       height: 14px;
-      background: var(--accent-hover);
+      background: #1db954;
       cursor: pointer;
       border-radius: 50%;
       border: none;
@@ -293,13 +352,12 @@
     .volume-slider::-moz-range-thumb {
       width: 14px;
       height: 14px;
-      background: var(--accent-hover);
+      background: #1db954;
       cursor: pointer;
       border-radius: 50%;
       border: none;
       transition: background-color 0.3s ease;
     }
-
   </style>
 </head>
 <body>
@@ -372,6 +430,14 @@
 
   <!-- Player Bar -->
   <div class="player-bar">
+    <div class="track-info">
+      <img id="player-art" src="" alt="Album Art" />
+      <div class="track-details">
+        <div class="track-name" id="player-track-name">Not Playing</div>
+        <div class="artist-name" id="player-artist-name">---</div>
+      </div>
+    </div>
+
     <div class="controls">
       <button class="control-btn" id="prev-btn" title="Previous">&#9664;&#9664;</button>
       <button class="control-btn" id="play-pause-btn" title="Play/Pause">&#9654;</button>
@@ -409,7 +475,10 @@
     const progressContainer = document.getElementById('progress-container');
     const progressFilled = document.getElementById('progress-filled');
     const volumeSlider = document.getElementById('volume-slider');
-    const nowPlaying = document.getElementById('now-playing');
+
+    const playerArt = document.getElementById('player-art');
+    const playerTrackName = document.getElementById('player-track-name');
+    const playerArtistName = document.getElementById('player-artist-name');
 
     let releases = JSON.parse(localStorage.getItem('yzyReleases')) || {
       albums: [],
@@ -420,13 +489,11 @@
     let playlist = [];
     let currentTrackIndex = -1;
 
-    // Show page
     function showPage(pageId) {
       pages.forEach(page => page.classList.remove('active'));
       document.getElementById(pageId).classList.add('active');
     }
 
-    // Admin login
     function checkPassword() {
       const pass = document.getElementById('admin-pass').value;
       if (pass === 'CUCK') {
@@ -437,7 +504,6 @@
       }
     }
 
-    // Add track input pair
     function addTrack() {
       const div = document.createElement('div');
       div.style.marginTop = '10px';
@@ -448,7 +514,6 @@
       document.getElementById('tracks').appendChild(div);
     }
 
-    // Upload release
     function uploadRelease() {
       const type = document.getElementById('release-type').value;
       const artist = document.getElementById('artist-name').value.trim();
@@ -467,7 +532,6 @@
         return;
       }
 
-      // Build release object
       const release = {
         artist,
         art,
@@ -485,11 +549,10 @@
       saveReleases();
       renderReleases();
 
-      // Reset form (keep admin panel open)
+      // Reset form
       document.getElementById('artist-name').value = '';
       document.getElementById('album-art').value = '';
-      const tracksDiv = document.getElementById('tracks');
-      tracksDiv.innerHTML = `
+      document.getElementById('tracks').innerHTML = `
         <input type="text" placeholder="Track Name" class="track-name" required />
         <input type="url" placeholder="MP3 URL" class="track-url" required />
       `;
@@ -497,12 +560,10 @@
       alert('Release uploaded!');
     }
 
-    // Save releases to localStorage
     function saveReleases() {
       localStorage.setItem('yzyReleases', JSON.stringify(releases));
     }
 
-    // Render all releases on the Home page
     function renderReleases() {
       [albumsEl, epsEl, singlesEl].forEach(el => (el.innerHTML = ''));
 
@@ -518,38 +579,31 @@
 
         const artImg = document.createElement('img');
         artImg.src = release.art;
-        artImg.alt = `${release.artist} art`;
-        artImg.style.width = '150px';
-        artImg.style.borderRadius = '8px';
-        artImg.style.display = 'block';
+        artImg.style.width = '160px';
+        artImg.style.height = '160px';
+        artImg.style.borderRadius = '12px';
+        artImg.style.objectFit = 'cover';
         artImg.style.marginBottom = '10px';
         releaseDiv.appendChild(artImg);
 
-        // Tracks container
         const tracksContainer = document.createElement('div');
         tracksContainer.style.display = 'flex';
         tracksContainer.style.flexDirection = 'column';
-        tracksContainer.style.gap = '6px';
+        tracksContainer.style.gap = '8px';
 
         release.tracks.forEach((track, trackIndex) => {
           const trackDiv = document.createElement('div');
-          trackDiv.classList.add('song-card');
-          trackDiv.style.width = 'auto';
           trackDiv.style.display = 'flex';
-          trackDiv.style.alignItems = 'center';
-          trackDiv.style.gap = '10px';
-          trackDiv.style.padding = '6px 12px';
           trackDiv.style.cursor = 'pointer';
-          trackDiv.style.background = '#222';
-          trackDiv.style.borderRadius = '6px';
+          trackDiv.style.alignItems = 'center';
+          trackDiv.style.gap = '12px';
 
           const trackArt = document.createElement('img');
           trackArt.src = release.art;
-          trackArt.alt = 'Track art';
           trackArt.style.width = '50px';
           trackArt.style.height = '50px';
-          trackArt.style.borderRadius = '6px';
-          trackArt.style.flexShrink = '0';
+          trackArt.style.borderRadius = '8px';
+          trackArt.style.objectFit = 'cover';
 
           const trackInfo = document.createElement('div');
           trackInfo.style.flex = '1';
@@ -622,7 +676,9 @@
       if (currentTrackIndex < 0 || currentTrackIndex >= playlist.length) return;
       const track = playlist[currentTrackIndex];
       audio.src = track.url;
-      nowPlaying.textContent = `${track.name} — ${track.artist}`;
+      playerArt.src = track.art;
+      playerTrackName.textContent = track.name;
+      playerArtistName.textContent = track.artist;
     }
 
     function playAudio() {
