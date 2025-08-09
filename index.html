@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>YZY Player</title>
+  <title>YZY Player beta 01</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- Fonts -->
@@ -76,7 +76,7 @@
       color: var(--accent-color);
     }
 
-    /* Main Content */
+    /* Content */
     .content {
       flex: 1;
       padding: 20px;
@@ -98,16 +98,48 @@
       position: relative;
     }
 
-    h2 {
-      margin-bottom: 10px;
-      font-size: 22px;
+    /* Centered Square Modal */
+    .center-box {
+      background: #111;
+      padding: 20px;
+      border-radius: 8px;
+      width: 400px;
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
-    .section {
-      margin-bottom: 30px;
+    .center-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
     }
 
-    /* Song Card */
+    .center-box input, .center-box select {
+      background: #000;
+      border: 1px solid #333;
+      color: #fff;
+      padding: 8px;
+      border-radius: 4px;
+    }
+
+    .center-box button {
+      background: #fff;
+      color: #000;
+      padding: 8px;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    .center-box button:hover {
+      background: #ccc;
+    }
+
+    /* Song Cards */
     .song-card {
       background: #111;
       padding: 10px;
@@ -140,65 +172,24 @@
       color: var(--accent-color);
     }
 
-    /* Admin Login */
-    .admin-login {
-      max-width: 300px;
+    /* Player Bar */
+    .player-bar {
+      position: fixed;
+      bottom: 0;
+      left: 220px;
+      right: 0;
       background: #111;
-      padding: 20px;
-      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-top: 1px solid #222;
     }
 
-    .admin-login input {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 10px;
-      background: #000;
-      border: 1px solid #333;
-      color: #fff;
-      border-radius: 4px;
+    .player-bar audio {
+      flex: 1;
     }
 
-    .admin-login button {
-      background: #fff;
-      color: #000;
-      padding: 8px;
-      border: none;
-      width: 100%;
-      cursor: pointer;
-      border-radius: 4px;
-      font-weight: bold;
-    }
-
-    .admin-login button:hover {
-      background: #ccc;
-    }
-
-    /* Admin Upload Form */
-    .upload-form input, .upload-form button {
-      display: block;
-      width: 100%;
-      padding: 8px;
-      margin: 5px 0;
-      border-radius: 4px;
-      border: none;
-    }
-
-    .upload-form input {
-      background: #000;
-      border: 1px solid #333;
-      color: #fff;
-    }
-
-    .upload-form button {
-      background: #fff;
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .upload-form button:hover {
-      background: #ccc;
-    }
   </style>
 </head>
 <body>
@@ -217,9 +208,11 @@
     <!-- HOME -->
     <div id="home" class="page active">
       <h2>Albums</h2>
-      <div class="section" id="album-section">
-        <!-- Songs will appear here -->
-      </div>
+      <div id="albums"></div>
+      <h2>EPs</h2>
+      <div id="eps"></div>
+      <h2>Singles</h2>
+      <div id="singles"></div>
     </div>
 
     <!-- LIKED -->
@@ -236,21 +229,41 @@
 
     <!-- ADMIN -->
     <div id="admin" class="page">
-      <div id="admin-login" class="admin-login">
-        <h2>Admin Login</h2>
-        <input type="password" id="admin-pass" placeholder="Enter Password">
-        <button onclick="checkPassword()">Login</button>
+      <!-- Login -->
+      <div id="admin-login" class="center-wrapper">
+        <div class="center-box">
+          <h2>Admin Login</h2>
+          <input type="password" id="admin-pass" placeholder="Enter Password">
+          <button onclick="checkPassword()">Login</button>
+        </div>
       </div>
-      <div id="admin-panel" class="hidden">
-        <h2>Upload Song</h2>
-        <form class="upload-form" onsubmit="uploadSong(event)">
-          <input type="text" id="song-name" placeholder="Song Name" required>
+      <!-- Upload Form -->
+      <div id="admin-panel" class="center-wrapper" style="display:none;">
+        <div class="center-box">
+          <h2>Upload Release</h2>
+          <select id="release-type">
+            <option value="albums">Album</option>
+            <option value="eps">EP</option>
+            <option value="singles">Single</option>
+          </select>
           <input type="text" id="artist-name" placeholder="Artist Name" required>
-          <input type="url" id="song-art" placeholder="Artwork Image URL" required>
-          <button type="submit">Upload</button>
-        </form>
+          <input type="url" id="album-art" placeholder="Album Art URL" required>
+
+          <div id="tracks">
+            <input type="text" placeholder="Track Name" class="track-name">
+            <input type="url" placeholder="MP3 URL" class="track-url">
+          </div>
+          <button type="button" onclick="addTrack()">Add Another Track</button>
+          <button type="button" onclick="uploadRelease()">Upload Release</button>
+        </div>
       </div>
     </div>
+  </div>
+
+  <!-- Player -->
+  <div class="player-bar">
+    <span id="now-playing">Not playing</span>
+    <audio id="audio-player" controls></audio>
   </div>
 
   <script>
@@ -265,28 +278,55 @@
       const pass = document.getElementById("admin-pass").value;
       if (pass === "CUCK") {
         document.getElementById("admin-login").style.display = "none";
-        document.getElementById("admin-panel").classList.remove("hidden");
+        document.getElementById("admin-panel").style.display = "flex";
       } else {
         alert("Incorrect password.");
       }
     }
 
-    function uploadSong(e) {
-      e.preventDefault();
-      const songName = document.getElementById("song-name").value;
-      const artistName = document.getElementById("artist-name").value;
-      const songArt = document.getElementById("song-art").value;
+    function addTrack() {
+      const trackDiv = document.createElement("div");
+      trackDiv.innerHTML = `
+        <input type="text" placeholder="Track Name" class="track-name">
+        <input type="url" placeholder="MP3 URL" class="track-url">
+      `;
+      document.getElementById("tracks").appendChild(trackDiv);
+    }
 
-      const songCard = document.createElement("div");
-      songCard.classList.add("song-card");
-      songCard.innerHTML = `
-        <img src="${songArt}" alt="${songName}">
+    function uploadRelease() {
+      const type = document.getElementById("release-type").value;
+      const artist = document.getElementById("artist-name").value;
+      const art = document.getElementById("album-art").value;
+      const trackNames = document.querySelectorAll(".track-name");
+      const trackUrls = document.querySelectorAll(".track-url");
+
+      for (let i = 0; i < trackNames.length; i++) {
+        const name = trackNames[i].value;
+        const url = trackUrls[i].value;
+        if (name && url) {
+          addSongCard(type, art, name, artist, url);
+        }
+      }
+
+      alert("Release uploaded!");
+      document.getElementById("admin-panel").style.display = "none";
+    }
+
+    function addSongCard(sectionId, art, songName, artistName, mp3Url) {
+      const card = document.createElement("div");
+      card.classList.add("song-card");
+      card.innerHTML = `
+        <img src="${art}">
         <div class="song-name">${songName}</div>
         <div class="artist-name">${artistName}</div>
       `;
-      document.getElementById("album-section").appendChild(songCard);
-
-      document.querySelector(".upload-form").reset();
+      card.onclick = () => {
+        document.getElementById("now-playing").textContent = `${songName} - ${artistName}`;
+        const audio = document.getElementById("audio-player");
+        audio.src = mp3Url;
+        audio.play();
+      };
+      document.getElementById(sectionId).appendChild(card);
     }
   </script>
 </body>
