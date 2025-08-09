@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>YZY Player 03 beta</title>
+  <title>YZY Player</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- Fonts -->
@@ -86,7 +86,7 @@
       padding: 20px;
       overflow-y: auto;
       position: relative;
-      margin-bottom: 80px; /* space for player bar */
+      margin-bottom: 110px; /* space for player bar */
       scrollbar-width: none; /* Firefox */
     }
     .content::-webkit-scrollbar {
@@ -197,56 +197,76 @@
       text-overflow: ellipsis;
     }
 
-    /* Player Bar - Spotify style */
+    /* Player Bar */
     .player-bar {
       position: fixed;
       bottom: 0;
       left: 220px;
       right: 0;
-      height: 90px;
+      height: 110px;
       background: var(--player-bg);
       border-top: 1px solid #282828;
       display: flex;
-      align-items: center;
-      padding: 0 20px;
-      gap: 20px;
+      flex-direction: column;
+      padding: 10px 30px;
       font-family: 'IBM Plex Mono', monospace;
       user-select: none;
       z-index: 1000;
       color: #b3b3b3;
     }
 
-    .player-bar .track-info {
+    .player-top-row {
       display: flex;
       align-items: center;
-      gap: 15px;
-      width: 30%;
-      min-width: 180px;
+      justify-content: space-between;
+      position: relative;
+      padding-bottom: 10px;
     }
 
-    .player-bar .track-info img {
-      width: 60px;
-      height: 60px;
-      border-radius: 4px;
+    .player-top-row button.control-btn {
+      background: none;
+      border: none;
+      color: var(--text-color);
+      font-size: 32px;
+      cursor: pointer;
+      transition: color 0.25s ease;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .player-bar .track-details {
+    .player-top-row button.control-btn:hover {
+      color: #1db954;
+    }
+
+    .play-pause-container {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .track-info-short {
       display: flex;
       flex-direction: column;
       justify-content: center;
+      max-width: 300px;
       overflow: hidden;
+      color: var(--text-color);
+      font-size: 14px;
+      cursor: default;
     }
 
-    .player-bar .track-name {
+    .track-info-short .track-name {
       font-weight: 600;
-      color: white;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      font-size: 14px;
+      color: white;
     }
 
-    .player-bar .artist-name {
+    .track-info-short .artist-name {
       font-size: 12px;
       color: var(--accent-color);
       white-space: nowrap;
@@ -255,84 +275,48 @@
       margin-top: 3px;
     }
 
-    .player-bar .controls {
+    .player-bottom-row {
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 20px;
-      width: 40%;
-    }
-
-    button.control-btn {
-      background: none;
-      border: none;
-      color: var(--text-color);
-      font-size: 28px;
-      cursor: pointer;
-      transition: color 0.25s ease;
-    }
-
-    button.control-btn:hover {
-      color: #1db954;
+      justify-content: space-between;
+      gap: 10px;
     }
 
     .progress-container {
       flex: 1;
-      height: 4px;
+      height: 6px;
       background: var(--progress-bg);
-      border-radius: 2px;
+      border-radius: 3px;
       cursor: pointer;
       position: relative;
-      margin: 0 10px;
-      align-self: center;
       user-select: none;
+      margin-right: 10px;
     }
 
     .progress-filled {
       background: var(--progress-fill);
       height: 100%;
       width: 0%;
-      border-radius: 2px;
+      border-radius: 3px;
       transition: width 0.1s linear;
-    }
-
-    .time {
-      font-size: 11px;
-      width: 40px;
-      text-align: center;
-      color: var(--accent-color);
-      user-select: none;
-      font-family: 'IBM Plex Mono', monospace;
-      user-select: none;
     }
 
     .volume-container {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       color: var(--text-color);
       cursor: pointer;
-      position: relative;
       width: 120px;
       justify-content: flex-end;
-    }
-
-    .volume-icon {
-      font-size: 18px;
-      transition: color 0.3s ease;
-      color: var(--accent-color);
-    }
-
-    .volume-icon:hover {
-      color: #1db954;
     }
 
     .volume-slider {
       width: 100px;
       -webkit-appearance: none;
-      height: 4px;
+      height: 6px;
       background: var(--progress-bg);
-      border-radius: 2px;
+      border-radius: 3px;
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
@@ -340,18 +324,19 @@
     .volume-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: 14px;
-      height: 14px;
+      width: 16px;
+      height: 16px;
       background: #1db954;
       cursor: pointer;
       border-radius: 50%;
       border: none;
       transition: background-color 0.3s ease;
+      margin-top: -5px;
     }
 
     .volume-slider::-moz-range-thumb {
-      width: 14px;
-      height: 14px;
+      width: 16px;
+      height: 16px;
       background: #1db954;
       cursor: pointer;
       border-radius: 50%;
@@ -430,31 +415,32 @@
 
   <!-- Player Bar -->
   <div class="player-bar">
-    <div class="track-info">
-      <img id="player-art" src="" alt="Album Art" />
-      <div class="track-details">
+    <div class="player-top-row">
+      <button class="control-btn" id="prev-btn" title="Previous">&#9664;&#9664;</button>
+      <div class="play-pause-container">
+        <button class="control-btn" id="play-pause-btn" title="Play/Pause">&#9654;</button>
+      </div>
+      <button class="control-btn" id="next-btn" title="Next">&#9654;&#9654;</button>
+      <div class="track-info-short">
         <div class="track-name" id="player-track-name">Not Playing</div>
         <div class="artist-name" id="player-artist-name">---</div>
       </div>
     </div>
-
-    <div class="controls">
-      <button class="control-btn" id="prev-btn" title="Previous">&#9664;&#9664;</button>
-      <button class="control-btn" id="play-pause-btn" title="Play/Pause">&#9654;</button>
-      <button class="control-btn" id="next-btn" title="Next">&#9654;&#9654;</button>
-    </div>
-
-    <div class="time" id="current-time">0:00</div>
-
-    <div class="progress-container" id="progress-container">
-      <div class="progress-filled" id="progress-filled"></div>
-    </div>
-
-    <div class="time" id="duration">0:00</div>
-
-    <div class="volume-container" title="Volume">
-      <span class="volume-icon">&#128266;</span>
-      <input type="range" id="volume-slider" class="volume-slider" min="0" max="1" step="0.01" value="1" />
+    <div class="player-bottom-row">
+      <div class="progress-container" id="progress-container">
+        <div class="progress-filled" id="progress-filled"></div>
+      </div>
+      <div class="volume-container" title="Volume">
+        <input
+          type="range"
+          id="volume-slider"
+          class="volume-slider"
+          min="0"
+          max="1"
+          step="0.01"
+          value="1"
+        />
+      </div>
     </div>
   </div>
 
@@ -470,13 +456,10 @@
     const playPauseBtn = document.getElementById('play-pause-btn');
     const prevBtn = document.getElementById('prev-btn');
     const nextBtn = document.getElementById('next-btn');
-    const currentTimeEl = document.getElementById('current-time');
-    const durationEl = document.getElementById('duration');
     const progressContainer = document.getElementById('progress-container');
     const progressFilled = document.getElementById('progress-filled');
     const volumeSlider = document.getElementById('volume-slider');
 
-    const playerArt = document.getElementById('player-art');
     const playerTrackName = document.getElementById('player-track-name');
     const playerArtistName = document.getElementById('player-artist-name');
 
@@ -527,7 +510,12 @@
       const trackNames = Array.from(document.querySelectorAll('.track-name')).map(input => input.value.trim());
       const trackUrls = Array.from(document.querySelectorAll('.track-url')).map(input => input.value.trim());
 
-      if (trackNames.length === 0 || trackNames.some(name => name === '') || trackUrls.length === 0 || trackUrls.some(url => url === '')) {
+      if (
+        trackNames.length === 0 ||
+        trackNames.some(name => name === '') ||
+        trackUrls.length === 0 ||
+        trackUrls.some(url => url === '')
+      ) {
         alert('All track names and MP3 URLs are required.');
         return;
       }
@@ -556,88 +544,47 @@
         <input type="text" placeholder="Track Name" class="track-name" required />
         <input type="url" placeholder="MP3 URL" class="track-url" required />
       `;
-
       alert('Release uploaded!');
+
+      // Hide admin panel and show login again
+      document.getElementById('admin-panel').style.display = 'none';
+      document.getElementById('admin-login').style.display = 'flex';
+      document.getElementById('admin-pass').value = '';
+      showPage('home');
     }
 
     function saveReleases() {
       localStorage.setItem('yzyReleases', JSON.stringify(releases));
     }
 
+    // Render releases with only art + artist name (no tracks)
     function renderReleases() {
-      [albumsEl, epsEl, singlesEl].forEach(el => (el.innerHTML = ''));
+      albumsEl.innerHTML = '';
+      epsEl.innerHTML = '';
+      singlesEl.innerHTML = '';
 
       function createReleaseCard(release, typeIndex, releaseIndex) {
         const releaseDiv = document.createElement('div');
-        releaseDiv.style.marginBottom = '30px';
-
-        const title = document.createElement('h3');
-        title.textContent = release.artist;
-        title.style.color = '#ccc';
-        title.style.marginBottom = '8px';
-        releaseDiv.appendChild(title);
+        releaseDiv.classList.add('song-card');
+        releaseDiv.style.width = '160px';
 
         const artImg = document.createElement('img');
         artImg.src = release.art;
-        artImg.style.width = '160px';
-        artImg.style.height = '160px';
+        artImg.alt = release.artist;
         artImg.style.borderRadius = '12px';
         artImg.style.objectFit = 'cover';
-        artImg.style.marginBottom = '10px';
+        artImg.style.cursor = 'pointer';
+
+        artImg.onclick = () => {
+          openReleaseDetail(typeIndex, releaseIndex);
+        };
+
+        const artistDiv = document.createElement('div');
+        artistDiv.textContent = release.artist;
+        artistDiv.className = 'artist-name';
+
         releaseDiv.appendChild(artImg);
-
-        const tracksContainer = document.createElement('div');
-        tracksContainer.style.display = 'flex';
-        tracksContainer.style.flexDirection = 'column';
-        tracksContainer.style.gap = '8px';
-
-        release.tracks.forEach((track, trackIndex) => {
-          const trackDiv = document.createElement('div');
-          trackDiv.style.display = 'flex';
-          trackDiv.style.cursor = 'pointer';
-          trackDiv.style.alignItems = 'center';
-          trackDiv.style.gap = '12px';
-
-          const trackArt = document.createElement('img');
-          trackArt.src = release.art;
-          trackArt.style.width = '50px';
-          trackArt.style.height = '50px';
-          trackArt.style.borderRadius = '8px';
-          trackArt.style.objectFit = 'cover';
-
-          const trackInfo = document.createElement('div');
-          trackInfo.style.flex = '1';
-          trackInfo.style.overflow = 'hidden';
-
-          const trackNameDiv = document.createElement('div');
-          trackNameDiv.textContent = track.name;
-          trackNameDiv.style.fontWeight = 'bold';
-          trackNameDiv.style.whiteSpace = 'nowrap';
-          trackNameDiv.style.overflow = 'hidden';
-          trackNameDiv.style.textOverflow = 'ellipsis';
-
-          const artistNameDiv = document.createElement('div');
-          artistNameDiv.textContent = release.artist;
-          artistNameDiv.style.fontSize = '12px';
-          artistNameDiv.style.color = 'var(--accent-color)';
-          artistNameDiv.style.whiteSpace = 'nowrap';
-          artistNameDiv.style.overflow = 'hidden';
-          artistNameDiv.style.textOverflow = 'ellipsis';
-
-          trackInfo.appendChild(trackNameDiv);
-          trackInfo.appendChild(artistNameDiv);
-
-          trackDiv.appendChild(trackArt);
-          trackDiv.appendChild(trackInfo);
-
-          trackDiv.onclick = () => {
-            playTrack(typeIndex, releaseIndex, trackIndex);
-          };
-
-          tracksContainer.appendChild(trackDiv);
-        });
-
-        releaseDiv.appendChild(tracksContainer);
+        releaseDiv.appendChild(artistDiv);
 
         return releaseDiv;
       }
@@ -645,26 +592,92 @@
       releases.albums.forEach((release, idx) => {
         albumsEl.appendChild(createReleaseCard(release, 0, idx));
       });
+
       releases.eps.forEach((release, idx) => {
         epsEl.appendChild(createReleaseCard(release, 1, idx));
       });
+
       releases.singles.forEach((release, idx) => {
         singlesEl.appendChild(createReleaseCard(release, 2, idx));
       });
     }
 
-    // Playlist helpers
+    // Show release detail page with tracks & big art
+    function openReleaseDetail(typeIndex, releaseIndex) {
+      const typeKeys = ['albums', 'eps', 'singles'];
+      const release = releases[typeKeys[typeIndex]][releaseIndex];
+
+      const content = document.querySelector('.content');
+      // Clear existing pages active class and hide all except home for now
+      pages.forEach(p => p.classList.remove('active'));
+
+      // Create or select release detail container
+      let detailPage = document.getElementById('release-detail');
+      if (!detailPage) {
+        detailPage = document.createElement('div');
+        detailPage.id = 'release-detail';
+        detailPage.classList.add('page', 'active');
+        content.appendChild(detailPage);
+      }
+      detailPage.classList.add('active');
+      detailPage.innerHTML = `
+        <button onclick="closeReleaseDetail()" style="margin-bottom:20px; background:none; border:none; color:#999; cursor:pointer; font-family: 'IBM Plex Mono', monospace;">← Back to releases</button>
+        <div style="text-align:center; color:#ccc;">
+          <img src="${release.art}" alt="${release.artist}" style="width: 240px; border-radius: 12px; margin-bottom: 12px; object-fit: cover;" />
+          <div style="font-weight:bold; font-size: 22px; margin-bottom: 6px; color:#fff;">${release.artist}</div>
+          <div style="color:#aaa; font-size:14px; margin-bottom: 20px;">${typeKeys[typeIndex].slice(0, -1).toUpperCase()}</div>
+          <div id="track-list" style="max-width: 600px; margin: 0 auto; text-align: left;"></div>
+        </div>
+      `;
+
+      const trackListEl = detailPage.querySelector('#track-list');
+      release.tracks.forEach((track, idx) => {
+        const trackDiv = document.createElement('div');
+        trackDiv.style.padding = '8px';
+        trackDiv.style.borderBottom = '1px solid #222';
+        trackDiv.style.color = '#ccc';
+        trackDiv.style.cursor = 'pointer';
+        trackDiv.style.display = 'flex';
+        trackDiv.style.justifyContent = 'space-between';
+        trackDiv.style.alignItems = 'center';
+
+        const trackNameDiv = document.createElement('div');
+        trackNameDiv.textContent = track.name;
+        trackNameDiv.style.fontWeight = '500';
+        trackNameDiv.style.flex = '1';
+        trackNameDiv.style.whiteSpace = 'nowrap';
+        trackNameDiv.style.overflow = 'hidden';
+        trackNameDiv.style.textOverflow = 'ellipsis';
+
+        trackDiv.appendChild(trackNameDiv);
+
+        // Play track on click
+        trackDiv.onclick = () => {
+          playTrack(typeIndex, releaseIndex, idx);
+          closeReleaseDetail();
+        };
+
+        trackListEl.appendChild(trackDiv);
+      });
+    }
+
+    function closeReleaseDetail() {
+      const detailPage = document.getElementById('release-detail');
+      if (detailPage) {
+        detailPage.classList.remove('active');
+      }
+      showPage('home');
+    }
+
+    // Play controls
     function playTrack(typeIndex, releaseIndex, trackIndex) {
       playlist = [];
-      // Build playlist for this release only
       const typeKeys = ['albums', 'eps', 'singles'];
       const rel = releases[typeKeys[typeIndex]][releaseIndex];
       playlist = rel.tracks.map(track => ({
         ...track,
         artist: rel.artist,
         art: rel.art,
-        releaseType: typeKeys[typeIndex],
-        releaseIndex
       }));
       currentTrackIndex = trackIndex;
       loadTrack();
@@ -676,7 +689,6 @@
       if (currentTrackIndex < 0 || currentTrackIndex >= playlist.length) return;
       const track = playlist[currentTrackIndex];
       audio.src = track.url;
-      playerArt.src = track.art;
       playerTrackName.textContent = track.name;
       playerArtistName.textContent = track.artist;
     }
@@ -724,11 +736,9 @@
       if (!audio.duration) return;
       const percent = (audio.currentTime / audio.duration) * 100;
       progressFilled.style.width = percent + '%';
-      currentTimeEl.textContent = formatTime(audio.currentTime);
-      durationEl.textContent = formatTime(audio.duration);
     });
 
-    // Seek when clicking progress bar
+    // Seek on progress bar click
     progressContainer.addEventListener('click', e => {
       const rect = progressContainer.getBoundingClientRect();
       const clickX = e.clientX - rect.left;
@@ -742,12 +752,12 @@
       audio.volume = e.target.value;
     });
 
-    // Play/pause button
+    // Play/pause toggle
     playPauseBtn.addEventListener('click', togglePlay);
     prevBtn.addEventListener('click', playPrev);
     nextBtn.addEventListener('click', playNext);
 
-    // When song ends, auto play next if available
+    // Auto next track on end
     audio.addEventListener('ended', () => {
       if (currentTrackIndex < playlist.length - 1) {
         currentTrackIndex++;
@@ -758,7 +768,7 @@
       }
     });
 
-    // Initial render
+    // Initialize
     renderReleases();
   </script>
 </body>
