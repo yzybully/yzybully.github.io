@@ -233,7 +233,7 @@ const adminPanel = document.getElementById('adminPanel');
 const addTrackBtn = document.getElementById('addTrack');
 const tracksContainer = document.getElementById('tracksContainer');
 const submitReleaseBtn = document.getElementById('submitRelease');
-const adminPasswordHash = '5D02B4470D7AB796C1BB7126D8A7E3E49B4367CFED3D6452BB3A1CFA0D25F4B1';
+const adminPasswordHash = 'A429E92B23C46D7B0C1C7C7736F35D8ED3EBEF30C11E7B832F7E2B88F83C59FA';
 
 async function hashPassword(str){
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
