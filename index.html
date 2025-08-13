@@ -59,228 +59,176 @@
   </style>
 </head>
 <body>
-  <div class="app">
-    <aside class="sidebar">
-      <div>
-        <div class="brand">YZYPLAYER</div>
-        <div class="muted">HTTPS://DISCORD.GG/5Q C4NQMPDV</div>
+<div class="app">
+  <aside class="sidebar">
+    <div>
+      <div class="brand">YZYPLAYER</div>
+      <div class="muted">HTTPS://DISCORD.GG/5QC4NQMPDV</div>
+    </div>
+    <nav class="nav">
+      <a href="#home" class="btn" data-route="home">HOME</a>
+      <a href="#profile" class="btn" data-route="profile">PROFILE</a>
+      <a href="#liked" class="btn" data-route="liked">LIKED SONGS</a>
+      <a href="#admin" class="btn" data-route="admin">ADMIN PANEL</a>
+    </nav>
+  </aside>
+  <main class="main">
+    <section id="home" class="page show">
+      <div class="section">
+        <h2>ALBUMS</h2>
+        <div id="albums" class="grid"></div>
       </div>
-      <nav class="nav">
-        <a href="#home" class="btn" data-route="home">HOME</a>
-        <a href="#profile" class="btn" data-route="profile">PROFILE</a>
-        <a href="#liked" class="btn" data-route="liked">LIKED SONGS</a>
-        <a href="#admin" class="btn" data-route="admin">ADMIN PANEL</a>
-      </nav>
-    </aside>
-    <main class="main">
-      <section id="home" class="page show">
-        <div class="section">
-          <h2>ALBUMS</h2>
-          <div id="albums" class="grid"></div>
+      <div class="section">
+        <h2>EPS</h2>
+        <div id="eps" class="grid"></div>
+      </div>
+      <div class="section">
+        <h2>SINGLES</h2>
+        <div id="singles" class="grid"></div>
+      </div>
+      <div class="spacer"></div>
+    </section>
+    <section id="profile" class="page"><div class="empty">COMING SOON</div></section>
+    <section id="liked" class="page"><div id="likedGrid" class="grid"></div><div class="spacer"></div></section>
+    <section id="admin" class="page">
+      <div id="adminGate" class="login">
+        <div class="field">
+          <label>PASSWORD</label>
+          <input id="adminPassword" type="password" placeholder="ENTER PASSWORD" autocomplete="current-password" />
+          <button id="adminLogin" class="submit">ENTER</button>
+          <div id="loginHint" class="hint"></div>
         </div>
-        <div class="section">
-          <h2>EPS</h2>
-          <div id="eps" class="grid"></div>
+      </div>
+      <div id="adminForm" class="admin" style="display:none">
+        <div class="row">
+          <div class="field"><label>TITLE</label><input id="fTitle" placeholder="TITLE" /></div>
+          <div class="field"><label>ARTIST</label><input id="fArtist" placeholder="ARTIST" /></div>
         </div>
-        <div class="section">
-          <h2>SINGLES</h2>
-          <div id="singles" class="grid"></div>
-        </div>
-        <div class="spacer"></div>
-      </section>
-      <section id="profile" class="page"><div class="empty">COMING SOON</div></section>
-      <section id="liked" class="page"><div id="likedGrid" class="grid"></div><div class="spacer"></div></section>
-      <section id="admin" class="page">
-        <div id="adminGate" class="login">
-          <div class="field">
-            <label>PASSWORD</label>
-            <input id="adminPassword" type="password" placeholder="ENTER PASSWORD" autocomplete="current-password" />
-            <button id="adminLogin" class="submit">ENTER</button>
-            <div id="loginHint" class="hint"></div>
+        <div class="row">
+          <div class="field"><label>TYPE</label>
+            <select id="fType">
+              <option value="ALBUM">ALBUM</option>
+              <option value="EP">EP</option>
+              <option value="SINGLE">SINGLE</option>
+            </select>
           </div>
+          <div class="field"><label>ALBUM NAME</label><input id="fAlbum" placeholder="OPTIONAL" /></div>
         </div>
-        <div id="adminForm" class="admin" style="display:none">
-          <div class="row">
-            <div class="field"><label>TITLE</label><input id="fTitle" placeholder="TITLE" /></div>
-            <div class="field"><label>ARTIST</label><input id="fArtist" placeholder="ARTIST" /></div>
-          </div>
-          <div class="row">
-            <div class="field"><label>TYPE</label>
-              <select id="fType">
-                <option value="ALBUM">ALBUM</option>
-                <option value="EP">EP</option>
-                <option value="SINGLE">SINGLE</option>
-              </select>
-            </div>
-            <div class="field"><label>ALBUM NAME</label><input id="fAlbum" placeholder="OPTIONAL" /></div>
-          </div>
-          <div class="row">
-            <div class="field"><label>MP3 URL</label><input id="fUrl" placeholder="HTTPS://...MP3" /></div>
-            <div class="field"><label>COVER URL</label><input id="fCover" placeholder="HTTPS://...JPG/PNG" /></div>
-          </div>
-          <button id="fSubmit" class="submit">ADD TO LIBRARY</button>
-          <button id="fExport" class="submit ghost">EXPORT LIBRARY JSON</button>
-          <div class="hint">DATA STORED IN LOCAL STORAGE</div>
+        <div class="row">
+          <div class="field"><label>MP3 URL</label><input id="fUrl" placeholder="HTTPS://...MP3" /></div>
+          <div class="field"><label>COVER URL</label><input id="fCover" placeholder="HTTPS://...JPG/PNG" /></div>
         </div>
-      </section>
-    </main>
-  </div>
+        <button id="fSubmit" class="submit">ADD TO LIBRARY</button>
+        <button id="fExport" class="submit ghost">EXPORT LIBRARY JSON</button>
+        <div class="hint">DATA STORED IN LOCAL STORAGE</div>
+      </div>
+    </section>
+  </main>
+</div>
 
-  <div class="player">
-    <div class="track">
-      <img id="pCover" src="" alt="" />
-      <div class="meta">
-        <div id="pTitle" class="title">NOTHING PLAYING</div>
-        <div id="pArtist" class="subtitle"></div>
-      </div>
-    </div>
-    <div class="controls">
-      <button id="prev" class="ctl" aria-label="previous">⟨</button>
-      <button id="play" class="ctl" aria-label="play">▶</button>
-      <button id="next" class="ctl" aria-label="next">⟩</button>
-      <div class="progress">
-        <span id="cur" class="subtitle" style="width:40px; text-align:right;">0:00</span>
-        <input id="seek" type="range" class="range" min="0" max="1000" value="0" />
-        <span id="dur" class="subtitle" style="width:40px;">0:00</span>
-      </div>
-    </div>
-    <div class="controls" style="justify-content:flex-end;">
-      <span class="subtitle">VOL</span>
-      <input id="vol" type="range" class="range vol" min="0" max="1" step="0.01" value="1" />
+<div class="player">
+  <div class="track">
+    <img id="pCover" src="" alt="" />
+    <div class="meta">
+      <div id="pTitle" class="title">NOTHING PLAYING</div>
+      <div id="pArtist" class="subtitle"></div>
     </div>
   </div>
+  <div class="controls">
+    <button id="prev" class="ctl" aria-label="previous">⟨</button>
+    <button id="play" class="ctl" aria-label="play">▶</button>
+    <button id="next" class="ctl" aria-label="next">⟩</button>
+    <div class="progress">
+      <span id="cur" class="subtitle" style="width:40px; text-align:right;">0:00</span>
+      <input id="seek" type="range" class="range" min="0" max="1000" value="0" />
+      <span id="dur" class="subtitle" style="width:40px;">0:00</span>
+    </div>
+  </div>
+  <div class="controls" style="justify-content:flex-end;">
+    <span class="subtitle">VOL</span>
+    <input id="vol" type="range" class="range vol" min="0" max="1" step="0.01" value="1" />
+  </div>
+</div>
 
-  <audio id="audio"></audio>
+<audio id="audio"></audio>
 
-  <script>
-    const state = {
-      library: JSON.parse(localStorage.getItem("yzy_library")||"[]"),
-      likes: JSON.parse(localStorage.getItem("yzy_likes")||"[]"),
-      queue: [],
-      current:-1
-    };
+<script>
+const state = {
+  library: JSON.parse(localStorage.getItem("yzy_library")||"[]"),
+  likes: JSON.parse(localStorage.getItem("yzy_likes")||"[]"),
+  queue: [],
+  current:-1
+};
 
-    const routes = ["home","profile","liked","admin"];
-    const pages = Object.fromEntries(routes.map(r=>[r,document.getElementById(r)]));
-    function nav(route){
-      routes.forEach(r=>pages[r].classList.toggle("show", r===route));
-      document.querySelectorAll(".btn").forEach(b=>b.classList.toggle("active", b.dataset.route===route));
-      if(route==="liked") renderLiked();
-      if(route==="home") renderHome();
-    }
-    window.addEventListener("hashchange",()=>nav(location.hash.replace("#","")||"home"));
-    nav(location.hash.replace("#","")||"home");
+const routes=["home","profile","liked","admin"];
+const pages=Object.fromEntries(routes.map(r=>[r,document.getElementById(r)]));
+function nav(route){ routes.forEach(r=>pages[r].classList.toggle("show", r===route)); document.querySelectorAll(".btn").forEach(b=>b.classList.toggle("active", b.dataset.route===route)); if(route==="liked") renderLiked(); if(route==="home") renderHome();}
+window.addEventListener("hashchange",()=>nav(location.hash.replace("#","")||"home"));
+nav(location.hash.replace("#","")||"home");
 
-    function save(){
-      localStorage.setItem("yzy_library", JSON.stringify(state.library));
-      localStorage.setItem("yzy_likes", JSON.stringify(state.likes));
-    }
+function save(){ localStorage.setItem("yzy_library",JSON.stringify(state.library)); localStorage.setItem("yzy_likes",JSON.stringify(state.likes)); }
+function uid(){ return Math.random().toString(36).slice(2)+Date.now().toString(36); }
 
-    function uid(){ return Math.random().toString(36).slice(2)+Date.now().toString(36); }
+function card(item){
+  const el=document.createElement("div");
+  el.className="card";
+  el.innerHTML=`<img class="cover" src="${item.cover||""}" alt="">
+  <div class="title">${item.title||"UNTITLED"}</div>
+  <div class="card-row">
+    <div class="subtitle">${item.artist||"UNKNOWN"}</div>
+    <button class="like ${state.likes.includes(item.id)?"active":""}" aria-label="like">${heartSvg()}</button>
+  </div>`;
+  el.addEventListener("click",e=>{if(e.target.closest(".like")) return; playFrom(item.id);});
+  el.querySelector(".like").addEventListener("click",e=>{e.stopPropagation(); toggleLike(item.id); e.currentTarget.classList.toggle("active");});
+  return el;
+}
 
-    function card(item){
-      const el=document.createElement("div");
-      el.className="card";
-      el.innerHTML=`<img class="cover" src="${item.cover||""}" alt="">
-      <div class="title">${item.title||"UNTITLED"}</div>
-      <div class="card-row">
-        <div class="subtitle">${item.artist||"UNKNOWN"}</div>
-        <button class="like ${state.likes.includes(item.id)?"active":""}" aria-label="like">${heartSvg()}</button>
-      </div>`;
-      el.addEventListener("click",e=>{if(e.target.closest(".like")) return; playFrom(item.id);});
-      el.querySelector(".like").addEventListener("click",e=>{e.stopPropagation(); toggleLike(item.id); e.currentTarget.classList.toggle("active");});
-      return el;
-    }
+function renderHome(){
+  const groups={ALBUM:document.getElementById("albums"),EP:document.getElementById("eps"),SINGLE:document.getElementById("singles")};
+  Object.values(groups).forEach(g=>g.innerHTML="");
+  const byType={ALBUM:[],EP:[],SINGLE:[]};
+  state.library.forEach(x=>byType[x.type||"SINGLE"].push(x));
+  Object.entries(byType).forEach(([t,arr])=>{ const grid=groups[t]; if(!grid) return; if(arr.length===0){ grid.innerHTML=`<div class="empty">NO ${t}</div>`; } else { arr.forEach(x=>grid.appendChild(card(x))); } });
+}
 
-    function renderHome(){
-      const groups={ALBUM:document.getElementById("albums"),EP:document.getElementById("eps"),SINGLE:document.getElementById("singles")};
-      Object.values(groups).forEach(g=>g.innerHTML="");
-      const byType={ALBUM:[],EP:[],SINGLE:[]};
-      state.library.forEach(x=>byType[x.type||"SINGLE"].push(x));
-      Object.entries(byType).forEach(([t,arr])=>{
-        const grid=groups[t];
-        if(!grid) return;
-        if(arr.length===0){ grid.innerHTML=`<div class="empty">NO ${t}</div>`; } 
-        else { arr.forEach(x=>grid.appendChild(card(x))); }
-      });
-    }
+function renderLiked(){ const grid=document.getElementById("likedGrid"); grid.innerHTML=""; const liked=state.library.filter(x=>state.likes.includes(x.id)); if(liked.length===0){ grid.innerHTML='<div class="empty">NO LIKED SONGS</div>'; return; } liked.forEach(x=>grid.appendChild(card(x))); }
 
-    function renderLiked(){
-      const grid=document.getElementById("likedGrid"); grid.innerHTML="";
-      const liked=state.library.filter(x=>state.likes.includes(x.id));
-      if(liked.length===0){ grid.innerHTML='<div class="empty">NO LIKED SONGS</div>'; return; }
-      liked.forEach(x=>grid.appendChild(card(x)));
-    }
+function toggleLike(id){ const i=state.likes.indexOf(id); if(i>-1) state.likes.splice(i,1); else state.likes.push(id); save(); }
 
-    function toggleLike(id){
-      const i=state.likes.indexOf(id);
-      if(i>-1) state.likes.splice(i,1);
-      else state.likes.push(id);
-      save();
-    }
+const audio=document.getElementById("audio");
+const pCover=document.getElementById("pCover");
+const pTitle=document.getElementById("pTitle");
+const pArtist=document.getElementById("pArtist");
+const playBtn=document.getElementById("play");
 
-    const audio=document.getElementById("audio");
-    const pCover=document.getElementById("pCover");
-    const pTitle=document.getElementById("pTitle");
-    const pArtist=document.getElementById("pArtist");
-    const playBtn=document.getElementById("play");
+function playFrom(id){ const index=state.library.findIndex(x=>x.id===id); if(index===-1) return; state.current=index; playTrack(); }
+function playTrack(){ if(state.current<0||state.current>=state.library.length) return; const track=state.library[state.current]; audio.src=track.url; pCover.src=track.cover||""; pTitle.textContent=track.title||"UNTITLED"; pArtist.textContent=track.artist||"UNKNOWN"; audio.play(); playBtn.textContent="❚❚"; }
 
-    function playFrom(id){
-      const index=state.library.findIndex(x=>x.id===id);
-      if(index===-1) return;
-      state.current=index;
-      playTrack();
-    }
+playBtn.addEventListener("click",()=>{ if(audio.paused) audio.play(); else audio.pause(); playBtn.textContent=audio.paused?"▶":"❚❚"; });
+document.getElementById("prev").addEventListener("click",()=>{ state.current=(state.current-1+state.library.length)%state.library.length; playTrack(); });
+document.getElementById("next").addEventListener("click",()=>{ state.current=(state.current+1)%state.library.length; playTrack(); });
+document.getElementById("seek").addEventListener("input",e=>{ audio.currentTime=e.target.value; });
+audio.addEventListener("timeupdate",()=>{ document.getElementById("seek").value=audio.currentTime; document.getElementById("cur").textContent=formatTime(audio.currentTime); document.getElementById("dur").textContent=formatTime(audio.duration||0); });
+function formatTime(s){ const m=Math.floor(s/60); const sec=Math.floor(s%60); return m+":"+sec.toString().padStart(2,"0"); }
+document.getElementById("vol").addEventListener("input",e=>{ audio.volume=e.target.value; });
 
-    function playTrack(){
-      if(state.current<0 || state.current>=state.library.length) return;
-      const track=state.library[state.current];
-      audio.src=track.url;
-      pCover.src=track.cover||"";
-      pTitle.textContent=track.title||"UNTITLED";
-      pArtist.textContent=track.artist||"UNKNOWN";
-      audio.play();
-      playBtn.textContent="❚❚";
-    }
+document.getElementById("fSubmit").addEventListener("click",()=>{
+  const newItem={ id:uid(), title:document.getElementById("fTitle").value, artist:document.getElementById("fArtist").value, type:document.getElementById("fType").value, album:document.getElementById("fAlbum").value, url:document.getElementById("fUrl").value, cover:document.getElementById("fCover").value };
+  state.library.push(newItem); save(); renderHome();
+});
+document.getElementById("fExport").addEventListener("click",()=>{ alert(JSON.stringify(state.library,null,2)); });
 
-    playBtn.addEventListener("click",()=>{ if(audio.paused) audio.play(); else audio.pause(); playBtn.textContent=audio.paused?"▶":"❚❚"; });
+function heartSvg(){ return '<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>'; }
 
-    document.getElementById("prev").addEventListener("click",()=>{ state.current=(state.current-1+state.library.length)%state.library.length; playTrack(); });
-    document.getElementById("next").addEventListener("click",()=>{ state.current=(state.current+1)%state.library.length; playTrack(); });
-
-    document.getElementById("seek").addEventListener("input",e=>{ audio.currentTime=e.target.value; });
-    audio.addEventListener("timeupdate",()=>{ document.getElementById("seek").value=audio.currentTime; document.getElementById("cur").textContent=formatTime(audio.currentTime); document.getElementById("dur").textContent=formatTime(audio.duration||0); });
-    function formatTime(s){ const m=Math.floor(s/60); const sec=Math.floor(s%60); return m+":"+sec.toString().padStart(2,"0"); }
-
-    document.getElementById("vol").addEventListener("input",e=>{ audio.volume=e.target.value; });
-
-    document.getElementById("fSubmit").addEventListener("click",()=>{
-      const newItem={
-        id:uid(),
-        title:document.getElementById("fTitle").value,
-        artist:document.getElementById("fArtist").value,
-        type:document.getElementById("fType").value,
-        album:document.getElementById("fAlbum").value,
-        url:document.getElementById("fUrl").value,
-        cover:document.getElementById("fCover").value
-      };
-      state.library.push(newItem); save(); renderHome();
-    });
-
-    document.getElementById("fExport").addEventListener("click",()=>{ alert(JSON.stringify(state.library, null, 2)); });
-
-    function heartSvg(){ return '<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>'; }
-
-    const hashCUCK="3a0e02b82a29e8ff77d340dd80ee0e4258017b84a59a5a6292a36bf92dfd7c2b";
-
-    async function sha256(str){ const buf=await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str)); return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join(""); }
-
-    document.getElementById("adminLogin").addEventListener("click",async()=>{
-      const val=document.getElementById("adminPassword").value;
-      const h=await sha256(val);
-      if(h===hashCUCK){ document.getElementById("adminGate").style.display="none"; document.getElementById("adminForm").style.display="block"; nav("admin"); document.getElementById("loginHint").textContent=""; }
-      else{ document.getElementById("loginHint").textContent="WRONG PASSWORD"; }
-    });
-  </script>
+// Admin logic rewritten
+const ADMIN_PASSWORD="CUCK"; // store in memory only
+const gate=document.getElementById("adminGate");
+const form=document.getElementById("adminForm");
+document.getElementById("adminLogin").addEventListener("click",()=>{
+  const val=document.getElementById("adminPassword").value;
+  if(val===ADMIN_PASSWORD){ gate.style.display="none"; form.style.display="block"; nav("admin"); document.getElementById("loginHint").textContent=""; }
+  else { document.getElementById("loginHint").textContent="WRONG PASSWORD"; }
+});
+</script>
 </body>
 </html>
