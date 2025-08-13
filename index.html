@@ -6,261 +6,274 @@
 <title>YZYPlayer BETA SITE</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap" rel="stylesheet" />
 <style>
-:root { --bg:#0a0a0a; --muted:#161616; --muted2:#1f1f1f; --text:#ffffff; --text2:#bdbdbd; --card:#111; --shadow:0 12px 30px rgba(0,0,0,.35); }
-*{box-sizing:border-box;}
-html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:"IBM Plex Mono", monospace;text-transform:uppercase;letter-spacing:.06em;}
-a{color:inherit;text-decoration:none;}
-.app{display:grid;grid-template-columns:280px 1fr;height:100vh;}
-.sidebar{background:linear-gradient(180deg,#0e0e0e,#070707);border-right:1px solid #111;padding:22px 16px;display:flex;flex-direction:column;gap:18px;}
-.brand{font-size:22px;font-weight:600;letter-spacing:.18em;}
-.muted{color:var(--text2);font-size:11px;margin-top:2px;}
-.nav{display:flex;flex-direction:column;gap:10px;margin-top:18px;}
-.btn{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--muted);border:1px solid #191919;border-radius:14px;cursor:pointer;transition:.25s transform,.25s background,.25s border-color;font-size:12px;color:var(--text);}
-.btn:hover{transform:translateY(-2px);background:var(--muted2);border-color:#242424;}
-.btn.active{outline:1px solid #2b2b2b;background:#131313;}
-.main{position:relative;overflow:hidden;}
-.page{position:absolute;inset:0;padding:24px;overflow:auto;opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .35s ease, transform .35s ease;}
-.page.show{opacity:1;transform:none;pointer-events:auto;}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;}
-.section{margin-bottom:28px;}
-.section h2{font-size:14px;color:var(--text2);margin:0 0 12px;letter-spacing:.12em;}
-.card{background:var(--card);border:1px solid #171717;border-radius:18px;padding:14px;box-shadow:var(--shadow);transition:transform .25s ease, border-color .25s ease;display:flex;flex-direction:column;gap:10px;cursor:pointer;}
-.card:hover{transform:translateY(-4px);border-color:#242424;}
-.cover{width:100%;aspect-ratio:1/1;border-radius:14px;object-fit:cover;background:#0d0d0d;}
-.title{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.subtitle{font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.card-row{display:flex;align-items:center;justify-content:space-between;gap:8px;}
-.like{width:28px;height:28px;border-radius:50%;border:1px solid #222;background:#141414;display:grid;place-items:center;cursor:pointer;transition:.2s;color:var(--text);}
-.like.active{background:#1c1c1c;border-color:#2a2a2a;}
-.like svg{width:14px;height:14px;}
-.player{position:fixed;left:280px;right:0;bottom:0;background:linear-gradient(180deg,#0c0c0c,#050505);border-top:1px solid #171717;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;padding:12px 18px;z-index:5;}
-.track{display:flex;align-items:center;gap:12px;min-width:0;}
-.track img{width:44px;height:44px;border-radius:10px;border:1px solid #1a1a1a;object-fit:cover;}
-.track .meta{min-width:0;}
-.controls{display:flex;align-items:center;gap:10px;}
-.ctl{width:38px;height:38px;border-radius:12px;border:1px solid #212121;background:#121212;display:grid;place-items:center;cursor:pointer;transition:.2s;color:var(--text);}
-.ctl:hover{transform:translateY(-2px);}
-.progress{display:flex;align-items:center;gap:10px;padding:0 8px;}
-.range{-webkit-appearance:none;appearance:none;height:4px;width:32vw;background:#1a1a1a;border-radius:999px;outline:none;}
-.range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:14px;height:14px;border-radius:50%;background:#fff;cursor:pointer;}
-.vol{width:120px;}
-.login,.admin{max-width:680px;margin:0 auto;background:var(--card);border:1px solid #171717;border-radius:18px;padding:18px;box-shadow:var(--shadow);}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.field{display:flex;flex-direction:column;gap:8px;}
-input,select,textarea{background:#0e0e0e;border:1px solid #1a1a1a;border-radius:12px;padding:12px 12px;color:var(--text);outline:none;transition:.2s;font-family:"IBM Plex Mono", monospace;text-transform:uppercase;}
-input:focus,select:focus,textarea:focus{border-color:#2a2a2a;}
-.submit{margin-top:10px;width:100%;padding:12px;border-radius:14px;background:#151515;border:1px solid #222;cursor:pointer;font-size:12px;color:var(--text);}
-.ghost{background:#101010;}
-.hint{color:var(--text2);font-size:11px;margin-top:6px;}
-.empty{color:var(--text2);text-align:center;padding:60px 10px;font-size:12px;}
-.spacer{height:84px;}
-.track-list{margin-top:10px;}
-.track-item{display:flex;align-items:center;justify-content:space-between;padding:4px 8px;border-bottom:1px solid #222;cursor:pointer;}
-.track-item:hover{background:#1a1a1a;}
-.track-left{display:flex;gap:8px;align-items:center;}
-.track-number{color:var(--text2);width:20px;text-align:right;}
-.track-duration{color:var(--text2);}
-@media (max-width:900px){.app{grid-template-columns:1fr;}.sidebar{position:fixed;inset:auto 0 0 0;flex-direction:row;align-items:center;z-index:10;border-right:0;border-top:1px solid #111;padding:8px;gap:8px;}.brand,.muted{display:none;}.nav{flex-direction:row;width:100%;margin:0;}.btn{flex:1;justify-content:center;}.player{left:0;}.page{padding-bottom:120px;}}
+:root { --bg:#0a0a0a; --muted:#161616; --muted2:#1f1f1f; --text:#fff; --text2:#bdbdbd; --acc:#fff; --card:#111; --shadow:0 12px 30px rgba(0,0,0,.35); }
+* { box-sizing:border-box; }
+html,body { height:100%; margin:0; background:var(--bg); color:var(--text); font-family:"IBM Plex Mono", monospace; text-transform:uppercase; letter-spacing:.06em; }
+a { color:inherit; text-decoration:none; }
+.app { display:grid; grid-template-columns:280px 1fr; height:100dvh; }
+.sidebar { background:linear-gradient(180deg, #0e0e0e, #070707); border-right:1px solid #111; padding:22px 16px; display:flex; flex-direction:column; gap:18px; }
+.brand { font-size:22px; font-weight:600; letter-spacing:.18em; }
+.muted { color:var(--text2); font-size:11px; margin-top:2px; }
+.nav { display:flex; flex-direction:column; gap:10px; margin-top:18px; }
+.btn { display:flex; align-items:center; gap:10px; padding:12px 14px; background:var(--muted); border:1px solid #191919; border-radius:14px; cursor:pointer; transition:.25s transform,.25s background,.25s border-color; font-size:12px; color:var(--text);}
+.btn:hover { transform:translateY(-2px); background:var(--muted2); border-color:#242424; }
+.btn.active { outline:1px solid #2b2b2b; background:#131313; }
+.main { position:relative; overflow:hidden; }
+.page { position:absolute; inset:0; padding:24px; overflow:auto; opacity:0; transform:translateY(8px); pointer-events:none; transition:opacity .35s ease, transform .35s ease; }
+.page.show { opacity:1; transform:none; pointer-events:auto; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:16px; }
+.section { margin-bottom:28px; }
+.section h2 { font-size:14px; color:var(--text2); margin:0 0 12px; letter-spacing:.12em; }
+.card { background:var(--card); border:1px solid #171717; border-radius:18px; padding:14px; box-shadow:var(--shadow); transition:transform .25s ease, border-color .25s ease; display:flex; flex-direction:column; gap:10px; cursor:pointer;}
+.card:hover { transform:translateY(-4px); border-color:#242424; }
+.cover { width:100%; aspect-ratio:1/1; border-radius:14px; object-fit:cover; background:#0d0d0d; }
+.title { font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.subtitle { font-size:11px; color:var(--text2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.card-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.like { width:28px; height:28px; border-radius:50%; border:1px solid #222; background:#141414; display:grid; place-items:center; cursor:pointer; transition:.2s; }
+.like.active { background:#1c1c1c; border-color:#2a2a2a; }
+.like svg { width:14px; height:14px; }
+.player { position:fixed; left:280px; right:0; bottom:0; background:linear-gradient(180deg,#0c0c0c,#050505); border-top:1px solid #171717; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:10px; padding:12px 18px; z-index:5; }
+.track { display:flex; align-items:center; gap:12px; min-width:0; }
+.track img { width:44px; height:44px; border-radius:10px; border:1px solid #1a1a1a; object-fit:cover; }
+.track .meta { min-width:0; }
+.controls { display:flex; align-items:center; gap:10px; }
+.ctl { width:38px; height:38px; border-radius:12px; border:1px solid #212121; background:#121212; display:grid; place-items:center; cursor:pointer; transition:.2s; color:var(--text);}
+.ctl:hover { transform:translateY(-2px); }
+.progress { display:flex; align-items:center; gap:10px; padding:0 8px; }
+.range { -webkit-appearance:none; appearance:none; height:4px; width:32vw; background:#1a1a1a; border-radius:999px; outline:none; }
+.range::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:14px; height:14px; border-radius:50%; background:#fff; cursor:pointer; }
+.vol { width:120px; }
+.login, .admin { max-width:680px; margin:0 auto; background:var(--card); border:1px solid #171717; border-radius:18px; padding:18px; box-shadow:var(--shadow); }
+.row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.field { display:flex; flex-direction:column; gap:8px; }
+input, select { background:#0e0e0e; border:1px solid #1a1a1a; border-radius:12px; padding:12px 12px; color:var(--text); outline:none; transition:.2s; font-family:"IBM Plex Mono", monospace; text-transform:uppercase; }
+input:focus, select:focus { border-color:#2a2a2a; }
+.submit { margin-top:10px; width:100%; padding:12px; border-radius:14px; background:#151515; border:1px solid #222; cursor:pointer; font-size:12px; color:var(--text);}
+.ghost { background:#101010; }
+.hint { color:var(--text2); font-size:11px; margin-top:6px; }
+.empty { color:var(--text2); text-align:center; padding:60px 10px; font-size:12px; }
+.spacer { height:84px; }
+@media (max-width: 900px) { .app { grid-template-columns:1fr; } .sidebar { position:fixed; inset:auto 0 0 0; flex-direction:row; align-items:center; z-index:10; border-right:0; border-top:1px solid #111; padding:8px; gap:8px; } .brand, .muted { display:none; } .nav { flex-direction:row; width:100%; margin:0; } .btn { flex:1; justify-content:center; } .player { left:0; } .page { padding-bottom:120px; } }
 </style>
 </head>
 <body>
 <div class="app">
-<aside class="sidebar">
-  <div>
-    <div class="brand">YZYPLAYER</div>
-    <div class="muted">HTTPS://DISCORD.GG/5Q C4NQMPDV</div>
-  </div>
-  <nav class="nav">
-    <a href="#home" class="btn" data-route="home">HOME</a>
-    <a href="#profile" class="btn" data-route="profile">PROFILE</a>
-    <a href="#liked" class="btn" data-route="liked">LIKED SONGS</a>
-    <a href="#admin" class="btn" data-route="admin">ADMIN PANEL</a>
-  </nav>
-</aside>
-<main class="main">
-<section id="home" class="page show">
-  <div class="section"><h2>ALBUMS</h2><div id="albums" class="grid"></div></div>
-  <div class="section"><h2>EPS</h2><div id="eps" class="grid"></div></div>
-  <div class="section"><h2>SINGLES</h2><div id="singles" class="grid"></div></div>
-  <div class="spacer"></div>
-</section>
-<section id="profile" class="page"><div class="empty">COMING SOON</div></section>
-<section id="liked" class="page"><div id="likedGrid" class="grid"></div><div class="spacer"></div></section>
-<section id="admin" class="page">
-  <div id="adminGate" class="login">
-    <div class="field">
-      <label>PASSWORD</label>
-      <input id="adminPassword" type="password" placeholder="ENTER PASSWORD" autocomplete="current-password" />
-      <button id="adminLogin" class="submit">ENTER</button>
-      <div id="loginHint" class="hint"></div>
+  <aside class="sidebar">
+    <div>
+      <div class="brand">YZYPLAYER</div>
+      <div class="muted">HTTPS://DISCORD.GG/5QC4NQMPDV</div>
     </div>
-  </div>
-  <div id="adminForm" class="admin" style="display:none">
-    <div class="row">
-      <div class="field"><label>TITLE</label><input id="fTitle" placeholder="TITLE" /></div>
-      <div class="field"><label>ARTIST</label><input id="fArtist" placeholder="ARTIST" /></div>
-    </div>
-    <div class="row">
-      <div class="field"><label>TYPE</label>
-        <select id="fType">
-          <option value="ALBUM">ALBUM</option>
-          <option value="EP">EP</option>
-          <option value="SINGLE">SINGLE</option>
-        </select>
+    <nav class="nav">
+      <a href="#home" class="btn" data-route="home">HOME</a>
+      <a href="#profile" class="btn" data-route="profile">PROFILE</a>
+      <a href="#liked" class="btn" data-route="liked">LIKED SONGS</a>
+      <a href="#admin" class="btn" data-route="admin">ADMIN PANEL</a>
+    </nav>
+  </aside>
+  <main class="main">
+    <section id="home" class="page show">
+      <div class="section"><h2>ALBUMS</h2><div id="albums" class="grid"></div></div>
+      <div class="section"><h2>EPS</h2><div id="eps" class="grid"></div></div>
+      <div class="section"><h2>SINGLES</h2><div id="singles" class="grid"></div></div>
+      <div class="spacer"></div>
+    </section>
+    <section id="profile" class="page"><div class="empty">COMING SOON</div></section>
+    <section id="liked" class="page"><div id="likedGrid" class="grid"></div><div class="spacer"></div></section>
+    <section id="admin" class="page">
+      <div id="adminGate" class="login">
+        <div class="field">
+          <label>PASSWORD</label>
+          <input id="password" type="password" placeholder="ENTER PASSWORD" />
+        </div>
+        <button id="login" class="submit">LOGIN</button>
+        <div class="hint">ADMIN PASSWORD REQUIRED</div>
       </div>
-      <div class="field"><label>ALBUM NAME</label><input id="fAlbum" placeholder="OPTIONAL" /></div>
-    </div>
-    <div class="row">
-      <div class="field"><label>TRACKS</label><textarea id="fTracks" placeholder='JSON: [{"title":"song1","url":"https://...","duration":0}]'></textarea></div>
-      <div class="field"><label>COVER URL</label><input id="fCover" placeholder="HTTPS://...JPG/PNG" /></div>
-    </div>
-    <button id="fSubmit" class="submit">ADD TO LIBRARY</button>
-    <button id="fExport" class="submit ghost">EXPORT LIBRARY JSON</button>
-    <div class="hint">DATA STORED IN LOCAL STORAGE / SUPABASE</div>
-  </div>
-</section>
-</main>
+      <div id="adminPanel" class="admin" style="display:none;">
+        <div class="field">
+          <label>Title</label>
+          <input id="title" type="text" placeholder="Album/EP/Single Title" />
+        </div>
+        <div class="field">
+          <label>Cover URL</label>
+          <input id="cover" type="text" placeholder="https://..." />
+        </div>
+        <div class="field">
+          <label>Type</label>
+          <select id="type">
+            <option value="album">ALBUM</option>
+            <option value="ep">EP</option>
+            <option value="single">SINGLE</option>
+          </select>
+        </div>
+        <div id="tracksContainer"></div>
+        <button id="addTrack" class="submit">ADD TRACK</button>
+        <button id="submitRelease" class="submit">SUBMIT</button>
+      </div>
+    </section>
+  </main>
 </div>
 
 <div class="player">
   <div class="track">
-    <img id="pCover" src="" alt="" />
+    <img src="" id="trackCover" />
     <div class="meta">
-      <div id="pTitle" class="title">NOTHING PLAYING</div>
-      <div id="pArtist" class="subtitle"></div>
+      <div id="trackTitle">Title</div>
+      <div id="trackArtist">Artist</div>
     </div>
   </div>
   <div class="controls">
-    <button id="prev" class="ctl" aria-label="previous">⟨</button>
-    <button id="play" class="ctl" aria-label="play">▶</button>
-    <button id="next" class="ctl" aria-label="next">⟩</button>
-    <div class="progress">
-      <span id="cur" class="subtitle" style="width:40px;text-align:right;">0:00</span>
-      <input id="seek" type="range" class="range" min="0" max="1000" value="0" />
-      <span id="dur" class="subtitle" style="width:40px;">0:00</span>
-    </div>
+    <div class="ctl" id="prev">&#9664;</div>
+    <div class="ctl" id="play">&#9654;</div>
+    <div class="ctl" id="next">&#9654;&#9654;</div>
   </div>
-  <div class="controls" style="justify-content:flex-end;">
-    <span class="subtitle">VOL</span>
-    <input id="vol" type="range" class="range vol" min="0" max="1" step="0.01" value="1" />
+  <div class="progress">
+    <input type="range" class="range" id="progress" min="0" max="100" value="0" />
+    <input type="range" class="range vol" id="volume" min="0" max="100" value="80" />
   </div>
 </div>
 
-<audio id="audio"></audio>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
-<script>
-const SUPABASE_URL = "https://mxprbsynyakkwdnpdmpr.supabase.co";
-const SUPABASE_KEY = "YOUR_SUPABASE_KEY";
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+const supabase = createClient('https://mxprbsynyakkwdnpdmpr.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14cHJic3lueWFra3dkbnBkbXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMTExODUsImV4cCI6MjA3MDY4NzE4NX0.TCoRg7UcjT8kjHB0ltNiKN3IIFzFXfK5JvMy7PBfocA')
 
-const state = { library: [], likes: [], queue: [], current:-1 };
+const pages = document.querySelectorAll('.page');
+const navBtns = document.querySelectorAll('.btn');
 
-// Load library from Supabase
-async function loadLibrary(){
-    const { data } = await supabase.from('tracks').select('*');
-    if(data) state.library = data;
-    renderHome();
-}
-loadLibrary();
-
-// Navigation
-const routes=["home","profile","liked","admin"];
-const pages=Object.fromEntries(routes.map(r=>[r,document.getElementById(r)]));
-function nav(route){
-    routes.forEach(r=>pages[r].classList.toggle("show", r===route));
-    document.querySelectorAll(".btn").forEach(b=>b.classList.toggle("active", b.dataset.route===route));
-    if(route==="liked") renderLiked();
-    if(route==="home") renderHome();
-}
-window.addEventListener("hashchange",()=>nav(location.hash.replace("#","")||"home"));
-document.querySelectorAll(".btn").forEach(b=>b.addEventListener("click", e=>{nav(b.dataset.route);}));
-
-nav(location.hash.replace("#","")||"home");
-
-// Audio player
-const audio=document.getElementById("audio");
-const pCover=document.getElementById("pCover");
-const pTitle=document.getElementById("pTitle");
-const pArtist=document.getElementById("pArtist");
-const playBtn=document.getElementById("play");
-const seek=document.getElementById("seek");
-const cur=document.getElementById("cur");
-const dur=document.getElementById("dur");
-const vol=document.getElementById("vol");
-function format(t){if(!isFinite(t))return"0:00";const m=Math.floor(t/60);const s=Math.floor(t%60).toString().padStart(2,"0");return`${m}:${s}`;}
-function setNow(item){
-    if(!item)return;
-    pCover.src=item.cover||"";
-    pTitle.textContent=item.title||"";
-    pArtist.textContent=item.artist||"";
-    audio.src=item.url||item.tracks?.[0]?.url||"";
-    audio.play();
-    state.queue = item.tracks?.map(tr=>({...item,url:tr.url,title:tr.title})) || [item];
-    state.current = 0;
-}
-function playPause(){if(audio.paused){audio.play();playBtn.textContent="⏸";}else{audio.pause();playBtn.textContent="▶";}}
-playBtn.addEventListener("click",playPause);
-audio.addEventListener("play",()=>playBtn.textContent="⏸");
-audio.addEventListener("pause",()=>playBtn.textContent="▶");
-audio.addEventListener("timeupdate",()=>{seek.value=(audio.currentTime/audio.duration)*1000||0;cur.textContent=format(audio.currentTime);dur.textContent=format(audio.duration);});
-seek.addEventListener("input",()=>{audio.currentTime=seek.value/1000*audio.duration;});
-vol.addEventListener("input",()=>{audio.volume=vol.value;});
-document.getElementById("prev").addEventListener("click",()=>{state.current=Math.max(0,state.current-1);setNow(state.queue[state.current]);});
-document.getElementById("next").addEventListener("click",()=>{state.current=Math.min(state.queue.length-1,state.current+1);setNow(state.queue[state.current]);});
-
-// Render home
-function renderHome(){
-    ["albums","eps","singles"].forEach(id=>document.getElementById(id).innerHTML="");
-    state.library.forEach(r=>{
-        const div=document.createElement("div"); div.className="card";
-        div.innerHTML=`<img class="cover" src="${r.cover}"><div class="title">${r.title}</div><div class="subtitle">${r.artist||""}</div>`;
-        div.onclick=()=>{if(r.tracks?.length>1){renderTracksPage(r);}else{setNow(r);}};
-        const container=document.getElementById(r.type.toLowerCase()+"s");
-        if(container) container.appendChild(div);
-    });
+function showPage(route){
+  pages.forEach(p=>p.classList.toggle('show', p.id===route));
+  navBtns.forEach(b=>b.classList.toggle('active', b.dataset.route===route));
 }
 
-// Track page
-function renderTracksPage(album){
-    const main=document.querySelector(".main");
-    const temp=document.createElement("section"); temp.className="page show";
-    temp.innerHTML=`<div class="section"><h2>${album.title}</h2><div class="track-list"></div></div>`;
-    main.appendChild(temp);
-    const list=temp.querySelector(".track-list");
-    album.tracks.forEach((t,i)=>{
-        const div=document.createElement("div"); div.className="track-item";
-        div.innerHTML=`<div class="track-left"><div class="track-number">${i+1}</div><div class="title">${t.title}</div></div><div class="track-duration">${format(t.duration)}</div>`;
-        div.onclick=()=>{setNow({...album,url:t.url}); state.current=i;};
-        list.appendChild(div);
-    });
-    Object.values(pages).forEach(p=>p.classList.remove("show"));
-    temp.scrollIntoView({behavior:"smooth"});
-}
-
-// Admin
-const adminPass="CUCK";
-const gate=document.getElementById("adminGate");
-const form=document.getElementById("adminForm");
-document.getElementById("adminLogin").addEventListener("click",()=>{
-    if(document.getElementById("adminPassword").value===adminPass){gate.style.display="none";form.style.display="block";}
-    else document.getElementById("loginHint").textContent="WRONG PASSWORD";
+navBtns.forEach(btn=>{
+  btn.addEventListener('click', e=>{
+    e.preventDefault();
+    const route = btn.dataset.route;
+    location.hash = route;
+    showPage(route);
+  });
 });
 
-// Add release
-document.getElementById("fSubmit").addEventListener("click",async()=>{
-    try{
-        const title=document.getElementById("fTitle").value;
-        const artist=document.getElementById("fArtist").value;
-        const type=document.getElementById("fType").value;
-        const cover=document.getElementById("fCover").value;
-        const tracks=JSON.parse(document.getElementById("fTracks").value);
-        await supabase.from('tracks').insert([{title,artist,type,cover,tracks}]);
-        loadLibrary();
-        alert("ADDED!");
-    }catch(e){console.error(e);alert("FAILED");}
+function nav(){
+  const route = location.hash.replace('#','') || 'home';
+  showPage(route);
+}
+window.addEventListener('hashchange', nav);
+nav();
+
+let releases = [], liked = [], currentTrackIndex = 0, audio = new Audio();
+
+async function fetchReleases(){
+  const { data } = await supabase.from('releases').select('*').order('id', {ascending:true});
+  releases = data || [];
+  renderReleases();
+}
+function renderReleases(){
+  const albumsGrid = document.getElementById('albums');
+  const epsGrid = document.getElementById('eps');
+  const singlesGrid = document.getElementById('singles');
+  albumsGrid.innerHTML=''; epsGrid.innerHTML=''; singlesGrid.innerHTML='';
+  releases.forEach((r,i)=>{
+    const card = document.createElement('div');
+    card.className='card';
+    card.innerHTML=`<img class="cover" src="${r.cover}" />
+      <div class="title">${r.title}</div>
+      <div class="subtitle">${r.type.toUpperCase()}</div>`;
+    card.addEventListener('click', ()=>{
+      if(r.tracks.length>1){
+        showAlbumTracks(r);
+      } else {
+        playTrack(r.tracks[0]);
+      }
+    });
+    if(r.type==='album') albumsGrid.appendChild(card);
+    else if(r.type==='ep') epsGrid.appendChild(card);
+    else singlesGrid.appendChild(card);
+  });
+}
+function showAlbumTracks(r){
+  const main = document.querySelector('.main');
+  main.innerHTML = `<div class="page show"><h2>${r.title}</h2><div class="grid" id="tracklist"></div></div>`;
+  const list = document.getElementById('tracklist');
+  r.tracks.forEach((t,i)=>{
+    const trackDiv = document.createElement('div');
+    trackDiv.className='card-row';
+    const duration = Math.floor(t.duration/60)+':' + String(t.duration%60).padStart(2,'0');
+    trackDiv.innerHTML=`<div>${i+1}. ${t.title}</div><div>${duration}</div>`;
+    trackDiv.addEventListener('click',()=>playTrack(t));
+    list.appendChild(trackDiv);
+  });
+}
+
+function playTrack(track){
+  audio.src=track.url;
+  audio.play();
+  document.getElementById('trackCover').src=track.cover || '';
+  document.getElementById('trackTitle').innerText=track.title;
+  document.getElementById('trackArtist').innerText=track.artist || '';
+  document.getElementById('play').innerText='❚❚';
+}
+
+document.getElementById('play').addEventListener('click',()=>{
+  if(audio.paused) audio.play();
+  else audio.pause();
+  document.getElementById('play').innerText=audio.paused?'▶':'❚❚';
+});
+document.getElementById('next').addEventListener('click',()=>{ currentTrackIndex=(currentTrackIndex+1)%releases.length; playTrack(releases[currentTrackIndex].tracks[0]); });
+document.getElementById('prev').addEventListener('click',()=>{ currentTrackIndex=(currentTrackIndex-1+releases.length)%releases.length; playTrack(releases[currentTrackIndex].tracks[0]); });
+audio.addEventListener('ended',()=>document.getElementById('play').innerText='▶');
+document.getElementById('volume').addEventListener('input',(e)=>{ audio.volume=e.target.value/100; });
+document.getElementById('progress').addEventListener('input',(e)=>{ audio.currentTime=e.target.value; });
+audio.addEventListener('timeupdate',()=>{ document.getElementById('progress').value=audio.currentTime; document.getElementById('progress').max=audio.duration; });
+
+// ADMIN LOGIC
+const passwordInput = document.getElementById('password');
+const loginBtn = document.getElementById('login');
+const adminGate = document.getElementById('adminGate');
+const adminPanel = document.getElementById('adminPanel');
+const addTrackBtn = document.getElementById('addTrack');
+const tracksContainer = document.getElementById('tracksContainer');
+const submitReleaseBtn = document.getElementById('submitRelease');
+
+loginBtn.addEventListener('click', ()=>{
+  if(passwordInput.value==='CUCK'){
+    adminGate.style.display='none';
+    adminPanel.style.display='block';
+  } else alert('Wrong password');
 });
 
-function renderLiked(){document.getElementById("likedGrid").innerHTML="";}
+addTrackBtn.addEventListener('click', ()=>{
+  const trackDiv = document.createElement('div');
+  trackDiv.className='row';
+  trackDiv.innerHTML=`<input type="text" placeholder="Track Title" class="trackTitle"/>
+  <input type="text" placeholder="Track URL" class="trackURL"/>
+  <input type="number" placeholder="Duration (sec)" class="trackDuration"/>`;
+  tracksContainer.appendChild(trackDiv);
+});
+
+submitReleaseBtn.addEventListener('click', async ()=>{
+  const title = document.getElementById('title').value;
+  const cover = document.getElementById('cover').value;
+  const type = document.getElementById('type').value;
+  const tracksEls = tracksContainer.querySelectorAll('.row');
+  const tracks = Array.from(tracksEls).map(r=>{
+    return {
+      title: r.querySelector('.trackTitle').value,
+      url: r.querySelector('.trackURL').value,
+      duration: parseInt(r.querySelector('.trackDuration').value),
+      cover: cover
+    }
+  });
+  const { error } = await supabase.from('releases').insert([{ title, cover, type, tracks }]);
+  if(!error){
+    alert('Release added');
+    tracksContainer.innerHTML='';
+    fetchReleases();
+  } else alert('Error adding release');
+});
+
+// INITIAL FETCH
+fetchReleases();
 </script>
 </body>
 </html>
