@@ -235,11 +235,23 @@ function adminLogin(){
 }
 document.getElementById("adminLogin").addEventListener("click", adminLogin);
 
-function addTrackInput(track){
+function addTrackInput(){
   const div = document.createElement("div"); div.className="row";
   div.innerHTML=`<div class="field"><label>TRACK TITLE</label><input class="trackTitle" placeholder="TRACK TITLE" /></div>
   <div class="field"><label>SRC URL</label><input class="trackSrc" placeholder="https://..." /></div>
-  <div class="field"><label>DURATION</label><input class="trackDuration" placeholder="MM:SS" /></div>`;
+  <div class="field"><label>DURATION</label><input class="trackDuration" placeholder="AUTO" readonly /></div>`;
+  const durationInput = div.querySelector(".trackDuration");
+  const srcInput = div.querySelector(".trackSrc");
+
+  srcInput.addEventListener("change", ()=>{
+    const tmpAudio = new Audio(srcInput.value);
+    tmpAudio.addEventListener("loadedmetadata", ()=>{
+      const min = Math.floor(tmpAudio.duration/60);
+      const sec = Math.floor(tmpAudio.duration%60).toString().padStart(2,"0");
+      durationInput.value = `${min}:${sec}`;
+    });
+  });
+
   document.getElementById("trackInputs").appendChild(div);
 }
 document.getElementById("addTrack").addEventListener("click", ()=>addTrackInput());
@@ -251,7 +263,6 @@ document.getElementById("fSubmit").addEventListener("click", ()=>{
   const cover=document.getElementById("fCover").value;
   const tracks=[];
   document.querySelectorAll("#trackInputs .row").forEach(r=>{
-    const t=document.createElement("div");
     const tTitle=r.querySelector(".trackTitle").value;
     const tSrc=r.querySelector(".trackSrc").value;
     const tDur=r.querySelector(".trackDuration").value;
