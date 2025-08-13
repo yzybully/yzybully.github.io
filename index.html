@@ -5,18 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>YZYPlayer BETA SITE</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <style>
-:root { --bg:#0a0a0a; --muted:#161616; --muted2:#1f1f1f; --text:#fff; --text2:#bdbdbd; --acc:#fff; --card:#111; --shadow:0 12px 30px rgba(0,0,0,.35); }
+:root { --bg:#0a0a0a; --muted:#161616; --muted2:#1f1f1f; --text:#ffffff; --text2:#bdbdbd; --acc:#ffffff; --card:#111; --shadow:0 12px 30px rgba(0,0,0,.35); }
 * { box-sizing:border-box; }
 html,body { height:100%; }
 body { margin:0; background:var(--bg); color:var(--text); font-family:"IBM Plex Mono", monospace; text-transform:uppercase; letter-spacing:.06em; }
 a { color:inherit; text-decoration:none; }
 .app { display:grid; grid-template-columns:280px 1fr; height:100dvh; }
 .sidebar { background:linear-gradient(180deg, #0e0e0e, #070707); border-right:1px solid #111; padding:22px 16px; display:flex; flex-direction:column; gap:18px; }
-.brand { font-size:22px; font-weight:600; letter-spacing:.18em; }
+.brand { font-size:22px; font-weight:600; letter-spacing:.18em; color:#fff; }
 .muted { color:var(--text2); font-size:11px; margin-top:2px; }
 .nav { display:flex; flex-direction:column; gap:10px; margin-top:18px; }
-.btn { display:flex; align-items:center; gap:10px; padding:12px 14px; background:var(--muted); border:1px solid #191919; border-radius:14px; cursor:pointer; transition:.25s transform,.25s background,.25s border-color; font-size:12px; color:var(--text); }
+.btn { display:flex; align-items:center; gap:10px; padding:12px 14px; background:var(--muted); border:1px solid #191919; border-radius:14px; cursor:pointer; transition:.25s transform,.25s background,.25s border-color; font-size:12px; color:#fff; }
 .btn:hover { transform:translateY(-2px); background:var(--muted2); border-color:#242424; }
 .btn.active { outline:1px solid #2b2b2b; background:#131313; }
 .main { position:relative; overflow:hidden; }
@@ -25,21 +26,21 @@ a { color:inherit; text-decoration:none; }
 .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:16px; }
 .section { margin-bottom:28px; }
 .section h2 { font-size:14px; color:var(--text2); margin:0 0 12px; letter-spacing:.12em; }
-.card { background:var(--card); border:1px solid #171717; border-radius:18px; padding:14px; box-shadow:var(--shadow); transition:transform .25s ease, border-color .25s ease; display:flex; flex-direction:column; gap:10px; cursor:pointer; }
+.card { background:var(--card); border:1px solid #171717; border-radius:18px; padding:14px; box-shadow:var(--shadow); transition:transform .25s ease, border-color .25s ease; display:flex; flex-direction:column; gap:10px; color:#fff; }
 .card:hover { transform:translateY(-4px); border-color:#242424; }
 .cover { width:100%; aspect-ratio:1/1; border-radius:14px; object-fit:cover; background:#0d0d0d; }
 .title { font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .subtitle { font-size:11px; color:var(--text2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .card-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
-.like { width:28px; height:28px; border-radius:50%; border:1px solid #222; background:#141414; display:grid; place-items:center; cursor:pointer; transition:.2s; color:var(--text); }
+.like { width:28px; height:28px; border-radius:50%; border:1px solid #222; background:#141414; display:grid; place-items:center; cursor:pointer; transition:.2s; }
 .like.active { background:#1c1c1c; border-color:#2a2a2a; }
-.like svg { width:14px; height:14px; fill:currentColor; }
+.like svg { width:14px; height:14px; }
 .player { position:fixed; left:280px; right:0; bottom:0; background:linear-gradient(180deg,#0c0c0c,#050505); border-top:1px solid #171717; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:10px; padding:12px 18px; z-index:5; }
 .track { display:flex; align-items:center; gap:12px; min-width:0; }
 .track img { width:44px; height:44px; border-radius:10px; border:1px solid #1a1a1a; object-fit:cover; }
 .track .meta { min-width:0; }
 .controls { display:flex; align-items:center; gap:10px; }
-.ctl { width:38px; height:38px; border-radius:12px; border:1px solid #212121; background:#121212; display:grid; place-items:center; cursor:pointer; transition:.2s; color:var(--text); }
+.ctl { width:38px; height:38px; border-radius:12px; border:1px solid #212121; background:#121212; display:grid; place-items:center; cursor:pointer; transition:.2s; color:#fff; }
 .ctl:hover { transform:translateY(-2px); }
 .progress { display:flex; align-items:center; gap:10px; padding:0 8px; }
 .range { -webkit-appearance:none; appearance:none; height:4px; width:32vw; background:#1a1a1a; border-radius:999px; outline:none; }
@@ -50,7 +51,7 @@ a { color:inherit; text-decoration:none; }
 .field { display:flex; flex-direction:column; gap:8px; }
 input, select { background:#0e0e0e; border:1px solid #1a1a1a; border-radius:12px; padding:12px 12px; color:var(--text); outline:none; transition:.2s; font-family:"IBM Plex Mono", monospace; text-transform:uppercase; }
 input:focus, select:focus { border-color:#2a2a2a; }
-.submit { margin-top:10px; width:100%; padding:12px; border-radius:14px; background:#151515; border:1px solid #222; cursor:pointer; font-size:12px; }
+.submit { margin-top:10px; width:100%; padding:12px; border-radius:14px; background:#151515; border:1px solid #222; cursor:pointer; font-size:12px; color:#fff; }
 .ghost { background:#101010; }
 .hint { color:var(--text2); font-size:11px; margin-top:6px; }
 .empty { color:var(--text2); text-align:center; padding:60px 10px; font-size:12px; }
@@ -62,177 +63,212 @@ input:focus, select:focus { border-color:#2a2a2a; }
 <div class="app">
 <aside class="sidebar">
 <div>
-  <div class="brand">YZYPLAYER</div>
-  <div class="muted">HTTPS://DISCORD.GG/5QC4NQMPDV</div>
+<div class="brand">YZYPLAYER</div>
+<div class="muted">HTTPS://DISCORD.GG/5QC4NQMPDV</div>
 </div>
 <nav class="nav">
-  <a href="#home" class="btn" data-route="home">HOME</a>
-  <a href="#profile" class="btn" data-route="profile">PROFILE</a>
-  <a href="#liked" class="btn" data-route="liked">LIKED SONGS</a>
-  <a href="#admin" class="btn" data-route="admin">ADMIN PANEL</a>
+<a href="#home" class="btn" data-route="home">HOME</a>
+<a href="#profile" class="btn" data-route="profile">PROFILE</a>
+<a href="#liked" class="btn" data-route="liked">LIKED SONGS</a>
+<a href="#admin" class="btn" data-route="admin">ADMIN PANEL</a>
 </nav>
 </aside>
 <main class="main">
 <section id="home" class="page show">
-  <div class="section">
-    <h2>ALBUMS</h2>
-    <div id="albums" class="grid"></div>
-  </div>
-  <div class="section">
-    <h2>EPS</h2>
-    <div id="eps" class="grid"></div>
-  </div>
-  <div class="section">
-    <h2>SINGLES</h2>
-    <div id="singles" class="grid"></div>
-  </div>
-  <div class="spacer"></div>
+<div class="section">
+<h2>ALBUMS</h2>
+<div id="albums" class="grid"></div>
+</div>
+<div class="section">
+<h2>EPS</h2>
+<div id="eps" class="grid"></div>
+</div>
+<div class="section">
+<h2>SINGLES</h2>
+<div id="singles" class="grid"></div>
+</div>
+<div class="spacer"></div>
 </section>
 <section id="profile" class="page"><div class="empty">COMING SOON</div></section>
 <section id="liked" class="page"><div id="likedGrid" class="grid"></div><div class="spacer"></div></section>
 <section id="admin" class="page">
 <div id="adminGate" class="login">
-  <div class="field">
-    <label>PASSWORD</label>
-    <input id="adminPassword" type="password" placeholder="ENTER PASSWORD" autocomplete="current-password" />
-    <button id="adminLogin" class="submit">ENTER</button>
-    <div id="loginHint" class="hint"></div>
-  </div>
+<div class="field">
+<label>PASSWORD</label>
+<input id="adminPassword" type="password" placeholder="ENTER PASSWORD" autocomplete="current-password" />
+<button id="adminLogin" class="submit">ENTER</button>
+<div id="loginHint" class="hint"></div>
 </div>
-<div id="adminForm" class="admin" style="display:none;">
-  <div class="field">
-    <label>TRACK NAME</label><input id="trackName" type="text" />
-  </div>
-  <div class="field">
-    <label>ARTIST</label><input id="trackArtist" type="text" />
-  </div>
-  <div class="field">
-    <label>ALBUM/EP/SINGLE</label>
-    <select id="trackType">
-      <option value="album">Album</option>
-      <option value="ep">EP</option>
-      <option value="single">Single</option>
-    </select>
-  </div>
-  <div class="field">
-    <label>COVER IMAGE URL</label><input id="trackCover" type="text" />
-  </div>
-  <div class="field">
-    <label>AUDIO URL</label><input id="trackAudio" type="text" />
-  </div>
-  <div class="field">
-    <label>DURATION (seconds)</label><input id="trackDuration" type="number" />
-  </div>
-  <button id="addTrack" class="submit">ADD TRACK</button>
+</div>
+<div id="adminForm" class="admin" style="display:none">
+<div class="row">
+<div class="field"><label>TITLE</label><input id="fTitle" placeholder="TITLE" /></div>
+<div class="field"><label>ARTIST</label><input id="fArtist" placeholder="ARTIST" /></div>
+</div>
+<div class="row">
+<div class="field"><label>TYPE</label>
+<select id="fType">
+<option value="ALBUM">ALBUM</option>
+<option value="EP">EP</option>
+<option value="SINGLE">SINGLE</option>
+</select>
+</div>
+<div class="field"><label>ALBUM NAME</label><input id="fAlbum" placeholder="OPTIONAL" /></div>
+</div>
+<div class="row">
+<div class="field"><label>MP3 URL (comma separated for multi-track)</label><input id="fUrl" placeholder="HTTPS://...MP3" /></div>
+<div class="field"><label>COVER URL</label><input id="fCover" placeholder="HTTPS://...JPG/PNG" /></div>
+</div>
+<button id="fSubmit" class="submit">ADD TO LIBRARY</button>
+<div class="hint">DATA STORED IN SUPABASE</div>
 </div>
 </section>
 </main>
+</div>
 
 <div class="player">
 <div class="track">
-  <img src="" id="playerCover"/>
-  <div class="meta">
-    <div id="playerTitle">Title</div>
-    <div id="playerArtist">Artist</div>
-  </div>
+<img id="pCover" src="" alt="" />
+<div class="meta">
+<div id="pTitle" class="title">NOTHING PLAYING</div>
+<div id="pArtist" class="subtitle"></div>
+</div>
 </div>
 <div class="controls">
-  <div id="prev" class="ctl">&#9664;</div>
-  <div id="play" class="ctl">&#9654;</div>
-  <div id="next" class="ctl">&#9654;&#9654;</div>
-</div>
+<button id="prev" class="ctl" aria-label="previous">⟨</button>
+<button id="play" class="ctl" aria-label="play">▶</button>
+<button id="next" class="ctl" aria-label="next">⟩</button>
 <div class="progress">
-  <input type="range" min="0" max="100" value="0" class="range" id="progress"/>
-  <input type="range" min="0" max="100" value="50" class="range vol" id="volume"/>
+<span id="cur" class="subtitle" style="width:40px; text-align:right;">0:00</span>
+<input id="seek" type="range" class="range" min="0" max="1000" value="0" />
+<span id="dur" class="subtitle" style="width:40px;">0:00</span>
+</div>
+</div>
+<div class="controls" style="justify-content:flex-end;">
+<span class="subtitle">VOL</span>
+<input id="vol" type="range" class="range vol" min="0" max="1" step="0.01" value="1" />
 </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<audio id="audio"></audio>
+
 <script>
-const supabase = supabase.createClient('https://mxprbsynyakkwdnpdmpr.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14cHJic3lueWFra3dkbnBkbXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMTExODUsImV4cCI6MjA3MDY4NzE4NX0.TCoRg7UcjT8kjHB0ltNiKN3IIFzFXfK5JvMy7PBfocA');
-
-let currentTrack = null;
-let audio = new Audio();
+const supabase = supabase.createClient(
+  'https://mxprbsynyakkwdnpdmpr.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14cHJic3lueWFra3dkbnBkbXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMTExODUsImV4cCI6MjA3MDY4NzE4NX0.TCoRg7UcjT8kjHB0ltNiKN3IIFzFXfK5JvMy7PBfocA'
+);
 
 const pages = document.querySelectorAll('.page');
-document.querySelectorAll('.btn').forEach(b => {
-  b.addEventListener('click', e => {
-    pages.forEach(p=>p.classList.remove('show'));
-    document.getElementById(b.dataset.route).classList.add('show');
-  });
-});
+const navBtns = document.querySelectorAll('.btn');
+function nav() {
+  const route = location.hash.replace('#','') || 'home';
+  pages.forEach(p => p.classList.toggle('show', p.id===route));
+  navBtns.forEach(b => b.classList.toggle('active', b.dataset.route===route));
+}
+window.addEventListener('hashchange', nav);
+nav();
 
-// Admin login
-const adminPass = "CUCK";
-document.getElementById('adminLogin').onclick = () => {
-  if(document.getElementById('adminPassword').value === adminPass){
+let library = { ALBUM:[], EP:[], SINGLE:[] };
+async function loadLibrary() {
+  const { data, error } = await supabase.from('tracks').select('*').order('id');
+  if(error) { console.error(error); return; }
+  library = { ALBUM:[], EP:[], SINGLE:[] };
+  data.forEach(track => {
+    if(!library[track.type]) library[track.type] = [];
+    library[track.type].push(track);
+  });
+  renderLibrary();
+}
+
+function renderLibrary() {
+  ['albums','eps','singles'].forEach(id => {
+    const container = document.getElementById(id);
+    container.innerHTML = '';
+    const type = id.toUpperCase();
+    library[type]?.forEach((t,i)=>{
+      const card = document.createElement('div');
+      card.className = 'card';
+      const cover = document.createElement('img'); cover.src=t.cover; cover.className='cover';
+      const title = document.createElement('div'); title.className='title'; title.textContent = t.title;
+      const subtitle = document.createElement('div'); subtitle.className='subtitle'; subtitle.textContent = t.artist;
+      card.append(cover,title,subtitle);
+      card.addEventListener('click',()=>playTrackList(type,t));
+      container.appendChild(card);
+    });
+  });
+}
+
+function playTrackList(type, t) {
+  const tracks = t.mp3.split(',');
+  if(tracks.length===1) { startTrack(tracks[0], t.cover, t.title, t.artist); return; }
+  // multi-track modal
+  const modal = document.createElement('div'); modal.className='admin'; modal.style.position='fixed'; modal.style.top='50%'; modal.style.left='50%'; modal.style.transform='translate(-50%,-50%)'; modal.style.maxWidth='400px'; modal.style.background='#111'; modal.style.padding='18px'; modal.style.borderRadius='18px'; modal.style.zIndex=99;
+  const list = document.createElement('div'); list.style.display='flex'; list.style.flexDirection='column'; list.style.gap='8px';
+  tracks.forEach((u,i)=>{
+    const row = document.createElement('div'); row.className='card-row';
+    const num = document.createElement('span'); num.textContent=(i+1)+'.'; row.appendChild(num);
+    const name = document.createElement('span'); name.textContent=t.title; row.appendChild(name);
+    const dur = document.createElement('span'); dur.textContent='–'; row.appendChild(dur);
+    const btn = document.createElement('button'); btn.textContent='PLAY'; btn.className='submit'; btn.style.fontSize='11px'; btn.addEventListener('click',()=>{startTrack(u,t.cover,t.title,t.artist); document.body.removeChild(modal);}); row.appendChild(btn);
+    list.appendChild(row);
+  });
+  modal.appendChild(list);
+  const close = document.createElement('button'); close.textContent='CLOSE'; close.className='submit'; close.style.marginTop='12px'; close.addEventListener('click',()=>document.body.removeChild(modal));
+  modal.appendChild(close);
+  document.body.appendChild(modal);
+}
+
+const audio = document.getElementById('audio');
+const pCover = document.getElementById('pCover');
+const pTitle = document.getElementById('pTitle');
+const pArtist = document.getElementById('pArtist');
+const playBtn = document.getElementById('play');
+
+function startTrack(url, cover, title, artist){
+  audio.src=url;
+  audio.play();
+  pCover.src=cover;
+  pTitle.textContent=title;
+  pArtist.textContent=artist;
+  playBtn.textContent='⏸';
+}
+playBtn.addEventListener('click',()=>audio.paused?audio.play():audio.pause());
+audio.addEventListener('play',()=>playBtn.textContent='⏸');
+audio.addEventListener('pause',()=>playBtn.textContent='▶');
+
+document.getElementById('vol').addEventListener('input',e=>audio.volume=e.target.value);
+
+const adminPass = 'CUCK';
+const login = document.getElementById('adminLogin');
+login.addEventListener('click',()=>{
+  const val = document.getElementById('adminPassword').value;
+  if(val===adminPass){
     document.getElementById('adminGate').style.display='none';
     document.getElementById('adminForm').style.display='block';
-  } else document.getElementById('loginHint').innerText="WRONG PASSWORD";
-}
+  } else {
+    document.getElementById('loginHint').textContent='WRONG PASSWORD';
+  }
+});
 
-// Add track
-document.getElementById('addTrack').onclick = async () => {
-  const name=document.getElementById('trackName').value;
-  const artist=document.getElementById('trackArtist').value;
-  const type=document.getElementById('trackType').value;
-  const cover=document.getElementById('trackCover').value;
-  const audioURL=document.getElementById('trackAudio').value;
-  const duration=parseInt(document.getElementById('trackDuration').value) || 0;
+document.getElementById('fSubmit').addEventListener('click', async ()=>{
+  const t = document.getElementById('fTitle').value.trim();
+  const a = document.getElementById('fArtist').value.trim();
+  const ty = document.getElementById('fType').value;
+  const al = document.getElementById('fAlbum').value.trim();
+  const u = document.getElementById('fUrl').value.trim();
+  const c = document.getElementById('fCover').value.trim();
+  if(!t||!a||!ty||!u||!c) return alert('FILL REQUIRED');
+  await supabase.from('tracks').insert([{title:t,artist:a,type:ty,album:al,mp3:u,cover:c}]);
+  alert('ADDED!');
+  loadLibrary();
+  document.getElementById('fTitle').value='';
+  document.getElementById('fArtist').value='';
+  document.getElementById('fAlbum').value='';
+  document.getElementById('fUrl').value='';
+  document.getElementById('fCover').value='';
+});
 
-  const {data,error} = await supabase.from('tracks').insert([{name,artist,type,cover,audioURL,duration}]);
-  if(!error) loadTracks();
-}
-
-// Load tracks
-async function loadTracks(){
-  const {data} = await supabase.from('tracks').select();
-  const albums = document.getElementById('albums');
-  const eps = document.getElementById('eps');
-  const singles = document.getElementById('singles');
-  albums.innerHTML=''; eps.innerHTML=''; singles.innerHTML='';
-
-  const grouped = {album:[],ep:[],single:[]};
-  data.forEach(d=>grouped[d.type].push(d));
-
-  for(let t of grouped.album) albums.appendChild(createCard(t));
-  for(let t of grouped.ep) eps.appendChild(createCard(t));
-  for(let t of grouped.single) singles.appendChild(createCard(t));
-}
-
-// Create card element
-function createCard(track){
-  const div=document.createElement('div'); div.className='card';
-  const img=document.createElement('img'); img.className='cover'; img.src=track.cover;
-  const title=document.createElement('div'); title.className='title'; title.innerText=track.name;
-  const sub=document.createElement('div'); sub.className='subtitle'; sub.innerText=track.artist;
-
-  div.appendChild(img); div.appendChild(title); div.appendChild(sub);
-  div.onclick = ()=>playTrack(track);
-  return div;
-}
-
-// Play track
-function playTrack(track){
-  currentTrack = track;
-  audio.src=track.audioURL;
-  audio.play();
-  document.getElementById('playerTitle').innerText=track.name;
-  document.getElementById('playerArtist').innerText=track.artist;
-  document.getElementById('playerCover').src=track.cover;
-  document.getElementById('play').innerText='❚❚';
-}
-
-document.getElementById('play').onclick = ()=>{
-  if(audio.paused){audio.play();document.getElementById('play').innerText='❚❚';} 
-  else {audio.pause();document.getElementById('play').innerText='▶';}
-}
-
-audio.addEventListener('ended', ()=>document.getElementById('play').innerText='▶');
-
-document.getElementById('volume').addEventListener('input', e=>audio.volume=e.target.value/100);
-
-loadTracks();
+loadLibrary();
 </script>
 </body>
 </html>
