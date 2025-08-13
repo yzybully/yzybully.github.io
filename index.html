@@ -135,152 +135,150 @@ input:focus, select:focus { border-color:#2a2a2a; }
 
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+const supabase = createClient('https://mxprbsynyakkwdnpdmpr.supabase.co','YOUR_ANON_KEY')
 
-const supabaseUrl = 'https://mxprbsynyakkwdnpdmpr.supabase.co'
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14cHJic3lueWFra3dkbnBkbXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMTExODUsImV4cCI6MjA3MDY4NzE4NX0.TCoRg7UcjT8kjHB0ltNiKN3IIFzFXfK5JvMy7PBfocA'  //
-const supabase = createClient(supabaseUrl, supabaseKey)
-
-// --- NAVIGATION ---
-const pages = document.querySelectorAll('.page')
-const navBtns = document.querySelectorAll('.btn')
+const pages = document.querySelectorAll('.page');
+const navBtns = document.querySelectorAll('.btn');
 
 function showPage(route){
-  pages.forEach(p=>p.classList.toggle('show', p.id===route))
-  navBtns.forEach(b=>b.classList.toggle('active', b.dataset.route===route))
+  pages.forEach(p=>p.classList.toggle('show', p.id===route));
+  navBtns.forEach(b=>b.classList.toggle('active', b.dataset.route===route));
 }
 
 navBtns.forEach(btn=>{
   btn.addEventListener('click', e=>{
-    e.preventDefault()
-    const route = btn.dataset.route
-    location.hash = route
-    showPage(route)
-  })
-})
+    e.preventDefault();
+    const route = btn.dataset.route;
+    location.hash = route;
+    showPage(route);
+  });
+});
 
 function nav(){
-  const route = location.hash.replace('#','') || 'home'
-  showPage(route)
+  const route = location.hash.replace('#','') || 'home';
+  showPage(route);
 }
-window.addEventListener('hashchange', nav)
-nav()
+window.addEventListener('hashchange', nav);
+nav();
 
-// --- AUDIO & RELEASES ---
-let releases = [], currentTrackIndex = 0, audio = new Audio()
+let releases = [], liked = [], currentTrackIndex = 0, audio = new Audio();
 
 async function fetchReleases(){
-  const { data, error } = await supabase.from('releases').select('*').order('id', {ascending:true})
-  if(error) return console.error(error)
-  releases = data || []
-  renderReleases()
+  const { data } = await supabase.from('releases').select('*').order('id', {ascending:true});
+  releases = data || [];
+  renderReleases();
 }
-
 function renderReleases(){
-  const albumsGrid = document.getElementById('albums')
-  const epsGrid = document.getElementById('eps')
-  const singlesGrid = document.getElementById('singles')
-  albumsGrid.innerHTML=''; epsGrid.innerHTML=''; singlesGrid.innerHTML=''
-
-  releases.forEach(r=>{
-    const card = document.createElement('div')
-    card.className='card'
+  const albumsGrid = document.getElementById('albums');
+  const epsGrid = document.getElementById('eps');
+  const singlesGrid = document.getElementById('singles');
+  albumsGrid.innerHTML=''; epsGrid.innerHTML=''; singlesGrid.innerHTML='';
+  releases.forEach((r,i)=>{
+    const card = document.createElement('div');
+    card.className='card';
     card.innerHTML=`<img class="cover" src="${r.cover}" />
       <div class="title">${r.title}</div>
-      <div class="subtitle">${r.type.toUpperCase()}</div>`
-
+      <div class="subtitle">${r.type.toUpperCase()}</div>`;
     card.addEventListener('click', ()=>{
-      if(r.tracks.length>1) showAlbumTracks(r)
-      else playTrack(r.tracks[0])
-    })
-
-    if(r.type==='album') albumsGrid.appendChild(card)
-    else if(r.type==='ep') epsGrid.appendChild(card)
-    else singlesGrid.appendChild(card)
-  })
+      if(r.tracks.length>1){
+        showAlbumTracks(r);
+      } else {
+        playTrack(r.tracks[0]);
+      }
+    });
+    if(r.type==='album') albumsGrid.appendChild(card);
+    else if(r.type==='ep') epsGrid.appendChild(card);
+    else singlesGrid.appendChild(card);
+  });
 }
-
 function showAlbumTracks(r){
-  const main = document.querySelector('.main')
-  main.innerHTML = `<div class="page show"><h2>${r.title}</h2><div class="grid" id="tracklist"></div></div>`
-  const list = document.getElementById('tracklist')
+  const main = document.querySelector('.main');
+  main.innerHTML = `<div class="page show"><h2>${r.title}</h2><div class="grid" id="tracklist"></div></div>`;
+  const list = document.getElementById('tracklist');
   r.tracks.forEach((t,i)=>{
-    const trackDiv = document.createElement('div')
-    trackDiv.className='card-row'
-    const duration = Math.floor(t.duration/60)+':' + String(t.duration%60).padStart(2,'0')
-    trackDiv.innerHTML=`<div>${i+1}. ${t.title}</div><div>${duration}</div>`
-    trackDiv.addEventListener('click',()=>playTrack(t))
-    list.appendChild(trackDiv)
-  })
+    const trackDiv = document.createElement('div');
+    trackDiv.className='card-row';
+    const duration = Math.floor(t.duration/60)+':' + String(t.duration%60).padStart(2,'0');
+    trackDiv.innerHTML=`<div>${i+1}. ${t.title}</div><div>${duration}</div>`;
+    trackDiv.addEventListener('click',()=>playTrack(t));
+    list.appendChild(trackDiv);
+  });
 }
 
 function playTrack(track){
-  audio.src=track.url
-  audio.play()
-  document.getElementById('trackCover').src=track.cover || ''
-  document.getElementById('trackTitle').innerText=track.title
-  document.getElementById('trackArtist').innerText=track.artist || ''
-  document.getElementById('play').innerText='❚❚'
+  audio.src=track.url;
+  audio.play();
+  document.getElementById('trackCover').src=track.cover || '';
+  document.getElementById('trackTitle').innerText=track.title;
+  document.getElementById('trackArtist').innerText=track.artist || '';
+  document.getElementById('play').innerText='❚❚';
 }
 
-// --- PLAYER CONTROLS ---
 document.getElementById('play').addEventListener('click',()=>{
-  if(audio.paused) audio.play()
-  else audio.pause()
-  document.getElementById('play').innerText=audio.paused?'▶':'❚❚'
-})
-document.getElementById('next').addEventListener('click',()=>{ currentTrackIndex=(currentTrackIndex+1)%releases.length; playTrack(releases[currentTrackIndex].tracks[0]); })
-document.getElementById('prev').addEventListener('click',()=>{ currentTrackIndex=(currentTrackIndex-1+releases.length)%releases.length; playTrack(releases[currentTrackIndex].tracks[0]); })
-audio.addEventListener('ended',()=>document.getElementById('play').innerText='▶')
-document.getElementById('volume').addEventListener('input',(e)=>{ audio.volume=e.target.value/100; })
-document.getElementById('progress').addEventListener('input',(e)=>{ audio.currentTime=e.target.value; })
-audio.addEventListener('timeupdate',()=>{ document.getElementById('progress').value=audio.currentTime; document.getElementById('progress').max=audio.duration; })
+  if(audio.paused) audio.play();
+  else audio.pause();
+  document.getElementById('play').innerText=audio.paused?'▶':'❚❚';
+});
+document.getElementById('next').addEventListener('click',()=>{ currentTrackIndex=(currentTrackIndex+1)%releases.length; playTrack(releases[currentTrackIndex].tracks[0]); });
+document.getElementById('prev').addEventListener('click',()=>{ currentTrackIndex=(currentTrackIndex-1+releases.length)%releases.length; playTrack(releases[currentTrackIndex].tracks[0]); });
+audio.addEventListener('ended',()=>document.getElementById('play').innerText='▶');
+document.getElementById('volume').addEventListener('input',(e)=>{ audio.volume=e.target.value/100; });
+document.getElementById('progress').addEventListener('input',(e)=>{ audio.currentTime=e.target.value; });
+audio.addEventListener('timeupdate',()=>{ document.getElementById('progress').value=audio.currentTime; document.getElementById('progress').max=audio.duration; });
 
-// --- ADMIN PANEL ---
-const passwordInput = document.getElementById('password')
-const loginBtn = document.getElementById('login')
-const adminGate = document.getElementById('adminGate')
-const adminPanel = document.getElementById('adminPanel')
-const addTrackBtn = document.getElementById('addTrack')
-const tracksContainer = document.getElementById('tracksContainer')
-const submitReleaseBtn = document.getElementById('submitRelease')
+const passwordInput = document.getElementById('password');
+const loginBtn = document.getElementById('login');
+const adminGate = document.getElementById('adminGate');
+const adminPanel = document.getElementById('adminPanel');
+const addTrackBtn = document.getElementById('addTrack');
+const tracksContainer = document.getElementById('tracksContainer');
+const submitReleaseBtn = document.getElementById('submitRelease');
+const adminPasswordHash = '5D02B4470D7AB796C1BB7126D8A7E3E49B4367CFED3D6452BB3A1CFA0D25F4B1';
 
-loginBtn.addEventListener('click',()=>{
-  if(passwordInput.value==='CUCK'){
-    adminGate.style.display='none'
-    adminPanel.style.display='block'
-  } else alert('Wrong password')
-})
+async function hashPassword(str){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('').toUpperCase();
+}
 
-addTrackBtn.addEventListener('click',()=>{
-  const trackDiv = document.createElement('div')
-  trackDiv.className='row'
+loginBtn.addEventListener('click', async ()=>{
+  const hash = await hashPassword(passwordInput.value);
+  if(hash===adminPasswordHash){
+    adminGate.style.display='none';
+    adminPanel.style.display='block';
+  } else alert('Wrong password');
+});
+
+addTrackBtn.addEventListener('click', ()=>{
+  const trackDiv = document.createElement('div');
+  trackDiv.className='row';
   trackDiv.innerHTML=`<input type="text" placeholder="Track Title" class="trackTitle"/>
   <input type="text" placeholder="Track URL" class="trackURL"/>
-  <input type="number" placeholder="Duration (sec)" class="trackDuration"/>`
-  tracksContainer.appendChild(trackDiv)
-})
+  <input type="number" placeholder="Duration (sec)" class="trackDuration"/>`;
+  tracksContainer.appendChild(trackDiv);
+});
 
 submitReleaseBtn.addEventListener('click', async ()=>{
-  const title = document.getElementById('title').value
-  const cover = document.getElementById('cover').value
-  const type = document.getElementById('type').value
-  const tracksEls = tracksContainer.querySelectorAll('.row')
-  const tracks = Array.from(tracksEls).map(r=>({
-    title: r.querySelector('.trackTitle').value,
-    url: r.querySelector('.trackURL').value,
-    duration: parseInt(r.querySelector('.trackDuration').value),
-    cover
-  }))
-  const { error } = await supabase.from('releases').insert([{ title, cover, type, tracks }])
+  const title = document.getElementById('title').value;
+  const cover = document.getElementById('cover').value;
+  const type = document.getElementById('type').value;
+  const tracksEls = tracksContainer.querySelectorAll('.row');
+  const tracks = Array.from(tracksEls).map(r=>{
+    return {
+      title: r.querySelector('.trackTitle').value,
+      url: r.querySelector('.trackURL').value,
+      duration: parseInt(r.querySelector('.trackDuration').value),
+      cover: cover
+    }
+  });
+  const { error } = await supabase.from('releases').insert([{ title, cover, type, tracks }]);
   if(!error){
-    alert('Release added!')
-    tracksContainer.innerHTML=''
-    fetchReleases()
-  } else alert('Error adding release: ' + error.message)
-})
+    alert('Release added');
+    tracksContainer.innerHTML='';
+    fetchReleases();
+  } else alert('Error adding release');
+});
 
-// INITIAL FETCH
-fetchReleases()
+fetchReleases();
 </script>
 </body>
 </html>
