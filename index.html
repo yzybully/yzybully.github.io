@@ -25,7 +25,7 @@
     .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:16px; }
     .section { margin-bottom:28px; }
     .section h2 { font-size:14px; color:var(--text2); margin:0 0 12px; letter-spacing:.12em; }
-    .card { background:var(--card); border:1px solid #171717; border-radius:18px; padding:14px; box-shadow:var(--shadow); transition:transform .25s ease, border-color .25s ease; display:flex; flex-direction:column; gap:10px; }
+    .card { background:var(--card); border:1px solid #171717; border-radius:18px; padding:14px; box-shadow:var(--shadow); transition:transform .25s ease, border-color .25s ease; display:flex; flex-direction:column; gap:10px; cursor:pointer; }
     .card:hover { transform:translateY(-4px); border-color:#242424; }
     .cover { width:100%; aspect-ratio:1/1; border-radius:14px; object-fit:cover; background:#0d0d0d; }
     .title { font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -33,13 +33,13 @@
     .card-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
     .like { width:28px; height:28px; border-radius:50%; border:1px solid #222; background:#141414; display:grid; place-items:center; cursor:pointer; transition:.2s; }
     .like.active { background:#1c1c1c; border-color:#2a2a2a; }
-    .like svg { width:14px; height:14px; fill:white; }
+    .like svg { width:14px; height:14px; }
     .player { position:fixed; left:280px; right:0; bottom:0; background:linear-gradient(180deg,#0c0c0c,#050505); border-top:1px solid #171717; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:10px; padding:12px 18px; z-index:5; }
     .track { display:flex; align-items:center; gap:12px; min-width:0; }
     .track img { width:44px; height:44px; border-radius:10px; border:1px solid #1a1a1a; object-fit:cover; }
     .track .meta { min-width:0; }
     .controls { display:flex; align-items:center; gap:10px; }
-    .ctl { width:38px; height:38px; border-radius:12px; border:1px solid #212121; background:#121212; display:grid; place-items:center; cursor:pointer; transition:.2s; color:white; }
+    .ctl { width:38px; height:38px; border-radius:12px; border:1px solid #212121; background:#121212; display:grid; place-items:center; cursor:pointer; transition:.2s; }
     .ctl:hover { transform:translateY(-2px); }
     .progress { display:flex; align-items:center; gap:10px; padding:0 8px; }
     .range { -webkit-appearance:none; appearance:none; height:4px; width:32vw; background:#1a1a1a; border-radius:999px; outline:none; }
@@ -50,11 +50,14 @@
     .field { display:flex; flex-direction:column; gap:8px; }
     input, select { background:#0e0e0e; border:1px solid #1a1a1a; border-radius:12px; padding:12px 12px; color:var(--text); outline:none; transition:.2s; font-family:"IBM Plex Mono", monospace; text-transform:uppercase; }
     input:focus, select:focus { border-color:#2a2a2a; }
-    .submit { margin-top:10px; width:100%; padding:12px; border-radius:14px; background:#151515; border:1px solid #222; cursor:pointer; font-size:12px; color:white; }
+    .submit { margin-top:10px; width:100%; padding:12px; border-radius:14px; background:#151515; border:1px solid #222; cursor:pointer; font-size:12px; }
     .ghost { background:#101010; }
     .hint { color:var(--text2); font-size:11px; margin-top:6px; }
     .empty { color:var(--text2); text-align:center; padding:60px 10px; font-size:12px; }
     .spacer { height:84px; }
+    .tracklist { display:flex; flex-direction:column; gap:12px; margin-top:20px; }
+    .track-item { display:flex; justify-content:space-between; align-items:center; padding:10px; background:var(--muted); border-radius:12px; cursor:pointer; transition:.2s; }
+    .track-item:hover { background:var(--muted2); }
     @media (max-width: 900px) { .app { grid-template-columns:1fr; } .sidebar { position:fixed; inset:auto 0 0 0; flex-direction:row; align-items:center; z-index:10; border-right:0; border-top:1px solid #111; padding:8px; gap:8px; } .brand, .muted { display:none; } .nav { flex-direction:row; width:100%; margin:0; } .btn { flex:1; justify-content:center; } .player { left:0; } .page { padding-bottom:120px; } }
   </style>
 </head>
@@ -63,7 +66,7 @@
   <aside class="sidebar">
     <div>
       <div class="brand">YZYPLAYER</div>
-      <div class="muted">HTTPS://DISCORD.GG/5QC4NQMPDV</div>
+      <div class="muted">HTTPS://DISCORD.GG/5Q C4NQMPDV</div>
     </div>
     <nav class="nav">
       <a href="#home" class="btn" data-route="home">HOME</a>
@@ -90,6 +93,7 @@
     </section>
     <section id="profile" class="page"><div class="empty">COMING SOON</div></section>
     <section id="liked" class="page"><div id="likedGrid" class="grid"></div><div class="spacer"></div></section>
+    <section id="albumView" class="page"><div id="albumTracks" class="tracklist"></div><button class="submit" id="backToHome">BACK</button></section>
     <section id="admin" class="page">
       <div id="adminGate" class="login">
         <div class="field">
@@ -101,7 +105,7 @@
       </div>
       <div id="adminForm" class="admin" style="display:none">
         <div class="row">
-          <div class="field"><label>TITLE</label><input id="fTitle" placeholder="TITLE" /></div>
+          <div class="field"><label>ALBUM/EP/SINGLE NAME</label><input id="fTitle" placeholder="TITLE" /></div>
           <div class="field"><label>ARTIST</label><input id="fArtist" placeholder="ARTIST" /></div>
         </div>
         <div class="row">
@@ -112,12 +116,15 @@
               <option value="SINGLE">SINGLE</option>
             </select>
           </div>
-          <div class="field"><label>ALBUM NAME</label><input id="fAlbum" placeholder="OPTIONAL" /></div>
-        </div>
-        <div class="row">
-          <div class="field"><label>MP3 URL</label><input id="fUrl" placeholder="HTTPS://...MP3" /></div>
           <div class="field"><label>COVER URL</label><input id="fCover" placeholder="HTTPS://...JPG/PNG" /></div>
         </div>
+        <div id="trackInputs">
+          <div class="row track-row">
+            <div class="field"><label>TRACK TITLE</label><input class="fTrackTitle" placeholder="TRACK TITLE" /></div>
+            <div class="field"><label>TRACK MP3 URL</label><input class="fTrackUrl" placeholder="HTTPS://...MP3" /></div>
+          </div>
+        </div>
+        <button id="addTrack" class="submit ghost">ADD ANOTHER TRACK</button>
         <button id="fSubmit" class="submit">ADD TO LIBRARY</button>
         <button id="fExport" class="submit ghost">EXPORT LIBRARY JSON</button>
         <div class="hint">DATA STORED IN LOCAL STORAGE</div>
@@ -160,26 +167,36 @@ const state = {
   current:-1
 };
 
-const routes=["home","profile","liked","admin"];
-const pages=Object.fromEntries(routes.map(r=>[r,document.getElementById(r)]));
-function nav(route){ routes.forEach(r=>pages[r].classList.toggle("show", r===route)); document.querySelectorAll(".btn").forEach(b=>b.classList.toggle("active", b.dataset.route===route)); if(route==="liked") renderLiked(); if(route==="home") renderHome();}
+const routes = ["home","profile","liked","admin","albumView"];
+const pages = Object.fromEntries(routes.map(r=>[r,document.getElementById(r)]));
+function nav(route){
+  routes.forEach(r=>pages[r].classList.toggle("show", r===route));
+  document.querySelectorAll(".btn").forEach(b=>b.classList.toggle("active", b.dataset.route===route));
+  if(route==="liked") renderLiked();
+  if(route==="home") renderHome();
+}
 window.addEventListener("hashchange",()=>nav(location.hash.replace("#","")||"home"));
 nav(location.hash.replace("#","")||"home");
 
-function save(){ localStorage.setItem("yzy_library",JSON.stringify(state.library)); localStorage.setItem("yzy_likes",JSON.stringify(state.likes)); }
-function uid(){ return Math.random().toString(36).slice(2)+Date.now().toString(36); }
+function save(){ localStorage.setItem("yzy_library", JSON.stringify(state.library)); localStorage.setItem("yzy_likes", JSON.stringify(state.likes)); }
 
 function card(item){
-  const el=document.createElement("div");
+  const el = document.createElement("div");
   el.className="card";
   el.innerHTML=`<img class="cover" src="${item.cover||""}" alt="">
-  <div class="title">${item.title||"UNTITLED"}</div>
-  <div class="card-row">
-    <div class="subtitle">${item.artist||"UNKNOWN"}</div>
-    <button class="like ${state.likes.includes(item.id)?"active":""}" aria-label="like">${heartSvg()}</button>
-  </div>`;
-  el.addEventListener("click",e=>{if(e.target.closest(".like")) return; playFrom(item.id);});
-  el.querySelector(".like").addEventListener("click",e=>{e.stopPropagation(); toggleLike(item.id); e.currentTarget.classList.toggle("active");});
+    <div class="title">${item.title||"UNTITLED"}</div>
+    <div class="card-row">
+      <div class="subtitle">${item.artist||"UNKNOWN"}</div>
+      <button class="like ${state.likes.includes(item.id)?"active":""}" aria-label="like">${heartSvg()}</button>
+    </div>`;
+  el.addEventListener("click", e=>{
+    if(e.target.closest(".like")) return;
+    if(item.tracks.length>1) showAlbum(item);
+    else playFrom(item.tracks[0].url,item.cover,item.title,item.artist);
+  });
+  el.querySelector(".like").addEventListener("click", e=>{
+    e.stopPropagation(); toggleLike(item.id); e.currentTarget.classList.toggle("active");
+  });
   return el;
 }
 
@@ -188,47 +205,114 @@ function renderHome(){
   Object.values(groups).forEach(g=>g.innerHTML="");
   const byType={ALBUM:[],EP:[],SINGLE:[]};
   state.library.forEach(x=>byType[x.type||"SINGLE"].push(x));
-  Object.entries(byType).forEach(([t,arr])=>{ const grid=groups[t]; if(!grid) return; if(arr.length===0){ grid.innerHTML=`<div class="empty">NO ${t}</div>`; } else { arr.forEach(x=>grid.appendChild(card(x))); } });
+  Object.entries(byType).forEach(([t,arr])=>{
+    const grid=groups[t]; if(!grid) return;
+    if(arr.length===0) grid.innerHTML=`<div class="empty">NO ${t}</div>`;
+    else arr.forEach(x=>grid.appendChild(card(x)));
+  });
 }
 
-function renderLiked(){ const grid=document.getElementById("likedGrid"); grid.innerHTML=""; const liked=state.library.filter(x=>state.likes.includes(x.id)); if(liked.length===0){ grid.innerHTML='<div class="empty">NO LIKED SONGS</div>'; return; } liked.forEach(x=>grid.appendChild(card(x))); }
+function renderLiked(){
+  const grid=document.getElementById("likedGrid"); grid.innerHTML="";
+  const liked=state.library.filter(x=>state.likes.includes(x.id));
+  if(liked.length===0){ grid.innerHTML='<div class="empty">NO LIKED SONGS</div>'; return;}
+  liked.forEach(x=>grid.appendChild(card(x)));
+}
 
 function toggleLike(id){ const i=state.likes.indexOf(id); if(i>-1) state.likes.splice(i,1); else state.likes.push(id); save(); }
 
+function uid(){ return Math.random().toString(36).slice(2)+Date.now().toString(36); }
+
 const audio=document.getElementById("audio");
-const pCover=document.getElementById("pCover");
-const pTitle=document.getElementById("pTitle");
-const pArtist=document.getElementById("pArtist");
-const playBtn=document.getElementById("play");
-
-function playFrom(id){ const index=state.library.findIndex(x=>x.id===id); if(index===-1) return; state.current=index; playTrack(); }
-function playTrack(){ if(state.current<0||state.current>=state.library.length) return; const track=state.library[state.current]; audio.src=track.url; pCover.src=track.cover||""; pTitle.textContent=track.title||"UNTITLED"; pArtist.textContent=track.artist||"UNKNOWN"; audio.play(); playBtn.textContent="❚❚"; }
-
-playBtn.addEventListener("click",()=>{ if(audio.paused) audio.play(); else audio.pause(); playBtn.textContent=audio.paused?"▶":"❚❚"; });
-document.getElementById("prev").addEventListener("click",()=>{ state.current=(state.current-1+state.library.length)%state.library.length; playTrack(); });
-document.getElementById("next").addEventListener("click",()=>{ state.current=(state.current+1)%state.library.length; playTrack(); });
-document.getElementById("seek").addEventListener("input",e=>{ audio.currentTime=e.target.value; });
-audio.addEventListener("timeupdate",()=>{ document.getElementById("seek").value=audio.currentTime; document.getElementById("cur").textContent=formatTime(audio.currentTime); document.getElementById("dur").textContent=formatTime(audio.duration||0); });
-function formatTime(s){ const m=Math.floor(s/60); const sec=Math.floor(s%60); return m+":"+sec.toString().padStart(2,"0"); }
-document.getElementById("vol").addEventListener("input",e=>{ audio.volume=e.target.value; });
-
-document.getElementById("fSubmit").addEventListener("click",()=>{
-  const newItem={ id:uid(), title:document.getElementById("fTitle").value, artist:document.getElementById("fArtist").value, type:document.getElementById("fType").value, album:document.getElementById("fAlbum").value, url:document.getElementById("fUrl").value, cover:document.getElementById("fCover").value };
-  state.library.push(newItem); save(); renderHome();
+const pTitle=document.getElementById("pTitle"),pArtist=document.getElementById("pArtist"),pCover=document.getElementById("pCover");
+function playFrom(url,cover,title,artist){
+  audio.src=url;
+  audio.play();
+  pCover.src=cover||"";
+  pTitle.textContent=title||"";
+  pArtist.textContent=artist||"";
+}
+document.getElementById("play").addEventListener("click",()=>audio.paused?audio.play():audio.pause());
+document.getElementById("prev").addEventListener("click",()=>{});
+document.getElementById("next").addEventListener("click",()=>{});
+audio.addEventListener("timeupdate",()=>{
+  const p=Math.floor(audio.currentTime),d=Math.floor(audio.duration)||0;
+  document.getElementById("cur").textContent=formatTime(p);
+  document.getElementById("dur").textContent=formatTime(d);
+  document.getElementById("seek").value=d?Math.floor(p/d*1000):0;
 });
+document.getElementById("seek").addEventListener("input",e=>audio.currentTime=audio.duration*(e.target.value/1000));
+document.getElementById("vol").addEventListener("input",e=>audio.volume=e.target.value);
+function formatTime(s){ const m=Math.floor(s/60); const sec=s%60; return `${m}:${sec.toString().padStart(2,"0")}`; }
+
+function heartSvg(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61c-1.54-1.49-4.04-1.49-5.59 0L12 7.85l-3.25-3.24c-1.55-1.49-4.04-1.49-5.59 0-1.59 1.54-1.59 4.03 0 5.57L12 21.35l8.84-8.84c1.59-1.55 1.59-4.03 0-5.9z"></path></svg>`}
+
+// --- Admin ---
+const adminPass="CUCK";
+const adminLogin=document.getElementById("adminLogin");
+const adminPassword=document.getElementById("adminPassword");
+const loginHint=document.getElementById("loginHint");
+const adminGate=document.getElementById("adminGate");
+const adminForm=document.getElementById("adminForm");
+
+adminLogin.addEventListener("click",()=>{
+  if(adminPassword.value===adminPass){ adminGate.style.display="none"; adminForm.style.display="block"; loginHint.textContent=""; } 
+  else loginHint.textContent="WRONG PASSWORD";
+});
+
+// --- Add Tracks ---
+const addTrackBtn=document.getElementById("addTrack");
+const trackInputs=document.getElementById("trackInputs");
+addTrackBtn.addEventListener("click",()=>{
+  const row=document.createElement("div");
+  row.className="row track-row";
+  row.innerHTML=`<div class="field"><label>TRACK TITLE</label><input class="fTrackTitle" placeholder="TRACK TITLE" /></div>
+    <div class="field"><label>TRACK MP3 URL</label><input class="fTrackUrl" placeholder="HTTPS://...MP3" /></div>`;
+  trackInputs.appendChild(row);
+});
+
+// --- Submit Album ---
+document.getElementById("fSubmit").addEventListener("click",()=>{
+  const title=document.getElementById("fTitle").value;
+  const artist=document.getElementById("fArtist").value;
+  const type=document.getElementById("fType").value;
+  const cover=document.getElementById("fCover").value;
+  const trackEls=document.querySelectorAll(".track-row");
+  const tracks=[];
+  trackEls.forEach(tr=>{
+    const t=tr.querySelector(".fTrackTitle").value;
+    const u=tr.querySelector(".fTrackUrl").value;
+    if(t&&u) tracks.push({title:t,url:u});
+  });
+  if(!title||!artist||tracks.length===0){ alert("Fill all fields"); return;}
+  state.library.push({id:uid(),title,artist,type,cover,tracks});
+  save(); renderHome();
+  document.getElementById("fTitle").value=""; document.getElementById("fArtist").value="";
+  document.getElementById("fCover").value=""; trackInputs.innerHTML="";
+  addTrackBtn.click();
+});
+
+// --- Export ---
 document.getElementById("fExport").addEventListener("click",()=>{ alert(JSON.stringify(state.library,null,2)); });
 
-function heartSvg(){ return '<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>'; }
+// --- Album View ---
+function showAlbum(album){
+  const list=document.getElementById("albumTracks");
+  list.innerHTML="";
+  album.tracks.forEach(t=>{
+    const el=document.createElement("div");
+    el.className="track-item";
+    el.textContent=t.title;
+    el.addEventListener("click",()=>playFrom(t.url,album.cover,t.title,album.artist));
+    list.appendChild(el);
+  });
+  nav("albumView");
+}
+document.getElementById("backToHome").addEventListener("click",()=>nav("home"));
 
-// Admin logic rewritten
-const ADMIN_PASSWORD="CUCK"; // store in memory only
-const gate=document.getElementById("adminGate");
-const form=document.getElementById("adminForm");
-document.getElementById("adminLogin").addEventListener("click",()=>{
-  const val=document.getElementById("adminPassword").value;
-  if(val===ADMIN_PASSWORD){ gate.style.display="none"; form.style.display="block"; nav("admin"); document.getElementById("loginHint").textContent=""; }
-  else { document.getElementById("loginHint").textContent="WRONG PASSWORD"; }
-});
+// --- Initialize ---
+if(state.library.length===0) addTrackBtn.click();
+renderHome();
 </script>
 </body>
 </html>
