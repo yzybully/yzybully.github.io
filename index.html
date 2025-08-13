@@ -6,12 +6,11 @@
 <title>YZYPlayer BETA SITE</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap" rel="stylesheet" />
 <style>
-:root { --bg:#0a0a0a; --muted:#161616; --muted2:#1f1f1f; --text:#ffffff; --text2:#bdbdbd; --acc:#ffffff; --card:#111; --shadow:0 12px 30px rgba(0,0,0,.35); }
+:root { --bg:#0a0a0a; --muted:#161616; --muted2:#1f1f1f; --text:#ffffff; --text2:#bdbdbd; --card:#111; --shadow:0 12px 30px rgba(0,0,0,.35); }
 *{box-sizing:border-box;}
-html,body{height:100%;}
-body{margin:0;background:var(--bg);color:var(--text);font-family:"IBM Plex Mono", monospace;text-transform:uppercase;letter-spacing:.06em;}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:"IBM Plex Mono", monospace;text-transform:uppercase;letter-spacing:.06em;}
 a{color:inherit;text-decoration:none;}
-.app{display:grid;grid-template-columns:280px 1fr;height:100dvh;}
+.app{display:grid;grid-template-columns:280px 1fr;height:100vh;}
 .sidebar{background:linear-gradient(180deg,#0e0e0e,#070707);border-right:1px solid #111;padding:22px 16px;display:flex;flex-direction:column;gap:18px;}
 .brand{font-size:22px;font-weight:600;letter-spacing:.18em;}
 .muted{color:var(--text2);font-size:11px;margin-top:2px;}
@@ -48,8 +47,8 @@ a{color:inherit;text-decoration:none;}
 .login,.admin{max-width:680px;margin:0 auto;background:var(--card);border:1px solid #171717;border-radius:18px;padding:18px;box-shadow:var(--shadow);}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .field{display:flex;flex-direction:column;gap:8px;}
-input,select{background:#0e0e0e;border:1px solid #1a1a1a;border-radius:12px;padding:12px 12px;color:var(--text);outline:none;transition:.2s;font-family:"IBM Plex Mono", monospace;text-transform:uppercase;}
-input:focus,select:focus{border-color:#2a2a2a;}
+input,select,textarea{background:#0e0e0e;border:1px solid #1a1a1a;border-radius:12px;padding:12px 12px;color:var(--text);outline:none;transition:.2s;font-family:"IBM Plex Mono", monospace;text-transform:uppercase;}
+input:focus,select:focus,textarea:focus{border-color:#2a2a2a;}
 .submit{margin-top:10px;width:100%;padding:12px;border-radius:14px;background:#151515;border:1px solid #222;cursor:pointer;font-size:12px;color:var(--text);}
 .ghost{background:#101010;}
 .hint{color:var(--text2);font-size:11px;margin-top:6px;}
@@ -67,113 +66,104 @@ input:focus,select:focus{border-color:#2a2a2a;}
 <body>
 <div class="app">
 <aside class="sidebar">
-<div>
-<div class="brand">YZYPLAYER</div>
-<div class="muted">HTTPS://DISCORD.GG/5Q C4NQMPDV</div>
-</div>
-<nav class="nav">
-<a href="#home" class="btn" data-route="home">HOME</a>
-<a href="#profile" class="btn" data-route="profile">PROFILE</a>
-<a href="#liked" class="btn" data-route="liked">LIKED SONGS</a>
-<a href="#admin" class="btn" data-route="admin">ADMIN PANEL</a>
-</nav>
+  <div>
+    <div class="brand">YZYPLAYER</div>
+    <div class="muted">HTTPS://DISCORD.GG/5Q C4NQMPDV</div>
+  </div>
+  <nav class="nav">
+    <a href="#home" class="btn" data-route="home">HOME</a>
+    <a href="#profile" class="btn" data-route="profile">PROFILE</a>
+    <a href="#liked" class="btn" data-route="liked">LIKED SONGS</a>
+    <a href="#admin" class="btn" data-route="admin">ADMIN PANEL</a>
+  </nav>
 </aside>
 <main class="main">
 <section id="home" class="page show">
-<div class="section">
-<h2>ALBUMS</h2>
-<div id="albums" class="grid"></div>
-</div>
-<div class="section">
-<h2>EPS</h2>
-<div id="eps" class="grid"></div>
-</div>
-<div class="section">
-<h2>SINGLES</h2>
-<div id="singles" class="grid"></div>
-</div>
-<div class="spacer"></div>
+  <div class="section"><h2>ALBUMS</h2><div id="albums" class="grid"></div></div>
+  <div class="section"><h2>EPS</h2><div id="eps" class="grid"></div></div>
+  <div class="section"><h2>SINGLES</h2><div id="singles" class="grid"></div></div>
+  <div class="spacer"></div>
 </section>
 <section id="profile" class="page"><div class="empty">COMING SOON</div></section>
 <section id="liked" class="page"><div id="likedGrid" class="grid"></div><div class="spacer"></div></section>
 <section id="admin" class="page">
-<div id="adminGate" class="login">
-<div class="field">
-<label>PASSWORD</label>
-<input id="adminPassword" type="password" placeholder="ENTER PASSWORD" autocomplete="current-password" />
-<button id="adminLogin" class="submit">ENTER</button>
-<div id="loginHint" class="hint"></div>
-</div>
-</div>
-<div id="adminForm" class="admin" style="display:none">
-<div class="row">
-<div class="field"><label>TITLE</label><input id="fTitle" placeholder="TITLE" /></div>
-<div class="field"><label>ARTIST</label><input id="fArtist" placeholder="ARTIST" /></div>
-</div>
-<div class="row">
-<div class="field"><label>TYPE</label>
-<select id="fType">
-<option value="ALBUM">ALBUM</option>
-<option value="EP">EP</option>
-<option value="SINGLE">SINGLE</option>
-</select>
-</div>
-<div class="field"><label>ALBUM NAME</label><input id="fAlbum" placeholder="OPTIONAL" /></div>
-</div>
-<div class="row">
-<div class="field"><label>TRACKS</label><textarea id="fTracks" placeholder='JSON: [{"title":"song1","url":"https://...","duration":0}]'></textarea></div>
-<div class="field"><label>COVER URL</label><input id="fCover" placeholder="HTTPS://...JPG/PNG" /></div>
-</div>
-<button id="fSubmit" class="submit">ADD TO LIBRARY</button>
-<button id="fExport" class="submit ghost">EXPORT LIBRARY JSON</button>
-<div class="hint">DATA STORED IN LOCAL STORAGE / SUPABASE</div>
-</div>
+  <div id="adminGate" class="login">
+    <div class="field">
+      <label>PASSWORD</label>
+      <input id="adminPassword" type="password" placeholder="ENTER PASSWORD" autocomplete="current-password" />
+      <button id="adminLogin" class="submit">ENTER</button>
+      <div id="loginHint" class="hint"></div>
+    </div>
+  </div>
+  <div id="adminForm" class="admin" style="display:none">
+    <div class="row">
+      <div class="field"><label>TITLE</label><input id="fTitle" placeholder="TITLE" /></div>
+      <div class="field"><label>ARTIST</label><input id="fArtist" placeholder="ARTIST" /></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>TYPE</label>
+        <select id="fType">
+          <option value="ALBUM">ALBUM</option>
+          <option value="EP">EP</option>
+          <option value="SINGLE">SINGLE</option>
+        </select>
+      </div>
+      <div class="field"><label>ALBUM NAME</label><input id="fAlbum" placeholder="OPTIONAL" /></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>TRACKS</label><textarea id="fTracks" placeholder='JSON: [{"title":"song1","url":"https://...","duration":0}]'></textarea></div>
+      <div class="field"><label>COVER URL</label><input id="fCover" placeholder="HTTPS://...JPG/PNG" /></div>
+    </div>
+    <button id="fSubmit" class="submit">ADD TO LIBRARY</button>
+    <button id="fExport" class="submit ghost">EXPORT LIBRARY JSON</button>
+    <div class="hint">DATA STORED IN LOCAL STORAGE / SUPABASE</div>
+  </div>
 </section>
 </main>
 </div>
 
 <div class="player">
-<div class="track">
-<img id="pCover" src="" alt="" />
-<div class="meta">
-<div id="pTitle" class="title">NOTHING PLAYING</div>
-<div id="pArtist" class="subtitle"></div>
-</div>
-</div>
-<div class="controls">
-<button id="prev" class="ctl" aria-label="previous">⟨</button>
-<button id="play" class="ctl" aria-label="play">▶</button>
-<button id="next" class="ctl" aria-label="next">⟩</button>
-<div class="progress">
-<span id="cur" class="subtitle" style="width:40px;text-align:right;">0:00</span>
-<input id="seek" type="range" class="range" min="0" max="1000" value="0" />
-<span id="dur" class="subtitle" style="width:40px;">0:00</span>
-</div>
-</div>
-<div class="controls" style="justify-content:flex-end;">
-<span class="subtitle">VOL</span>
-<input id="vol" type="range" class="range vol" min="0" max="1" step="0.01" value="1" />
-</div>
+  <div class="track">
+    <img id="pCover" src="" alt="" />
+    <div class="meta">
+      <div id="pTitle" class="title">NOTHING PLAYING</div>
+      <div id="pArtist" class="subtitle"></div>
+    </div>
+  </div>
+  <div class="controls">
+    <button id="prev" class="ctl" aria-label="previous">⟨</button>
+    <button id="play" class="ctl" aria-label="play">▶</button>
+    <button id="next" class="ctl" aria-label="next">⟩</button>
+    <div class="progress">
+      <span id="cur" class="subtitle" style="width:40px;text-align:right;">0:00</span>
+      <input id="seek" type="range" class="range" min="0" max="1000" value="0" />
+      <span id="dur" class="subtitle" style="width:40px;">0:00</span>
+    </div>
+  </div>
+  <div class="controls" style="justify-content:flex-end;">
+    <span class="subtitle">VOL</span>
+    <input id="vol" type="range" class="range vol" min="0" max="1" step="0.01" value="1" />
+  </div>
 </div>
 
 <audio id="audio"></audio>
-
-<!-- SUPABASE SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
-
 <script>
 const SUPABASE_URL = "https://mxprbsynyakkwdnpdmpr.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14cHJic3lueWFra3dkbnBkbXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMTExODUsImV4cCI6MjA3MDY4NzE4NX0.TCoRg7UcjT8kjHB0ltNiKN3IIFzFXfK5JvMy7PBfocA";
+const SUPABASE_KEY = "YOUR_SUPABASE_KEY";
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const state = { library: [], likes: [], queue: [], current:-1 };
+
+// Load library from Supabase
 async function loadLibrary(){
-    let { data: releases } = await supabase.from('tracks').select('*');
-    if(releases) state.library = releases;
+    const { data } = await supabase.from('tracks').select('*');
+    if(data) state.library = data;
     renderHome();
 }
 loadLibrary();
 
+// Navigation
 const routes=["home","profile","liked","admin"];
 const pages=Object.fromEntries(routes.map(r=>[r,document.getElementById(r)]));
 function nav(route){
@@ -183,45 +173,54 @@ function nav(route){
     if(route==="home") renderHome();
 }
 window.addEventListener("hashchange",()=>nav(location.hash.replace("#","")||"home"));
+document.querySelectorAll(".btn").forEach(b=>b.addEventListener("click", e=>{nav(b.dataset.route);}));
+
 nav(location.hash.replace("#","")||"home");
 
-// Audio Player
+// Audio player
 const audio=document.getElementById("audio");
 const pCover=document.getElementById("pCover");
 const pTitle=document.getElementById("pTitle");
 const pArtist=document.getElementById("pArtist");
 const playBtn=document.getElementById("play");
-const nextBtn=document.getElementById("next");
-const prevBtn=document.getElementById("prev");
 const seek=document.getElementById("seek");
 const cur=document.getElementById("cur");
 const dur=document.getElementById("dur");
 const vol=document.getElementById("vol");
-
-function format(t){ if(!isFinite(t)) return "0:00"; const m=Math.floor(t/60); const s=Math.floor(t%60).toString().padStart(2,"0"); return `${m}:${s}`; }
-function setNow(item){ if(!item) return; pCover.src=item.cover||""; pTitle.textContent=item.title||""; pArtist.textContent=item.artist||""; audio.src=item.url||item.tracks?.[0]?.url||""; audio.play();}
-function playPause(){if(audio.paused){audio.play(); playBtn.textContent="⏸";}else{audio.pause();playBtn.textContent="▶";}}
+function format(t){if(!isFinite(t))return"0:00";const m=Math.floor(t/60);const s=Math.floor(t%60).toString().padStart(2,"0");return`${m}:${s}`;}
+function setNow(item){
+    if(!item)return;
+    pCover.src=item.cover||"";
+    pTitle.textContent=item.title||"";
+    pArtist.textContent=item.artist||"";
+    audio.src=item.url||item.tracks?.[0]?.url||"";
+    audio.play();
+    state.queue = item.tracks?.map(tr=>({...item,url:tr.url,title:tr.title})) || [item];
+    state.current = 0;
+}
+function playPause(){if(audio.paused){audio.play();playBtn.textContent="⏸";}else{audio.pause();playBtn.textContent="▶";}}
 playBtn.addEventListener("click",playPause);
 audio.addEventListener("play",()=>playBtn.textContent="⏸");
 audio.addEventListener("pause",()=>playBtn.textContent="▶");
-audio.addEventListener("timeupdate",()=>{seek.value=(audio.currentTime/audio.duration)*1000||0; cur.textContent=format(audio.currentTime); dur.textContent=format(audio.duration);});
+audio.addEventListener("timeupdate",()=>{seek.value=(audio.currentTime/audio.duration)*1000||0;cur.textContent=format(audio.currentTime);dur.textContent=format(audio.duration);});
 seek.addEventListener("input",()=>{audio.currentTime=seek.value/1000*audio.duration;});
 vol.addEventListener("input",()=>{audio.volume=vol.value;});
-
 document.getElementById("prev").addEventListener("click",()=>{state.current=Math.max(0,state.current-1);setNow(state.queue[state.current]);});
 document.getElementById("next").addEventListener("click",()=>{state.current=Math.min(state.queue.length-1,state.current+1);setNow(state.queue[state.current]);});
 
-// Render Home & Albums
+// Render home
 function renderHome(){
-    ["albums","eps","singles"].forEach(id=>{const el=document.getElementById(id);el.innerHTML="";});
-    state.library.forEach((r,i)=>{
-        const div=document.createElement("div"); div.className="card"; div.innerHTML=`<img class="cover" src="${r.cover}"><div class="title">${r.title}</div><div class="subtitle">${r.artist||""}</div>`;
+    ["albums","eps","singles"].forEach(id=>document.getElementById(id).innerHTML="");
+    state.library.forEach(r=>{
+        const div=document.createElement("div"); div.className="card";
+        div.innerHTML=`<img class="cover" src="${r.cover}"><div class="title">${r.title}</div><div class="subtitle">${r.artist||""}</div>`;
         div.onclick=()=>{if(r.tracks?.length>1){renderTracksPage(r);}else{setNow(r);}};
         const container=document.getElementById(r.type.toLowerCase()+"s");
         if(container) container.appendChild(div);
     });
 }
 
+// Track page
 function renderTracksPage(album){
     const main=document.querySelector(".main");
     const temp=document.createElement("section"); temp.className="page show";
@@ -231,25 +230,23 @@ function renderTracksPage(album){
     album.tracks.forEach((t,i)=>{
         const div=document.createElement("div"); div.className="track-item";
         div.innerHTML=`<div class="track-left"><div class="track-number">${i+1}</div><div class="title">${t.title}</div></div><div class="track-duration">${format(t.duration)}</div>`;
-        div.onclick=()=>{setNow({...album,url:t.url}); state.current=0; state.queue=[...album.tracks.map(tr=>({...album,url:tr.url,title:tr.title}))];};
+        div.onclick=()=>{setNow({...album,url:t.url}); state.current=i;};
         list.appendChild(div);
     });
-    nav(""); // hide other pages
+    Object.values(pages).forEach(p=>p.classList.remove("show"));
     temp.scrollIntoView({behavior:"smooth"});
 }
 
-// Admin Logic
+// Admin
 const adminPass="CUCK";
 const gate=document.getElementById("adminGate");
 const form=document.getElementById("adminForm");
 document.getElementById("adminLogin").addEventListener("click",()=>{
-    if(document.getElementById("adminPassword").value===adminPass){
-        gate.style.display="none";
-        form.style.display="block";
-    }else document.getElementById("loginHint").textContent="WRONG PASSWORD";
+    if(document.getElementById("adminPassword").value===adminPass){gate.style.display="none";form.style.display="block";}
+    else document.getElementById("loginHint").textContent="WRONG PASSWORD";
 });
 
-// Add Release
+// Add release
 document.getElementById("fSubmit").addEventListener("click",async()=>{
     try{
         const title=document.getElementById("fTitle").value;
@@ -263,10 +260,7 @@ document.getElementById("fSubmit").addEventListener("click",async()=>{
     }catch(e){console.error(e);alert("FAILED");}
 });
 
-function renderLiked(){
-    const grid=document.getElementById("likedGrid");
-    grid.innerHTML=""; // placeholder
-}
+function renderLiked(){document.getElementById("likedGrid").innerHTML="";}
 </script>
 </body>
 </html>
