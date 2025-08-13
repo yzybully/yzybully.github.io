@@ -2,964 +2,223 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>YZY Player</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <!-- Fonts -->
+  <title>YZYPlayer BETA SITE</title>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap" rel="stylesheet" />
-
   <style>
-    :root {
-      --bg-color: #000;
-      --text-color: #fff;
-      --accent-color: #999;
-      --accent-hover: #fff;
-      --progress-bg: #282828;
-      --progress-fill: #1db954; /* Spotify green */
-      --player-bg: #181818;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'IBM Plex Mono', monospace !important;
-      user-select: none;
-    }
-
-    body {
-      display: flex;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      height: 100vh;
-      overflow: hidden;
-      flex-direction: row;
-    }
-
-    /* Sidebar */
-    .sidebar {
-      width: 220px;
-      background-color: #0a0a0a;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      border-right: 1px solid #111;
-      font-family: 'IBM Plex Mono', monospace;
-    }
-
-    .sidebar h1 {
-      font-size: 28px;
-      margin-bottom: 4px;
-    }
-
-    .sidebar small {
-      font-size: 12px;
-      color: var(--accent-color);
-    }
-
-    .nav-btn {
-      margin-top: 30px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .nav-btn button {
-      background: none;
-      border: none;
-      color: var(--text-color);
-      font-size: 16px;
-      text-align: left;
-      cursor: pointer;
-      padding: 8px 0;
-      transition: color 0.3s ease;
-      font-family: 'IBM Plex Mono', monospace;
-    }
-
-    .nav-btn button:hover {
-      color: var(--accent-hover);
-    }
-
-    /* Content */
-    .content {
-      flex: 1;
-      padding: 20px;
-      overflow-y: auto;
-      position: relative;
-      margin-bottom: 110px; /* space for player bar */
-      scrollbar-width: none; /* Firefox */
-    }
-    .content::-webkit-scrollbar {
-      display: none; /* Chrome, Safari, Opera */
-    }
-
-    .page {
-      opacity: 0;
-      transform: translateY(10px);
-      position: absolute;
-      width: 100%;
-      transition: opacity 0.4s ease, transform 0.4s ease;
-      font-family: 'IBM Plex Mono', monospace;
-      background-color: var(--bg-color);
-      min-height: 100%;
-      padding-bottom: 50px;
-    }
-
-    .page.active {
-      opacity: 1;
-      transform: translateY(0);
-      position: relative;
-    }
-
-    /* Centered Square Modal */
-    .center-box {
-      background: #111;
-      padding: 20px;
-      border-radius: 8px;
-      width: 400px;
-      margin: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      font-family: 'IBM Plex Mono', monospace;
-    }
-
-    .center-wrapper {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      font-family: 'IBM Plex Mono', monospace;
-    }
-
-    .center-box input,
-    .center-box select {
-      background: #000;
-      border: 1px solid #333;
-      color: #fff;
-      padding: 8px;
-      border-radius: 4px;
-      font-size: 14px;
-      font-family: 'IBM Plex Mono', monospace;
-    }
-
-    .center-box button {
-      background: #1db954;
-      color: #000;
-      padding: 10px;
-      border: none;
-      cursor: pointer;
-      border-radius: 20px;
-      font-weight: bold;
-      font-size: 14px;
-      transition: background-color 0.3s ease;
-      font-family: 'IBM Plex Mono', monospace;
-    }
-
-    .center-box button:hover {
-      background: #1ed760;
-    }
-
-    /* Song Cards */
-    .song-card {
-      background: #111;
-      padding: 10px;
-      border-radius: 8px;
-      display: inline-block;
-      width: 150px;
-      margin: 10px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-      font-family: 'IBM Plex Mono', monospace;
-    }
-
-    .song-card:hover {
-      background: #1a1a1a;
-    }
-
-    .song-card img {
-      width: 100%;
-      border-radius: 6px;
-      margin-bottom: 8px;
-    }
-
-    .song-card .artist-name {
-      font-size: 12px;
-      color: var(--accent-color);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    /* Player Bar */
-    .player-bar {
-      position: fixed;
-      bottom: 0;
-      left: 220px;
-      right: 0;
-      height: 110px;
-      background: var(--player-bg);
-      border-top: 1px solid #282828;
-      display: flex;
-      flex-direction: column;
-      padding: 10px 30px;
-      font-family: 'IBM Plex Mono', monospace;
-      user-select: none;
-      z-index: 1000;
-      color: #b3b3b3;
-    }
-
-    .player-top-row {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      position: relative;
-      padding-bottom: 10px;
-      gap: 15px;
-    }
-
-    /* Left side container with skip back + track info */
-    .left-controls {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex: 1;
-      min-width: 0;
-    }
-
-    /* Skip back and track info in one row */
-    .skip-back {
-      font-size: 32px;
-      cursor: pointer;
-      background: none;
-      border: none;
-      color: var(--text-color);
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: color 0.25s ease;
-      flex-shrink: 0;
-    }
-    .skip-back:hover {
-      color: #1db954;
-    }
-
-    .track-info-short {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-      cursor: default;
-      color: var(--text-color);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .track-info-short img {
-      width: 40px;
-      height: 40px;
-      border-radius: 4px;
-      object-fit: cover;
-      flex-shrink: 0;
-    }
-
-    .track-info-text {
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
-
-    .track-info-text .track-name {
-      font-weight: 600;
-      font-size: 14px;
-      color: white;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .track-info-text .artist-name {
-      font-size: 12px;
-      color: var(--accent-color);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    /* Play/Pause button absolute center */
-    .play-pause-container {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 10;
-    }
-
-    .play-pause-btn {
-      background: none;
-      border: none;
-      color: var(--text-color);
-      font-size: 48px;
-      cursor: pointer;
-      transition: color 0.25s ease;
-      width: 60px;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-    }
-    .play-pause-btn:hover {
-      color: #1db954;
-    }
-
-    /* Skip forward on the right */
-    .skip-forward {
-      font-size: 32px;
-      cursor: pointer;
-      background: none;
-      border: none;
-      color: var(--text-color);
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: color 0.25s ease;
-      flex-shrink: 0;
-      margin-left: auto;
-    }
-    .skip-forward:hover {
-      color: #1db954;
-    }
-
-    .player-bottom-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .progress-container {
-      flex: 1;
-      height: 6px;
-      background: var(--progress-bg);
-      border-radius: 3px;
-      cursor: pointer;
-      position: relative;
-      user-select: none;
-      margin-right: 10px;
-    }
-
-    .progress-filled {
-      background: var(--progress-fill);
-      height: 100%;
-      width: 0%;
-      border-radius: 3px;
-      transition: width 0.1s linear;
-    }
-
-    .volume-container {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--text-color);
-      cursor: pointer;
-      width: 120px;
-      justify-content: flex-end;
-    }
-
-    .volume-slider {
-      width: 100px;
-      -webkit-appearance: none;
-      height: 6px;
-      background: var(--progress-bg);
-      border-radius: 3px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    .volume-slider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 16px;
-      height: 16px;
-      background: #1db954;
-      cursor: pointer;
-      border-radius: 50%;
-      border: none;
-      transition: background-color 0.3s ease;
-      margin-top: -5px;
-    }
-
-    .volume-slider::-moz-range-thumb {
-      width: 16px;
-      height: 16px;
-      background: #1db954;
-      cursor: pointer;
-      border-radius: 50%;
-      border: none;
-      transition: background-color 0.3s ease;
-    }
-
-    /* Release detail page background with fade overlay */
-    #release-detail {
-      position: relative;
-      min-height: 100%;
-      padding: 20px;
-      color: #eee;
-      overflow-y: auto;
-      box-sizing: border-box;
-    }
-
-    #release-detail .background-fade {
-      position: absolute;
-      inset: 0;
-      background: var(--bg-color);
-      opacity: 0.7;
-      filter: blur(24px);
-      z-index: 0;
-      border-radius: 12px;
-    }
-
-    #release-detail .content-wrapper {
-      position: relative;
-      z-index: 2;
-      max-width: 800px;
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    #release-detail img {
-      border-radius: 12px;
-      max-width: 300px;
-      object-fit: cover;
-      margin-bottom: 16px;
-    }
-
-    #release-detail button.back-btn {
-      background: none;
-      border: none;
-      color: #999;
-      cursor: pointer;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 14px;
-      margin-bottom: 20px;
-      transition: color 0.3s ease;
-    }
-    #release-detail button.back-btn:hover {
-      color: #1db954;
-    }
-
-    #track-list > div {
-      padding: 8px;
-      border-bottom: 1px solid #222;
-      color: #ccc;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-family: 'IBM Plex Mono', monospace;
-    }
-
-    #track-list > div:hover {
-      background: #222;
-    }
+    :root { --bg:#0a0a0a; --muted:#161616; --muted2:#1f1f1f; --text:#f5f5f5; --text2:#bdbdbd; --acc:#ffffff; --card:#111; --shadow:0 12px 30px rgba(0,0,0,.35); }
+    * { box-sizing:border-box; }
+    html,body { height:100%; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:"IBM Plex Mono", monospace; text-transform:uppercase; letter-spacing:.06em; }
+    a { color:inherit; text-decoration:none; }
+    .app { display:grid; grid-template-columns:280px 1fr; height:100dvh; }
+    .sidebar { background:linear-gradient(180deg, #0e0e0e, #070707); border-right:1px solid #111; padding:22px 16px; display:flex; flex-direction:column; gap:18px; }
+    .brand { font-size:22px; font-weight:600; letter-spacing:.18em; }
+    .muted { color:var(--text2); font-size:11px; margin-top:2px; }
+    .nav { display:flex; flex-direction:column; gap:10px; margin-top:18px; }
+    .btn { display:flex; align-items:center; gap:10px; padding:12px 14px; background:var(--muted); border:1px solid #191919; border-radius:14px; cursor:pointer; transition:.25s transform,.25s background,.25s border-color; font-size:12px; }
+    .btn:hover { transform:translateY(-2px); background:var(--muted2); border-color:#242424; }
+    .btn.active { outline:1px solid #2b2b2b; background:#131313; }
+    .main { position:relative; overflow:hidden; }
+    .page { position:absolute; inset:0; padding:24px; overflow:auto; opacity:0; transform:translateY(8px); pointer-events:none; transition:opacity .35s ease, transform .35s ease; }
+    .page.show { opacity:1; transform:none; pointer-events:auto; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:16px; }
+    .section { margin-bottom:28px; }
+    .section h2 { font-size:14px; color:var(--text2); margin:0 0 12px; letter-spacing:.12em; }
+    .card { background:var(--card); border:1px solid #171717; border-radius:18px; padding:14px; box-shadow:var(--shadow); transition:transform .25s ease, border-color .25s ease; display:flex; flex-direction:column; gap:10px; }
+    .card:hover { transform:translateY(-4px); border-color:#242424; }
+    .cover { width:100%; aspect-ratio:1/1; border-radius:14px; object-fit:cover; background:#0d0d0d; }
+    .title { font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .subtitle { font-size:11px; color:var(--text2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .card-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .like { width:28px; height:28px; border-radius:50%; border:1px solid #222; background:#141414; display:grid; place-items:center; cursor:pointer; transition:.2s; }
+    .like.active { background:#1c1c1c; border-color:#2a2a2a; }
+    .like svg { width:14px; height:14px; }
+    .player { position:fixed; left:280px; right:0; bottom:0; background:linear-gradient(180deg,#0c0c0c,#050505); border-top:1px solid #171717; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:10px; padding:12px 18px; z-index:5; }
+    .track { display:flex; align-items:center; gap:12px; min-width:0; }
+    .track img { width:44px; height:44px; border-radius:10px; border:1px solid #1a1a1a; object-fit:cover; }
+    .track .meta { min-width:0; }
+    .controls { display:flex; align-items:center; gap:10px; }
+    .ctl { width:38px; height:38px; border-radius:12px; border:1px solid #212121; background:#121212; display:grid; place-items:center; cursor:pointer; transition:.2s; }
+    .ctl:hover { transform:translateY(-2px); }
+    .progress { display:flex; align-items:center; gap:10px; padding:0 8px; }
+    .range { -webkit-appearance:none; appearance:none; height:4px; width:32vw; background:#1a1a1a; border-radius:999px; outline:none; }
+    .range::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:14px; height:14px; border-radius:50%; background:#fff; cursor:pointer; }
+    .vol { width:120px; }
+    .login, .admin { max-width:680px; margin:0 auto; background:var(--card); border:1px solid #171717; border-radius:18px; padding:18px; box-shadow:var(--shadow); }
+    .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .field { display:flex; flex-direction:column; gap:8px; }
+    input, select { background:#0e0e0e; border:1px solid #1a1a1a; border-radius:12px; padding:12px 12px; color:var(--text); outline:none; transition:.2s; font-family:"IBM Plex Mono", monospace; text-transform:uppercase; }
+    input:focus, select:focus { border-color:#2a2a2a; }
+    .submit { margin-top:10px; width:100%; padding:12px; border-radius:14px; background:#151515; border:1px solid #222; cursor:pointer; font-size:12px; }
+    .ghost { background:#101010; }
+    .hint { color:var(--text2); font-size:11px; margin-top:6px; }
+    .empty { color:var(--text2); text-align:center; padding:60px 10px; font-size:12px; }
+    .spacer { height:84px; }
+    @media (max-width: 900px) { .app { grid-template-columns:1fr; } .sidebar { position:fixed; inset:auto 0 0 0; flex-direction:row; align-items:center; z-index:10; border-right:0; border-top:1px solid #111; padding:8px; gap:8px; } .brand, .muted { display:none; } .nav { flex-direction:row; width:100%; margin:0; } .btn { flex:1; justify-content:center; } .player { left:0; } .page { padding-bottom:120px; } }
   </style>
 </head>
 <body>
-  <div class="sidebar">
-    <h1>YZYPlayer</h1>
-    <small>https://discord.gg/5qC4NQmPdv</small>
-    <div class="nav-btn">
-      <button onclick="showPage('home')">Home</button>
-      <button onclick="showPage('liked')">Liked Songs</button>
-      <button onclick="showPage('profile')">Profile</button>
-      <button onclick="showPage('admin')">Admin</button>
-    </div>
-  </div>
-
-  <div class="content">
-    <!-- HOME -->
-    <div id="home" class="page active">
-      <h2>Albums</h2>
-      <div id="albums"></div>
-      <h2>EPs</h2>
-      <div id="eps"></div>
-      <h2>Singles</h2>
-      <div id="singles"></div>
-    </div>
-
-    <!-- LIKED -->
-    <div id="liked" class="page">
-      <h2>Liked Songs</h2>
-      <p>No liked songs yet.</p>
-    </div>
-
-    <!-- PROFILE -->
-    <div id="profile" class="page">
-      <h2>Profile</h2>
-      <p>Coming soon...</p>
-    </div>
-
-    <!-- ADMIN LOGIN -->
-    <div id="admin" class="page center-wrapper">
-      <div id="admin-login" class="center-box">
-        <h3>Admin Login</h3>
-        <input
-          type="password"
-          id="admin-pass"
-          placeholder="Enter password"
-          autocomplete="off"
-        />
-        <button id="admin-login-btn">Login</button>
-        <p id="admin-login-error" style="color:#f44336; display:none;">Incorrect password</p>
+  <div class="app">
+    <aside class="sidebar">
+      <div>
+        <div class="brand">YZYPLAYER</div>
+        <div class="muted">HTTPS://DISCORD.GG/5Q C4NQMPDV</div>
       </div>
-
-      <div id="admin-panel" class="center-box" style="display:none;">
-        <h3>Add New Release</h3>
-        <select id="release-type">
-          <option value="albums">Album</option>
-          <option value="eps">EP</option>
-          <option value="singles">Single</option>
-        </select>
-
-        <input
-          type="url"
-          id="release-art-url"
-          placeholder="Album Art URL"
-          required
-        />
-        <input
-          type="text"
-          id="release-artist-name"
-          placeholder="Artist Name"
-          required
-        />
-        <div id="tracks-container"></div>
-        <button id="add-track-btn">Add Track</button>
-        <button id="upload-release-btn">Upload Release</button>
-        <button id="admin-logout-btn" style="margin-top:10px; background:#f44336; color:#fff;">Logout</button>
-      </div>
-    </div>
-
-    <!-- RELEASE DETAIL -->
-    <div id="release-detail" class="page" style="display:none;">
-      <div class="background-fade"></div>
-      <div class="content-wrapper">
-        <button class="back-btn" onclick="closeReleaseDetail()">← Back to releases</button>
-        <img id="release-art-large" src="" alt="Album Art" />
-        <div id="release-artist-name" style="font-weight:700; font-size:24px; margin-bottom:8px; color:#fff;"></div>
-        <div id="release-type-name" style="color:#aaa; margin-bottom:20px;"></div>
-        <div id="track-list"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Player Bar -->
-  <div class="player-bar">
-    <div class="player-top-row">
-      <div class="left-controls">
-        <button class="skip-back" id="prevBtn" aria-label="Previous Track">&#9664;&#9664;</button>
-        <div class="track-info-short">
-          <img id="player-art" src="" alt="Album Art" />
-          <div class="track-info-text">
-            <div id="playerTrackName" class="track-name">No Track</div>
-            <div id="playerArtistName" class="artist-name">No Artist</div>
+      <nav class="nav">
+        <a href="#home" class="btn" data-route="home">HOME</a>
+        <a href="#profile" class="btn" data-route="profile">PROFILE</a>
+        <a href="#liked" class="btn" data-route="liked">LIKED SONGS</a>
+        <a href="#admin" class="btn" data-route="admin">ADMIN PANEL</a>
+      </nav>
+    </aside>
+    <main class="main">
+      <section id="home" class="page show">
+        <div class="section">
+          <h2>ALBUMS</h2>
+          <div id="albums" class="grid"></div>
+        </div>
+        <div class="section">
+          <h2>EPS</h2>
+          <div id="eps" class="grid"></div>
+        </div>
+        <div class="section">
+          <h2>SINGLES</h2>
+          <div id="singles" class="grid"></div>
+        </div>
+        <div class="spacer"></div>
+      </section>
+      <section id="profile" class="page"><div class="empty">COMING SOON</div></section>
+      <section id="liked" class="page"><div id="likedGrid" class="grid"></div><div class="spacer"></div></section>
+      <section id="admin" class="page">
+        <div id="adminGate" class="login">
+          <div class="field">
+            <label>PASSWORD</label>
+            <input id="adminPassword" type="password" placeholder="ENTER PASSWORD" autocomplete="current-password" />
+            <button id="adminLogin" class="submit">ENTER</button>
+            <div id="loginHint" class="hint"></div>
           </div>
         </div>
-      </div>
+        <div id="adminForm" class="admin" style="display:none">
+          <div class="row">
+            <div class="field"><label>TITLE</label><input id="fTitle" placeholder="TITLE" /></div>
+            <div class="field"><label>ARTIST</label><input id="fArtist" placeholder="ARTIST" /></div>
+          </div>
+          <div class="row">
+            <div class="field"><label>TYPE</label>
+              <select id="fType">
+                <option value="ALBUM">ALBUM</option>
+                <option value="EP">EP</option>
+                <option value="SINGLE">SINGLE</option>
+              </select>
+            </div>
+            <div class="field"><label>ALBUM NAME</label><input id="fAlbum" placeholder="OPTIONAL" /></div>
+          </div>
+          <div class="row">
+            <div class="field"><label>MP3 URL</label><input id="fUrl" placeholder="HTTPS://...MP3" /></div>
+            <div class="field"><label>COVER URL</label><input id="fCover" placeholder="HTTPS://...JPG/PNG" /></div>
+          </div>
+          <button id="fSubmit" class="submit">ADD TO LIBRARY</button>
+          <button id="fExport" class="submit ghost">EXPORT LIBRARY JSON</button>
+          <div class="hint">DATA STORED IN LOCAL STORAGE</div>
+        </div>
+      </section>
+    </main>
+  </div>
 
-      <div class="play-pause-container">
-        <button id="playPauseBtn" class="play-pause-btn" aria-label="Play/Pause">&#9654;</button>
+  <div class="player">
+    <div class="track">
+      <img id="pCover" src="" alt="" />
+      <div class="meta">
+        <div id="pTitle" class="title">NOTHING PLAYING</div>
+        <div id="pArtist" class="subtitle"></div>
       </div>
-
-      <button class="skip-forward" id="nextBtn" aria-label="Next Track">&#9654;&#9654;</button>
     </div>
-
-    <div class="player-bottom-row">
-      <div class="progress-container" id="progressContainer">
-        <div class="progress-filled" id="progressFilled"></div>
+    <div class="controls">
+      <button id="prev" class="ctl" aria-label="previous">⟨</button>
+      <button id="play" class="ctl" aria-label="play">▶</button>
+      <button id="next" class="ctl" aria-label="next">⟩</button>
+      <div class="progress">
+        <span id="cur" class="subtitle" style="width:40px; text-align:right;">0:00</span>
+        <input id="seek" type="range" class="range" min="0" max="1000" value="0" />
+        <span id="dur" class="subtitle" style="width:40px;">0:00</span>
       </div>
-
-      <div class="volume-container">
-        <input
-          type="range"
-          id="volumeSlider"
-          min="0"
-          max="1"
-          step="0.01"
-          value="0.8"
-          class="volume-slider"
-          aria-label="Volume Slider"
-        />
-      </div>
+    </div>
+    <div class="controls" style="justify-content:flex-end;">
+      <span class="subtitle">VOL</span>
+      <input id="vol" type="range" class="range vol" min="0" max="1" step="0.01" value="1" />
     </div>
   </div>
 
+  <audio id="audio"></audio>
+
   <script>
-    // Elements
-    const pages = [...document.querySelectorAll('.page')];
-    const albumsEl = document.getElementById('albums');
-    const epsEl = document.getElementById('eps');
-    const singlesEl = document.getElementById('singles');
-    const likedEl = document.getElementById('liked');
-    const profileEl = document.getElementById('profile');
-    const adminLoginEl = document.getElementById('admin-login');
-    const adminPanelEl = document.getElementById('admin-panel');
-    const adminPassInput = document.getElementById('admin-pass');
-    const adminLoginBtn = document.getElementById('admin-login-btn');
-    const adminLoginError = document.getElementById('admin-login-error');
-    const releaseDetail = document.getElementById('release-detail');
-    const releaseArtLarge = document.getElementById('release-art-large');
-    const releaseArtistName = document.getElementById('release-artist-name');
-    const releaseTypeName = document.getElementById('release-type-name');
-    const trackListEl = document.getElementById('track-list');
-    const tracksContainer = document.getElementById('tracks-container');
-    const addTrackBtn = document.getElementById('add-track-btn');
-    const uploadReleaseBtn = document.getElementById('upload-release-btn');
-    const logoutBtn = document.getElementById('admin-logout-btn');
-
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const playPauseBtn = document.getElementById('playPauseBtn');
-    const playerTrackName = document.getElementById('playerTrackName');
-    const playerArtistName = document.getElementById('playerArtistName');
-    const playerArt = document.getElementById('player-art');
-    const progressContainer = document.getElementById('progressContainer');
-    const progressFilled = document.getElementById('progressFilled');
-    const volumeSlider = document.getElementById('volumeSlider');
-
-    let releases = {
-      albums: [],
-      eps: [],
-      singles: []
+    const state = {
+      library: JSON.parse(localStorage.getItem("yzy_library")||"[]"),
+      likes: JSON.parse(localStorage.getItem("yzy_likes")||"[]"),
+      queue: [],
+      current:-1
     };
 
-    let playlist = [];
-    let currentTrackIndex = 0;
+    const routes = ["home","profile","liked","admin"]; const pages = Object.fromEntries(routes.map(r=>[r,document.getElementById(r)]));
+    function nav(route){ routes.forEach(r=>pages[r].classList.toggle("show", r===route)); document.querySelectorAll(".btn").forEach(b=>b.classList.toggle("active", b.dataset.route===route)); if(route==="liked") renderLiked(); if(route==="home") renderHome(); }
+    window.addEventListener("hashchange",()=>nav(location.hash.replace("#","")||"home")); nav(location.hash.replace("#","")||"home");
 
-    const audio = new Audio();
-    audio.volume = 0.8;
+    function save(){ localStorage.setItem("yzy_library", JSON.stringify(state.library)); localStorage.setItem("yzy_likes", JSON.stringify(state.likes)); }
 
-    // SHA-256 Hash function for password hashing
-    async function sha256(message) {
-      const msgBuffer = new TextEncoder().encode(message);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    }
+    function card(item, idx){ const el = document.createElement("div"); el.className="card"; el.innerHTML=`<img class="cover" src="${item.cover||""}" alt=""><div class="title">${item.title||"UNTITLED"}</div><div class="card-row"><div class="subtitle">${item.artist||"UNKNOWN"}</div><button class="like ${state.likes.includes(item.id)?"active":""}" aria-label="like">${heartSvg()}</button></div>`; el.addEventListener("click", e=>{ if(e.target.closest(".like")) return; playFrom(item.id); }); el.querySelector(".like").addEventListener("click", e=>{ e.stopPropagation(); toggleLike(item.id); e.currentTarget.classList.toggle("active"); }); return el; }
 
-    // Password hash of 'CUCK'
-    const correctHash = '3a0e02b82a29e8ff77d340dd80ee0e4258017b84a59a5a6292a36bf92dfd7c2b';
+    function renderHome(){ const groups={ALBUM:document.getElementById("albums"),EP:document.getElementById("eps"),SINGLE:document.getElementById("singles")}; Object.values(groups).forEach(g=>g.innerHTML=""); const byType={ALBUM:[],EP:[],SINGLE:[]}; state.library.forEach(x=>byType[x.type||"SINGLE"].push(x)); Object.entries(byType).forEach(([t,arr])=>{ const grid=groups[t]; if(!grid) return; if(arr.length===0){ grid.innerHTML=`<div class="empty">NO ${t}</div>`; } else { arr.forEach((x,i)=>grid.appendChild(card(x,i))); } }); }
 
-    adminLoginBtn.addEventListener('click', async () => {
-      const val = adminPassInput.value;
-      const hashedVal = await sha256(val);
-      if (hashedVal === correctHash) {
-        adminLoginError.style.display = 'none';
-        adminLoginEl.style.display = 'none';
-        adminPanelEl.style.display = 'flex';
-        adminPassInput.value = '';
-      } else {
-        adminLoginError.style.display = 'block';
-      }
-    });
+    function renderLiked(){ const grid=document.getElementById("likedGrid"); grid.innerHTML=""; const liked=state.library.filter(x=>state.likes.includes(x.id)); if(liked.length===0){ grid.innerHTML='<div class="empty">NO LIKED SONGS</div>'; return;} liked.forEach((x,i)=>grid.appendChild(card(x,i))); }
 
-    logoutBtn.addEventListener('click', () => {
-      adminPanelEl.style.display = 'none';
-      adminLoginEl.style.display = 'flex';
-    });
+    function toggleLike(id){ const i=state.likes.indexOf(id); if(i>-1) state.likes.splice(i,1); else state.likes.push(id); save(); }
 
-    function showPage(name) {
-      pages.forEach(p => {
-        if (p.id === name) {
-          p.classList.add('active');
-          p.style.display = 'block';
-        } else {
-          p.classList.remove('active');
-          if (p.id !== 'release-detail') p.style.display = 'none';
-        }
-      });
-      // hide release-detail on normal page change
-      if (name !== 'release-detail') {
-        releaseDetail.style.display = 'none';
-      }
-    }
+    function uid(){ return Math.random().toString(36).slice(2)+Date.now().toString(36); }
 
-    addTrackBtn.addEventListener('click', () => {
-      const div = document.createElement('div');
-      div.style.marginBottom = '8px';
-      div.innerHTML = 
-        <input type="text" placeholder="Track Name" class="track-name" required style="width: 100%; margin-bottom: 4px;" />
-        <input type="url" placeholder="MP3 URL" class="track-url" required style="width: 100%;" />
-      ;
-      tracksContainer.appendChild(div);
-    });
+    const audio=document.getElementById("audio"); const pCover=document.getElementById("pCover"); const pTitle=document.getElementById("pTitle"); const pArtist=document.getElementById("pArtist"); const playBtn=document.getElementById("play"); const nextBtn=document.getElementById("next"); const prevBtn=document.getElementById("prev"); const seek=document.getElementById("seek"); const cur=document.getElementById("cur"); const dur=document.getElementById("dur"); const vol=document.getElementById("vol");
 
-    uploadReleaseBtn.addEventListener('click', () => {
-      const type = document.getElementById('release-type').value;
-      const art = document.getElementById('release-art-url').value.trim();
-      const artist = document.getElementById('release-artist-name').value.trim();
+    function format(t){ if(!isFinite(t)) return "0:00"; const m=Math.floor(t/60); const s=Math.floor(t%60).toString().padStart(2,"0"); return `${m}:${s}`; }
 
-      if (!art || !artist) {
-        alert('Album art URL and Artist name are required');
-        return;
-      }
+    function setNow(item){ if(!item){ pTitle.textContent="NOTHING PLAYING"; pArtist.textContent=""; pCover.src=""; return; } pTitle.textContent=item.title||"UNTITLED"; pArtist.textContent=item.artist||"UNKNOWN"; pCover.src=item.cover||""; }
 
-      const trackNames = [...tracksContainer.querySelectorAll('.track-name')].map(i => i.value.trim());
-      const trackUrls = [...tracksContainer.querySelectorAll('.track-url')].map(i => i.value.trim());
+    function load(i){ if(i<0||i>=state.queue.length) return; state.current=i; const item=state.queue[i]; setNow(item); audio.src=item.url; audio.play(); playBtn.textContent="⏸"; }
 
-      if (trackNames.length === 0 || trackUrls.length === 0) {
-        alert('Add at least one track');
-        return;
-      }
+    function playFrom(id){ const idx=state.library.findIndex(x=>x.id===id); if(idx<0) return; state.queue=[...state.library.slice(idx),...state.library.slice(0,idx)]; load(0); }
 
-      for (let i = 0; i < trackNames.length; i++) {
-        if (!trackNames[i] || !trackUrls[i]) {
-          alert('All tracks must have name and url');
-          return;
-        }
-      }
+    playBtn.addEventListener("click",()=>{ if(!audio.src) return; if(audio.paused){ audio.play(); playBtn.textContent="⏸"; } else { audio.pause(); playBtn.textContent="▶"; } });
+    nextBtn.addEventListener("click",()=>{ if(!state.queue.length) return; load((state.current+1)%state.queue.length); });
+    prevBtn.addEventListener("click",()=>{ if(!state.queue.length) return; load((state.current-1+state.queue.length)%state.queue.length); });
+    audio.addEventListener("timeupdate",()=>{ seek.value = Math.floor((audio.currentTime/(audio.duration||1))*1000)||0; cur.textContent=format(audio.currentTime); dur.textContent=format(audio.duration); });
+    seek.addEventListener("input",()=>{ if(!audio.duration) return; audio.currentTime=(seek.value/1000)*audio.duration; });
+    vol.addEventListener("input",()=>{ audio.volume=+vol.value; });
+    audio.addEventListener("ended",()=>nextBtn.click());
 
-      releases[type].push({
-        art,
-        artist,
-        tracks: trackNames.map((name, i) => ({ name, url: trackUrls[i] }))
-      });
+    const adminGate=document.getElementById("adminGate"); const adminForm=document.getElementById("adminForm"); const adminPassword=document.getElementById("adminPassword"); const adminLogin=document.getElementById("adminLogin"); const loginHint=document.getElementById("loginHint");
 
-      saveReleases();
-      renderReleases();
+    const P_ITERS=200000; const P_SALT=atob('/W3c15TYwqtRz7xPJqJ3xw=='); const P_HASH='48ydscpGyWeBAi4pELgVTwQPlTBu9lslRLCd5tPUo8I=';
 
-      // Reset form
-      tracksContainer.innerHTML = '';
-      addTrackBtn.click();
-      document.getElementById('release-art-url').value = '';
-      document.getElementById('release-artist-name').value = '';
+    async function verify(pass){ const enc=new TextEncoder(); const key=await crypto.subtle.importKey("raw", enc.encode(pass), {name:"PBKDF2"}, false, ["deriveBits"]); const bits=await crypto.subtle.deriveBits({name:"PBKDF2", hash:"SHA-256", salt:new Uint8Array([...P_SALT].map(c=>c.charCodeAt(0))), iterations:P_ITERS}, key, 256); const derived=btoa(String.fromCharCode(...new Uint8Array(bits))); return timingSafeEq(derived,P_HASH); }
 
-      // Hide admin panel and show login
-      adminPanelEl.style.display = 'none';
-      adminLoginEl.style.display = 'flex';
+    function timingSafeEq(a,b){ if(a.length!==b.length) return false; let r=0; for(let i=0;i<a.length;i++){ r|=a.charCodeAt(i)^b.charCodeAt(i); } return r===0; }
 
-      alert('Release uploaded!');
-      showPage('home');
-    });
+    adminLogin.addEventListener("click", async ()=>{ loginHint.textContent=""; const ok=await verify(adminPassword.value); if(ok){ adminGate.style.display="none"; adminForm.style.display="block"; adminPassword.value=""; } else { loginHint.textContent="ACCESS DENIED"; } });
 
-    function saveReleases() {
-      localStorage.setItem('yzyReleases', JSON.stringify(releases));
-    }
+    const fTitle=document.getElementById("fTitle"); const fArtist=document.getElementById("fArtist"); const fType=document.getElementById("fType"); const fAlbum=document.getElementById("fAlbum"); const fUrl=document.getElementById("fUrl"); const fCover=document.getElementById("fCover"); const fSubmit=document.getElementById("fSubmit"); const fExport=document.getElementById("fExport");
 
-    function loadReleases() {
-      const data = localStorage.getItem('yzyReleases');
-      if (data) {
-        releases = JSON.parse(data);
-      }
-    }
+    function validUrl(u){ try{ const x=new URL(u); return x.protocol==="https:"||x.protocol==="http:"; }catch(e){ return false; } }
 
-    function renderReleases() {
-      albumsEl.innerHTML = '';
-      epsEl.innerHTML = '';
-      singlesEl.innerHTML = '';
+    function addItem(){ const item={ id:uid(), title:fTitle.value.trim(), artist:fArtist.value.trim(), type:fType.value.trim(), album:fAlbum.value.trim(), url:fUrl.value.trim(), cover:fCover.value.trim() }; if(!item.title||!item.artist||!validUrl(item.url)||!validUrl(item.cover)) return; state.library.unshift(item); save(); fTitle.value=""; fArtist.value=""; fAlbum.value=""; fUrl.value=""; fCover.value=""; renderHome(); }
+    fSubmit.addEventListener("click", addItem);
 
-      function createReleaseCard(release, typeIndex, releaseIndex) {
-        const releaseDiv = document.createElement('div');
-        releaseDiv.classList.add('song-card');
+    fExport.addEventListener("click", ()=>{ const a=document.createElement("a"); const blob=new Blob([JSON.stringify(state.library,null,0)],{type:"application/json"}); a.href=URL.createObjectURL(blob); a.download="yzy_library.json"; a.click(); URL.revokeObjectURL(a.href); });
 
-        const artImg = document.createElement('img');
-        artImg.src = release.art;
-        artImg.alt = release.artist;
-        artImg.style.cursor = 'pointer';
+    function heartSvg(){ return `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s-7.2-4.35-9.6-8.7C.9 8.85 3.3 6 6.3 6c2.1 0 3.45 1.05 3.9 1.65.45-.6 1.8-1.65 3.9-1.65 3 0 5.4 2.85 3.9 6.3C19.2 16.65 12 21 12 21z" stroke="currentColor"/></svg>`; }
 
-        artImg.onclick = () => {
-          openReleaseDetail(typeIndex, releaseIndex);
-        };
-
-        const artistDiv = document.createElement('div');
-        artistDiv.textContent = release.artist;
-        artistDiv.className = 'artist-name';
-
-        releaseDiv.appendChild(artImg);
-        releaseDiv.appendChild(artistDiv);
-
-        return releaseDiv;
-      }
-
-      releases.albums.forEach((release, idx) => {
-        albumsEl.appendChild(createReleaseCard(release, 0, idx));
-      });
-
-      releases.eps.forEach((release, idx) => {
-        epsEl.appendChild(createReleaseCard(release, 1, idx));
-      });
-
-      releases.singles.forEach((release, idx) => {
-        singlesEl.appendChild(createReleaseCard(release, 2, idx));
-      });
-    }
-
-    // Set faded background color based on album art average color
-    function setReleaseBackgroundColor(imgUrl) {
-      const img = new Image();
-      img.crossOrigin = "Anonymous";
-      img.src = imgUrl;
-
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
-
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        let r = 0, g = 0, b = 0, count = 0;
-
-        for (let i = 0; i < imageData.data.length; i += 4) {
-          r += imageData.data[i];
-          g += imageData.data[i + 1];
-          b += imageData.data[i + 2];
-          count++;
-        }
-
-        r = Math.floor(r / count);
-        g = Math.floor(g / count);
-        b = Math.floor(b / count);
-
-        // Set background fade color with transparency
-        const bgFade = document.querySelector('#release-detail .background-fade');
-        bgFade.style.background = rgba(${r},${g},${b},0.3);
-      };
-    }
-
-    // Show release detail with tracks and background fade
-    function openReleaseDetail(typeIndex, releaseIndex) {
-      const typeKeys = ['albums', 'eps', 'singles'];
-      const release = releases[typeKeys[typeIndex]][releaseIndex];
-
-      showPage('release-detail');
-      releaseDetail.style.display = 'block';
-
-      releaseArtLarge.src = release.art;
-      releaseArtistName.textContent = release.artist;
-      releaseTypeName.textContent = typeKeys[typeIndex].slice(0, -1).toUpperCase();
-
-      // Set background fade color
-      setReleaseBackgroundColor(release.art);
-
-      trackListEl.innerHTML = '';
-      release.tracks.forEach((track, idx) => {
-        const trackDiv = document.createElement('div');
-        trackDiv.textContent = track.name;
-        trackDiv.onclick = () => {
-          playTrack(typeIndex, releaseIndex, idx);
-          closeReleaseDetail();
-        };
-        trackListEl.appendChild(trackDiv);
-      });
-    }
-
-    function closeReleaseDetail() {
-      releaseDetail.style.display = 'none';
-      showPage('home');
-    }
-
-    // Player functionality
-    function playTrack(typeIndex, releaseIndex, trackIndex) {
-      playlist = [];
-      const typeKeys = ['albums', 'eps', 'singles'];
-      const rel = releases[typeKeys[typeIndex]][releaseIndex];
-      playlist = rel.tracks.map(track => ({
-        ...track,
-        artist: rel.artist,
-        art: rel.art
-      }));
-      currentTrackIndex = trackIndex;
-      loadTrack();
-      playAudio();
-      showPage('home');
-    }
-
-    function loadTrack() {
-      if (currentTrackIndex < 0 || currentTrackIndex >= playlist.length) return;
-      const track = playlist[currentTrackIndex];
-      audio.src = track.url;
-      playerTrackName.textContent = track.name;
-      playerArtistName.textContent = track.artist;
-      playerArt.src = track.art;
-    }
-
-    function playAudio() {
-      audio.play();
-      playPauseBtn.innerHTML = '&#10074;&#10074;'; // pause icon
-    }
-
-    function pauseAudio() {
-      audio.pause();
-      playPauseBtn.innerHTML = '&#9654;'; // play icon
-    }
-
-    function togglePlay() {
-      if (audio.paused) playAudio();
-      else pauseAudio();
-    }
-
-    function playPrev() {
-      if (currentTrackIndex > 0) {
-        currentTrackIndex--;
-        loadTrack();
-        playAudio();
-      }
-    }
-
-    function playNext() {
-      if (currentTrackIndex < playlist.length - 1) {
-        currentTrackIndex++;
-        loadTrack();
-        playAudio();
-      }
-    }
-
-    // Progress bar update
-    audio.addEventListener('timeupdate', () => {
-      if (!audio.duration) return;
-      const percent = (audio.currentTime / audio.duration) * 100;
-      progressFilled.style.width = percent + '%';
-    });
-
-    // Seek on progress bar click
-    progressContainer.addEventListener('click', e => {
-      const rect = progressContainer.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      const width = rect.width;
-      const percent = clickX / width;
-      audio.currentTime = percent * audio.duration;
-    });
-
-    // Volume control
-    volumeSlider.addEventListener('input', e => {
-      audio.volume = e.target.value;
-    });
-
-    // Play/pause and skip buttons
-    playPauseBtn.addEventListener('click', togglePlay);
-    prevBtn.addEventListener('click', playPrev);
-    nextBtn.addEventListener('click', playNext);
-
-    // Auto next on end
-    audio.addEventListener('ended', () => {
-      if (currentTrackIndex < playlist.length - 1) {
-        currentTrackIndex++;
-        loadTrack();
-        playAudio();
-      } else {
-        pauseAudio();
-      }
-    });
-
-    // Initialize
-    loadReleases();
-    renderReleases();
+    if(state.library.length===0){ state.library=[
+      {id:uid(), title:"ECHOES", artist:"GHOST", type:"SINGLE", album:"", url:"", cover:""}
+    ]; save(); }
+    renderHome();
   </script>
 </body>
 </html>
