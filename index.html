@@ -54,7 +54,7 @@ input:focus, select:focus { border-color:#2a2a2a; }
 .hint { color:var(--text2); font-size:11px; margin-top:6px; }
 .empty { color:var(--text2); text-align:center; padding:60px 10px; font-size:12px; }
 .spacer { height:84px; }
-.tracklist-overlay { position:absolute; inset:0; background:var(--bg); overflow:auto; z-index:4; }
+.tracklist-overlay { position:absolute; inset:0; background:var(--bg); overflow:auto; z-index:3; }
 @media (max-width: 900px) { .app { grid-template-columns:1fr; } .sidebar { position:fixed; inset:auto 0 0 0; flex-direction:row; align-items:center; z-index:10; border-right:0; border-top:1px solid #111; padding:8px; gap:8px; } .brand, .muted { display:none; } .nav { flex-direction:row; width:100%; margin:0; } .btn { flex:1; justify-content:center; } .player { left:0; } .page { padding-bottom:120px; } }
 </style>
 </head>
@@ -84,15 +84,11 @@ input:focus, select:focus { border-color:#2a2a2a; }
     <section id="admin" class="page">
       <div id="adminGate" class="login">
         <div class="field">
-          <label>EMAIL</label>
-          <input id="email" type="email" placeholder="ENTER EMAIL" />
-        </div>
-        <div class="field">
           <label>PASSWORD</label>
           <input id="password" type="password" placeholder="ENTER PASSWORD" />
         </div>
         <button id="login" class="submit">LOGIN</button>
-        <div class="hint">ADMIN LOGIN REQUIRED</div>
+        <div class="hint">ADMIN PASSWORD REQUIRED</div>
       </div>
       <div id="adminPanel" class="admin" style="display:none;">
         <div class="field">
@@ -146,10 +142,10 @@ const pages = document.querySelectorAll('.page');
 const navBtns = document.querySelectorAll('.btn');
 
 function showPage(route){
-  const overlay = document.querySelector('.tracklist-overlay');
-  if(overlay) overlay.remove();
   pages.forEach(p=>p.classList.toggle('show', p.id===route));
   navBtns.forEach(b=>b.classList.toggle('active', b.dataset.route===route));
+  const overlay = document.querySelector('.tracklist-overlay');
+  if(overlay) overlay.remove();
 }
 
 navBtns.forEach(btn=>{
@@ -240,9 +236,6 @@ function showAlbumTracks(r){
   });
 }
 
-  });
-}
-
 function playTrack(track){
   audio.src=track.url;
   audio.play();
@@ -252,24 +245,20 @@ function playTrack(track){
   document.getElementById('play').innerText='❚❚';
 }
 
-document.getElementById('play').addEventListener('click', ()=>{
-  if(audio.paused) audio.play(); else audio.pause();
+document.getElementById('play').addEventListener('click',()=>{
+  if(audio.paused) audio.play();
+  else audio.pause();
   document.getElementById('play').innerText=audio.paused?'▶':'❚❚';
 });
-document.getElementById('next').addEventListener('click', ()=>{
-  currentTrackIndex=(currentTrackIndex+1)%releases.length;
-  playTrack(releases[currentTrackIndex].tracks[0]);
-});
-document.getElementById('prev').addEventListener('click', ()=>{
-  currentTrackIndex=(currentTrackIndex-1+releases.length)%releases.length;
-  playTrack(releases[currentTrackIndex].tracks[0]);
-});
-audio.addEventListener('ended', ()=>document.getElementById('play').innerText='▶');
+document.getElementById('next').addEventListener('click',()=>{ currentTrackIndex=(currentTrackIndex+1)%releases.length; playTrack(releases[currentTrackIndex].tracks[0]); });
+document.getElementById('prev').addEventListener('click',()=>{ currentTrackIndex=(currentTrackIndex-1+releases.length)%releases.length; playTrack(releases[currentTrackIndex].tracks[0]); });
+audio.addEventListener('ended',()=>document.getElementById('play').innerText='▶');
 document.getElementById('volume').addEventListener('input',(e)=>{ audio.volume=e.target.value/100; });
 document.getElementById('progress').addEventListener('input',(e)=>{ audio.currentTime=e.target.value; });
-audio.addEventListener('timeupdate', ()=>{ document.getElementById('progress').value=audio.currentTime; document.getElementById('progress').max=audio.duration; });
+audio.addEventListener('timeupdate',()=>{ document.getElementById('progress').value=audio.currentTime; document.getElementById('progress').max=audio.duration; });
 
-const emailInput = document.getElementById('email');
+// ADMIN LOGIC
+const emailInput = document.createElement('input');
 const passwordInput = document.getElementById('password');
 const loginBtn = document.getElementById('login');
 const adminGate = document.getElementById('adminGate');
@@ -279,21 +268,20 @@ const tracksContainer = document.getElementById('tracksContainer');
 const submitReleaseBtn = document.getElementById('submitRelease');
 
 loginBtn.addEventListener('click', async ()=>{
-  const { data, error } = await supabase.from('admins').select('*').eq('email', emailInput.value).eq('password', passwordInput.value).single();
-  if(data){
+  const { data: admins } = await supabase.from('admins').select('*');
+  const entered = passwordInput.value;
+  if(admins.some(a=>a.password===entered)){
     adminGate.style.display='none';
     adminPanel.style.display='block';
-  } else alert('Wrong credentials');
+  } else alert('Wrong password');
 });
 
 addTrackBtn.addEventListener('click', ()=>{
   const trackDiv = document.createElement('div');
   trackDiv.className='row';
-  trackDiv.innerHTML=`
-    <input placeholder="Track title" style="flex:2"/>
-    <input placeholder="Track URL" style="flex:3"/>
-    <input placeholder="Duration (sec)" style="flex:1"/>
-  `;
+  trackDiv.innerHTML=`<input type="text" placeholder="Track Title" class="trackTitle"/>
+  <input type="text" placeholder="Track URL" class="trackURL"/>
+  <input type="number" placeholder="Duration in seconds" class="trackDuration"/>`;
   tracksContainer.appendChild(trackDiv);
 });
 
@@ -303,13 +291,14 @@ submitReleaseBtn.addEventListener('click', async ()=>{
   const type=document.getElementById('type').value;
   const tracks=[];
   tracksContainer.querySelectorAll('.row').forEach(r=>{
-    const [titleInput,urlInput,durationInput]=r.querySelectorAll('input');
-    tracks.push({ title:titleInput.value, url:urlInput.value, duration:Number(durationInput.value) });
+    const t=r.querySelector('.trackTitle').value;
+    const u=r.querySelector('.trackURL').value;
+    const d=parseInt(r.querySelector('.trackDuration').value)||0;
+    tracks.push({title:t,url:u,duration:d});
   });
-  await supabase.from('releases').insert([{title,cover,type,tracks}]);
-  alert('Release added');
-  tracksContainer.innerHTML='';
-  fetchReleases();
+  const { error } = await supabase.from('releases').insert([{title,cover,type,tracks}]);
+  if(error) alert('Error: '+error.message);
+  else { alert('Release added'); fetchReleases(); tracksContainer.innerHTML=''; document.getElementById('title').value=''; document.getElementById('cover').value=''; }
 });
 
 fetchReleases();
