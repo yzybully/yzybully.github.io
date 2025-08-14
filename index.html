@@ -11,7 +11,7 @@
 html,body { height:100%; margin:0; background:var(--bg); color:var(--text); font-family:"IBM Plex Mono", monospace; text-transform:uppercase; letter-spacing:.06em; }
 a { color:inherit; text-decoration:none; }
 .app { display:grid; grid-template-columns:280px 1fr; height:100dvh; }
-.sidebar { background:linear-gradient(180deg, #0e0e0e, #070707); border-right:1px solid #111; padding:22px 16px; display:flex; flex-direction:column; gap:18px; }
+.sidebar { background:linear-gradient(180deg, #0e0e0e, #070707); border-right:1px solid #111; padding:22px 16px; display:flex; flex-direction:column; gap:18px; z-index:2; }
 .brand { font-size:22px; font-weight:600; letter-spacing:.18em; }
 .muted { color:var(--text2); font-size:11px; margin-top:2px; }
 .nav { display:flex; flex-direction:column; gap:10px; margin-top:18px; }
@@ -19,7 +19,7 @@ a { color:inherit; text-decoration:none; }
 .btn:hover { transform:translateY(-2px); background:var(--muted2); border-color:#242424; }
 .btn.active { outline:1px solid #2b2b2b; background:#131313; }
 .main { position:relative; overflow:hidden; }
-.page { position:absolute; inset:0; padding:24px; overflow:auto; opacity:0; transform:translateY(8px); pointer-events:none; transition:opacity .35s ease, transform .35s ease; }
+.page { position:absolute; inset:0; padding:24px; overflow:auto; opacity:0; transform:translateY(8px); pointer-events:none; transition:opacity .35s ease, transform .35s ease; z-index:1; }
 .page.show { opacity:1; transform:none; pointer-events:auto; }
 .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:16px; }
 .section { margin-bottom:28px; }
@@ -152,7 +152,7 @@ input:focus, select:focus { border-color:#2a2a2a; }
 
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-const supabase = createClient('https://mxprbsynyakkwdnpdmpr.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14cHJic3lueWFra3dkbnBkbXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMTExODUsImV4cCI6MjA3MDY4NzE4NX0.TCoRg7UcjT8kjHB0ltNiKN3IIFzFXfK5JvMy7PBfocA')
+const supabase = createClient('https://mxprbsynyakkwdnpdmpr.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14cHJic3lueWFra3dkbnBkbXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMTExODUsImV4cCI6MjA3MDY4NzE4NX0.TCoRg7UcjT8kjHB0ltNiKN3IIFzFXfK5JvMy7PBfocA');
 
 const pages = document.querySelectorAll('.page');
 const navBtns = document.querySelectorAll('.btn');
@@ -176,7 +176,7 @@ function nav(){
 window.addEventListener('hashchange', nav);
 nav();
 
-let releases = [], liked = [], currentTrackIndex = 0, audio = new Audio();
+let releases = [], currentTrackIndex = 0, audio = new Audio();
 async function fetchReleases(){
   const { data } = await supabase.from('releases').select('*').order('id', {ascending:true});
   releases = data || [];
@@ -238,41 +238,29 @@ document.getElementById('play').addEventListener('click',()=>{
 });
 document.getElementById('next').addEventListener('click',()=>{ currentTrackIndex=(currentTrackIndex+1)%releases.length; playTrack(releases[currentTrackIndex].tracks[0]); });
 document.getElementById('prev').addEventListener('click',()=>{ currentTrackIndex=(currentTrackIndex-1+releases.length)%releases.length; playTrack(releases[currentTrackIndex].tracks[0]); });
-audio.addEventListener('ended',()=>document.getElementById('play').innerText='▶');
-document.getElementById('volume').addEventListener('input',(e)=>{ audio.volume=e.target.value/100; });
-document.getElementById('progress').addEventListener('input',(e)=>{ audio.currentTime=e.target.value; });
-audio.addEventListener('timeupdate',()=>{ document.getElementById('progress').value=audio.currentTime; document.getElementById('progress').max=audio.duration; });
-
-// ADMIN LOGIC
-const adminGate = document.getElementById('adminGate');
-const adminPanel = document.getElementById('adminPanel');
-const emailInput = document.getElementById('email');
-const passwordInput = document.getElementById('password');
-const loginBtn = document.getElementById('login');
-const addTrackBtn = document.getElementById('addTrack');
-const tracksContainer = document.getElementById('tracksContainer');
-const submitReleaseBtn = document.getElementById('submitRelease');
 
 const ADMIN_UUIDS = [
   '1b2383d0-9844-4eb0-8a01-ae5f184c1f12',
   'b276784d-19b6-44bc-bd67-264ebff7f812',
   'f6a5e484-67b0-4277-9e21-c9a32d9664a3'
 ];
-
-async function checkAdmin() {
-  const { data:user } = await supabase.auth.getUser();
-  return user && ADMIN_UUIDS.includes(user.user.id);
-}
+const loginBtn = document.getElementById('login');
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
+const adminGate = document.getElementById('adminGate');
+const adminPanel = document.getElementById('adminPanel');
+const addTrackBtn = document.getElementById('addTrack');
+const tracksContainer = document.getElementById('tracksContainer');
+const submitReleaseBtn = document.getElementById('submitRelease');
 
 loginBtn.addEventListener('click', async()=>{
-  const { error, data } = await supabase.auth.signInWithPassword({ email: emailInput.value, password: passwordInput.value });
+  const { data, error } = await supabase.auth.signInWithPassword({ email: emailInput.value, password: passwordInput.value });
   if(error) { alert('Invalid login'); return; }
   if(!ADMIN_UUIDS.includes(data.user.id)) { alert('Not an admin'); return; }
   adminGate.style.display='none';
   adminPanel.style.display='block';
 });
 
-// Track adding in admin
 addTrackBtn.addEventListener('click', ()=>{
   const trackRow = document.createElement('div');
   trackRow.className='row';
@@ -290,6 +278,10 @@ submitReleaseBtn.addEventListener('click', async()=>{
   alert('Release added');
   tracksContainer.innerHTML=''; document.getElementById('title').value=''; document.getElementById('cover').value='';
   fetchReleases();
+});
+
+document.getElementById('albumOverlay').addEventListener('click',(e)=>{
+  if(e.target.id==='albumOverlay') document.getElementById('albumOverlay').classList.remove('show');
 });
 
 fetchReleases();
