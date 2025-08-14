@@ -50,6 +50,7 @@ a { color:inherit; text-decoration:none; }
 input, select { background:#0e0e0e; border:1px solid #1a1a1a; border-radius:12px; padding:12px 12px; color:var(--text); outline:none; transition:.2s; font-family:"IBM Plex Mono", monospace; text-transform:uppercase; }
 input:focus, select:focus { border-color:#2a2a2a; }
 .submit { margin-top:10px; width:100%; padding:12px; border-radius:14px; background:#151515; border:1px solid #222; cursor:pointer; font-size:12px; color:var(--text);}
+.submit:disabled { background:#111; border-color:#111; cursor:not-allowed; }
 .ghost { background:#101010; }
 .hint { color:var(--text2); font-size:11px; margin-top:6px; }
 .empty { color:var(--text2); text-align:center; padding:60px 10px; font-size:12px; }
@@ -119,7 +120,7 @@ input:focus, select:focus { border-color:#2a2a2a; }
         </div>
         <div id="tracksContainer"></div>
         <button id="addTrack" class="submit">ADD TRACK</button>
-        <button id="submitRelease" class="submit">SUBMIT</button>
+        <button id="submitRelease" class="submit" disabled>SUBMIT</button>
       </div>
     </section>
   </main>
@@ -152,8 +153,11 @@ input:focus, select:focus { border-color:#2a2a2a; }
 
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-const supabase = createClient('https://mxprbsynyakkwdnpdmpr.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14cHJic3lueWFra3dkbnBkbXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMTExODUsImV4cCI6MjA3MDY4NzE4NX0.TCoRg7UcjT8kjHB0ltNiKN3IIFzFXfK5JvMy7PBfocA');
 
+const SUPABASE_URL = 'https://mxprbsynyakkwdnpdmpr.supabase.co';
+const supabase = createClient(SUPABASE_URL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14cHJic3lueWFra3dkbnBkbXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMTExODUsImV4cCI6MjA3MDY4NzE4NX0.TCoRg7UcjT8kjHB0ltNiKN3IIFzFXfK5JvMy7PBfocA'); // only anon key
+
+// Pages
 const pages = document.querySelectorAll('.page');
 const navBtns = document.querySelectorAll('.btn');
 function showPage(route){
@@ -176,6 +180,7 @@ function nav(){
 window.addEventListener('hashchange', nav);
 nav();
 
+// Releases
 let releases = [], currentTrackIndex = 0, audio = new Audio();
 async function fetchReleases(){
   const { data } = await supabase.from('releases').select('*').order('id', {ascending:true});
@@ -206,6 +211,7 @@ function renderReleases(){
   });
 }
 
+// Album overlay
 function showAlbumOverlay(album){
   const overlay = document.getElementById('albumOverlay');
   document.getElementById('overlayCover').src = album.cover;
@@ -223,6 +229,7 @@ function showAlbumOverlay(album){
   overlay.classList.add('show');
 }
 
+// Player
 function playTrack(track){
   audio.src=track.url;
   audio.play();
@@ -231,7 +238,6 @@ function playTrack(track){
   document.getElementById('trackArtist').innerText=track.artist || '';
   document.getElementById('play').innerText='❚❚';
 }
-
 document.getElementById('play').addEventListener('click',()=>{
   if(audio.paused) audio.play(); else audio.pause();
   document.getElementById('play').innerText=audio.paused?'▶':'❚❚';
@@ -239,11 +245,7 @@ document.getElementById('play').addEventListener('click',()=>{
 document.getElementById('next').addEventListener('click',()=>{ currentTrackIndex=(currentTrackIndex+1)%releases.length; playTrack(releases[currentTrackIndex].tracks[0]); });
 document.getElementById('prev').addEventListener('click',()=>{ currentTrackIndex=(currentTrackIndex-1+releases.length)%releases.length; playTrack(releases[currentTrackIndex].tracks[0]); });
 
-const ADMIN_UUIDS = [
-  '1b2383d0-9844-4eb0-8a01-ae5f184c1f12',
-  'b276784d-19b6-44bc-bd67-264ebff7f812',
-  'f6a5e484-67b0-4277-9e21-c9a32d9664a3'
-];
+// Admin logic
 const loginBtn = document.getElementById('login');
 const emailInput = document.getElementById('email');
 const passwordInput = document.getElementById('password');
@@ -255,10 +257,20 @@ const submitReleaseBtn = document.getElementById('submitRelease');
 
 loginBtn.addEventListener('click', async()=>{
   const { data, error } = await supabase.auth.signInWithPassword({ email: emailInput.value, password: passwordInput.value });
-  if(error) { alert('Invalid login'); return; }
-  if(!ADMIN_UUIDS.includes(data.user.id)) { alert('Not an admin'); return; }
+  if(error) return alert('Invalid login');
+
+  // Verify with Edge Function
+  const res = await fetch('https://mxprbsynyakkwdnpdmpr.supabase.co/functions/v1/clever-worker', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({ userId: data.user.id, test:true })
+  });
+  const result = await res.json();
+  if(result.error) return alert('Not authorized');
+
   adminGate.style.display='none';
   adminPanel.style.display='block';
+  submitReleaseBtn.disabled = false;
 });
 
 addTrackBtn.addEventListener('click', ()=>{
@@ -273,9 +285,21 @@ submitReleaseBtn.addEventListener('click', async()=>{
     const inputs = r.querySelectorAll('input');
     return { title:inputs[0].value, url:inputs[1].value, duration: parseInt(inputs[2].value)||0 };
   });
-  const { error } = await supabase.from('releases').insert([{ title: document.getElementById('title').value, cover: document.getElementById('cover').value, type: document.getElementById('type').value, tracks }]);
-  if(error) { alert('Error adding release'); console.error(error); return; }
-  alert('Release added');
+  const release = {
+    title: document.getElementById('title').value,
+    cover: document.getElementById('cover').value,
+    type: document.getElementById('type').value,
+    tracks
+  };
+  const user = supabase.auth.user();
+  const res = await fetch('https://mxprbsynyakkwdnpdmpr.supabase.co/functions/v1/clever-worker', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({ userId:user.id, release })
+  });
+  const result = await res.json();
+  if(result.error) return alert(result.error);
+  alert('Release added!');
   tracksContainer.innerHTML=''; document.getElementById('title').value=''; document.getElementById('cover').value='';
   fetchReleases();
 });
