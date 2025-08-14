@@ -83,11 +83,15 @@ input:focus, select:focus { border-color:#2a2a2a; }
     <section id="admin" class="page">
       <div id="adminGate" class="login">
         <div class="field">
-          <label>PASSWORD</label>
-          <input id="password" type="password" placeholder="ENTER PASSWORD" />
+          <label>Email</label>
+          <input id="email" type="email" placeholder="Admin Email" />
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input id="password" type="password" placeholder="Enter Password" />
         </div>
         <button id="login" class="submit">LOGIN</button>
-        <div class="hint">ADMIN PASSWORD REQUIRED</div>
+        <div class="hint">ADMIN LOGIN REQUIRED</div>
       </div>
       <div id="adminPanel" class="admin" style="display:none;">
         <div class="field">
@@ -113,6 +117,7 @@ input:focus, select:focus { border-color:#2a2a2a; }
     </section>
   </main>
 </div>
+
 <div class="player">
   <div class="track">
     <img src="" id="trackCover" />
@@ -131,9 +136,10 @@ input:focus, select:focus { border-color:#2a2a2a; }
     <input type="range" class="range vol" id="volume" min="0" max="100" value="80" />
   </div>
 </div>
+
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-const supabase = createClient('https://mxprbsynyakkwdnpdmpr.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14cHJic3lueWFra3dkbnBkbXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMTExODUsImV4cCI6MjA3MDY4NzE4NX0.TCoRg7UcjT8kjHB0ltNiKN3IIFzFXfK5JvMy7PBfocA')
+const supabase = createClient('YOUR_SUPABASE_URL','YOUR_ANON_KEY')
 
 const pages = document.querySelectorAll('.page');
 const navBtns = document.querySelectorAll('.btn');
@@ -224,7 +230,8 @@ document.getElementById('volume').addEventListener('input',(e)=>{ audio.volume=e
 document.getElementById('progress').addEventListener('input',(e)=>{ audio.currentTime=e.target.value; });
 audio.addEventListener('timeupdate',()=>{ document.getElementById('progress').value=audio.currentTime; document.getElementById('progress').max=audio.duration; });
 
-// ADMIN LOGIC
+// ADMIN LOGIN
+const emailInput = document.getElementById('email');
 const passwordInput = document.getElementById('password');
 const loginBtn = document.getElementById('login');
 const adminGate = document.getElementById('adminGate');
@@ -234,16 +241,14 @@ const tracksContainer = document.getElementById('tracksContainer');
 const submitReleaseBtn = document.getElementById('submitRelease');
 
 loginBtn.addEventListener('click', async ()=>{
-  const password = passwordInput.value;
-  const { data, error } = await supabase.rpc('login_admin', { input_pass: password });
-  if(error){
-    alert('Error');
-  } else if(data){
+  const { error, session } = await supabase.auth.signInWithPassword({
+    email: emailInput.value,
+    password: passwordInput.value
+  });
+  if(!error){
     adminGate.style.display='none';
     adminPanel.style.display='block';
-  } else {
-    alert('Wrong password');
-  }
+  } else alert('Login failed');
 });
 
 addTrackBtn.addEventListener('click', ()=>{
@@ -270,10 +275,10 @@ submitReleaseBtn.addEventListener('click', async ()=>{
   });
   const { error } = await supabase.from('releases').insert([{ title, cover, type, tracks }]);
   if(!error){
-    alert('Release added');
+    alert('Release added!');
     tracksContainer.innerHTML='';
     fetchReleases();
-  } else alert('Error adding release');
+  } else alert('Error adding release: ' + error.message);
 });
 
 fetchReleases();
