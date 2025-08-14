@@ -88,232 +88,89 @@ input:focus, select:focus { border-color:#2a2a2a; }
     <section id="profile" class="page"><div class="empty">COMING SOON</div></section>
     <section id="liked" class="page"><div id="likedGrid" class="grid"></div><div class="spacer"></div></section>
     <section id="admin" class="page">
-      <div id="adminGate" class="login">
-        <div class="field">
-          <label>EMAIL</label>
-          <input id="email" type="text" placeholder="ADMIN EMAIL" />
-        </div>
-        <div class="field">
-          <label>PASSWORD</label>
-          <input id="password" type="password" placeholder="ADMIN PASSWORD" />
-        </div>
-        <button id="login" class="submit">LOGIN</button>
-        <div class="hint">ADMIN CREDENTIALS REQUIRED</div>
+      <div id="loginPanel" class="login">
+        <div class="field"><label>Email</label><input type="text" id="adminEmail"></div>
+        <div class="field"><label>Password</label><input type="password" id="adminPass"></div>
+        <button id="loginBtn" class="submit">LOGIN</button>
+        <div class="hint">Only approved admins can log in</div>
       </div>
       <div id="adminPanel" class="admin" style="display:none;">
-        <div class="field">
-          <label>Title</label>
-          <input id="title" type="text" placeholder="Album/EP/Single Title" />
-        </div>
-        <div class="field">
-          <label>Cover URL</label>
-          <input id="cover" type="text" placeholder="https://..." />
-        </div>
-        <div class="field">
-          <label>Type</label>
-          <select id="type">
-            <option value="album">ALBUM</option>
-            <option value="ep">EP</option>
-            <option value="single">SINGLE</option>
-          </select>
-        </div>
-        <div id="tracksContainer"></div>
-        <button id="addTrack" class="submit">ADD TRACK</button>
-        <button id="submitRelease" class="submit">SUBMIT</button>
+        <div class="field"><label>Release JSON</label><textarea id="releaseJSON" rows="6"></textarea></div>
+        <button id="addReleaseBtn" class="submit">ADD RELEASE</button>
+        <div class="hint">Paste release JSON and submit</div>
       </div>
     </section>
   </main>
 </div>
-<div class="album-overlay" id="albumOverlay">
-  <div class="album-header">
-    <img id="overlayCover" src="" />
-    <h2 id="overlayTitle"></h2>
-  </div>
-  <div class="album-tracks" id="overlayTracks"></div>
-</div>
-<div class="player">
-  <div class="track">
-    <img src="" id="trackCover" />
-    <div class="meta">
-      <div id="trackTitle">Title</div>
-      <div id="trackArtist">Artist</div>
-    </div>
-  </div>
-  <div class="controls">
-    <div class="ctl" id="prev">&#9664;</div>
-    <div class="ctl" id="play">&#9654;</div>
-    <div class="ctl" id="next">&#9654;&#9654;</div>
-  </div>
-  <div class="progress">
-    <input type="range" class="range" id="progress" min="0" max="100" value="0" />
-    <input type="range" class="range vol" id="volume" min="0" max="100" value="80" />
-  </div>
-</div>
 
-<script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-const supabase = createClient('https://mxprbsynyakkwdnpdmpr.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14cHJic3lueWFra3dkbnBkbXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMTExODUsImV4cCI6MjA3MDY4NzE4NX0.TCoRg7UcjT8kjHB0ltNiKN3IIFzFXfK5JvMy7PBfocA');
-
-const pages = document.querySelectorAll('.page');
-const navBtns = document.querySelectorAll('.btn');
-function showPage(route){
-  pages.forEach(p=>p.classList.toggle('show', p.id===route));
-  navBtns.forEach(b=>b.classList.toggle('active', b.dataset.route===route));
-  if(route!=='home') document.getElementById('albumOverlay').classList.remove('show');
-}
-navBtns.forEach(btn=>{
-  btn.addEventListener('click', e=>{
-    e.preventDefault();
-    const route = btn.dataset.route;
-    location.hash = route;
-    showPage(route);
-  });
+<script>
+const routeButtons = document.querySelectorAll(".btn[data-route]");
+const pages = document.querySelectorAll(".page");
+routeButtons.forEach(btn=>{
+  btn.addEventListener("click",()=>{pages.forEach(p=>p.classList.remove("show"));document.getElementById(btn.dataset.route).classList.add("show");});
 });
-function nav(){
-  const route = location.hash.replace('#','') || 'home';
-  showPage(route);
-}
-window.addEventListener('hashchange', nav);
-nav();
 
-let releases=[], currentTrackIndex=0, audio=new Audio();
-function renderReleases(){
-  const albumsGrid = document.getElementById('albums');
-  const epsGrid = document.getElementById('eps');
-  const singlesGrid = document.getElementById('singles');
-  albumsGrid.innerHTML=''; epsGrid.innerHTML=''; singlesGrid.innerHTML='';
-  releases.forEach((r,i)=>{
-    const card = document.createElement('div');
-    card.className='card';
-    card.innerHTML=`<img class="cover" src="${r.cover}" />
-      <div class="title">${r.title}</div>
-      <div class="subtitle">${r.type.toUpperCase()}</div>`;
-    card.addEventListener('click', ()=>{
-      if(r.tracks && r.tracks.length>1) showAlbumOverlay(r);
-      else if(r.tracks && r.tracks.length===1) playTrack(r.tracks[0], i);
+const loginBtn = document.getElementById("loginBtn");
+loginBtn.addEventListener("click", async ()=>{
+  const email = document.getElementById("adminEmail").value;
+  const password = document.getElementById("adminPass").value;
+
+  try {
+    const res = await fetch("https://mxprbsynyakkwdnpdmpr.supabase.co/functions/v1/clever-worker", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action:"login", email, password })
     });
-    if(r.type==='album') albumsGrid.appendChild(card);
-    if(r.type==='ep') epsGrid.appendChild(card);
-    if(r.type==='single') singlesGrid.appendChild(card);
-  });
-}
-
-async function loadReleases(){
-  const { data, error } = await supabase.from('releases').select('*').order('created_at',{ascending:false});
-  if(error){ console.error(error); return; }
-  releases = data.map(r=>{
-    if(typeof r.tracks==='string') r.tracks=JSON.parse(r.tracks);
-    return r;
-  });
-  renderReleases();
-}
-loadReleases();
-
-const loginBtn=document.getElementById('login');
-const emailInput=document.getElementById('email');
-const passwordInput=document.getElementById('password');
-const adminGate=document.getElementById('adminGate');
-const adminPanel=document.getElementById('adminPanel');
-const addTrackBtn=document.getElementById('addTrack');
-const tracksContainer=document.getElementById('tracksContainer');
-const submitReleaseBtn=document.getElementById('submitRelease');
-
-loginBtn.addEventListener('click', async ()=>{
-  try{
-    const email=emailInput.value, password=passwordInput.value;
-    const res = await fetch('https://mxprbsynyakkwdnpdmpr.supabase.co/functions/v1/clever-worker',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ email, password })
-    });
-    const result=await res.json();
-    if(result.success){
-      adminGate.style.display='none';
-      adminPanel.style.display='block';
+    const data = await res.json();
+    if(data.success){
+      document.getElementById("loginPanel").style.display="none";
+      document.getElementById("adminPanel").style.display="block";
+      alert("Logged in successfully");
     } else {
-      alert(result.error||'Not an admin');
+      alert(data.error || "Login failed");
     }
-  }catch(err){
-    console.error(err);
-    alert('Login failed');
+  } catch(e){
+    console.error(e);
+    alert("Network error");
   }
 });
 
-addTrackBtn.addEventListener('click', ()=>{
-  const div = document.createElement('div');
-  div.className='field';
-  div.innerHTML=`<label>Track Name</label><input type="text" placeholder="Track Title" />
-                 <label>Track URL</label><input type="text" placeholder="Track URL" />
-                 <label>Duration (sec)</label><input type="number" placeholder="Duration in sec" />`;
-  tracksContainer.appendChild(div);
+const addBtn = document.getElementById("addReleaseBtn");
+addBtn.addEventListener("click", async ()=>{
+  const release = JSON.parse(document.getElementById("releaseJSON").value);
+  try {
+    const res = await fetch("https://mxprbsynyakkwdnpdmpr.supabase.co/functions/v1/clever-worker", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ action:"addRelease", release })
+    });
+    const data = await res.json();
+    if(data.success){ alert("Release added!"); document.getElementById("releaseJSON").value=""; loadReleases(); }
+    else alert(data.error || "Failed to add release");
+  } catch(e){ console.error(e); alert("Network error"); }
 });
 
-submitReleaseBtn.addEventListener('click', async ()=>{
+async function loadReleases(){
   try{
-    const title=document.getElementById('title').value;
-    const cover=document.getElementById('cover').value;
-    const type=document.getElementById('type').value;
-    const tracks = Array.from(tracksContainer.querySelectorAll('.field')).map(f=>{
-      const inputs=f.querySelectorAll('input');
-      return { title:inputs[0].value, url:inputs[1].value, duration:parseInt(inputs[2].value)||0 };
+    const res = await fetch("https://mxprbsynyakkwdnpdmpr.supabase.co/rest/v1/releases?select=*",{
+      headers:{apikey:"PUBLIC_ANON_KEY","Authorization":"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14cHJic3lueWFra3dkbnBkbXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMTExODUsImV4cCI6MjA3MDY4NzE4NX0.TCoRg7UcjT8kjHB0ltNiKN3IIFzFXfK5JvMy7PBfocA"}
     });
-    const res = await fetch('https://mxprbsynyakkwdnpdmpr.supabase.co/functions/v1/clever-worker',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ action:'addRelease', release:{ title, cover, type, tracks } })
+    const releases = await res.json();
+    const container = document.getElementById("albums");
+    container.innerHTML="";
+    releases.forEach(r=>{
+      const card = document.createElement("div");
+      card.className="card";
+      card.innerHTML=`<img src="${r.cover}" class="cover"><div class="title">${r.title}</div><div class="subtitle">${r.artist}</div>`;
+      card.addEventListener("click",()=>playRelease(r));
+      container.appendChild(card);
     });
-    const result=await res.json();
-    if(result.success){ alert('Release added'); tracksContainer.innerHTML=''; loadReleases(); }
-    else alert(result.error||'Failed');
-  }catch(err){ console.error(err); alert('Error adding release'); }
-});
-
-function showAlbumOverlay(album){
-  document.getElementById('overlayCover').src=album.cover;
-  document.getElementById('overlayTitle').textContent=album.title;
-  const tracksDiv=document.getElementById('overlayTracks');
-  tracksDiv.innerHTML='';
-  album.tracks.forEach((t,i)=>{
-    const row=document.createElement('div');
-    row.className='track-row';
-    row.textContent=t.title;
-    row.addEventListener('click', ()=>playTrack(t, releases.indexOf(album)));
-    tracksDiv.appendChild(row);
-  });
-  document.getElementById('albumOverlay').classList.add('show');
+  } catch(e){ console.error(e); }
 }
 
-function playTrack(track, releaseIndex){
-  audio.src=track.url;
-  audio.play();
-  currentTrackIndex=releaseIndex;
-  document.getElementById('trackCover').src=releases[releaseIndex].cover;
-  document.getElementById('trackTitle').textContent=track.title;
-  document.getElementById('trackArtist').textContent=releases[releaseIndex].title;
-  document.getElementById('albumOverlay').classList.remove('show');
-}
+function playRelease(release){ console.log("Play:", release); }
 
-document.getElementById('play').addEventListener('click', ()=>{ if(audio.paused) audio.play(); else audio.pause(); });
-document.getElementById('next').addEventListener('click', ()=>{
-  currentTrackIndex=(currentTrackIndex+1)%releases.length;
-  if(releases[currentTrackIndex].tracks?.length>0) playTrack(releases[currentTrackIndex].tracks[0],currentTrackIndex);
-});
-document.getElementById('prev').addEventListener('click', ()=>{
-  currentTrackIndex=(currentTrackIndex-1+releases.length)%releases.length;
-  if(releases[currentTrackIndex].tracks?.length>0) playTrack(releases[currentTrackIndex].tracks[0],currentTrackIndex);
-});
-
-audio.addEventListener('timeupdate', ()=>{
-  const val=(audio.currentTime/audio.duration)*100||0;
-  document.getElementById('progress').value=val;
-});
-document.getElementById('progress').addEventListener('input', e=>{
-  audio.currentTime=(e.target.value/100)*audio.duration;
-});
-document.getElementById('volume').addEventListener('input', e=>{
-  audio.volume=e.target.value/100;
-});
-
+loadReleases();
 </script>
 </body>
 </html>
