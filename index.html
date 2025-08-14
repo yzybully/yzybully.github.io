@@ -54,7 +54,7 @@ input:focus, select:focus { border-color:#2a2a2a; }
 .hint { color:var(--text2); font-size:11px; margin-top:6px; }
 .empty { color:var(--text2); text-align:center; padding:60px 10px; font-size:12px; }
 .spacer { height:84px; }
-.tracklist-overlay { position:absolute; inset:0; background:var(--bg); padding:24px; overflow:auto; }
+.tracklist-overlay { position:absolute; inset:0; background:var(--bg); overflow:auto; z-index:4; }
 @media (max-width: 900px) { .app { grid-template-columns:1fr; } .sidebar { position:fixed; inset:auto 0 0 0; flex-direction:row; align-items:center; z-index:10; border-right:0; border-top:1px solid #111; padding:8px; gap:8px; } .brand, .muted { display:none; } .nav { flex-direction:row; width:100%; margin:0; } .btn { flex:1; justify-content:center; } .player { left:0; } .page { padding-bottom:120px; } }
 </style>
 </head>
@@ -85,7 +85,7 @@ input:focus, select:focus { border-color:#2a2a2a; }
       <div id="adminGate" class="login">
         <div class="field">
           <label>EMAIL</label>
-          <input id="email" type="text" placeholder="ADMIN EMAIL" />
+          <input id="email" type="email" placeholder="ENTER EMAIL" />
         </div>
         <div class="field">
           <label>PASSWORD</label>
@@ -146,10 +146,10 @@ const pages = document.querySelectorAll('.page');
 const navBtns = document.querySelectorAll('.btn');
 
 function showPage(route){
-  pages.forEach(p=>p.classList.toggle('show', p.id===route));
-  navBtns.forEach(b=>b.classList.toggle('active', b.dataset.route===route));
   const overlay = document.querySelector('.tracklist-overlay');
   if(overlay) overlay.remove();
+  pages.forEach(p=>p.classList.toggle('show', p.id===route));
+  navBtns.forEach(b=>b.classList.toggle('active', b.dataset.route===route));
 }
 
 navBtns.forEach(btn=>{
@@ -175,6 +175,7 @@ async function fetchReleases(){
   releases = data || [];
   renderReleases();
 }
+
 function renderReleases(){
   const albumsGrid = document.getElementById('albums');
   const epsGrid = document.getElementById('eps');
@@ -200,17 +201,34 @@ function renderReleases(){
 }
 
 function showAlbumTracks(r){
+  const main = document.querySelector('.main');
+  const existingOverlay = document.querySelector('.tracklist-overlay');
+  if(existingOverlay) existingOverlay.remove();
+  
   const overlay = document.createElement('div');
-  overlay.className='tracklist-overlay';
-  overlay.innerHTML=`<div class="section"><h2>${r.title}</h2><div class="grid" id="tracklist"></div></div>`;
-  document.querySelector('.main').appendChild(overlay);
-  const list = document.getElementById('tracklist');
+  overlay.className = 'tracklist-overlay page show';
+  overlay.style.padding='24px';
+  
+  overlay.innerHTML = `
+    <div style="display:flex; gap:24px; margin-bottom:24px; align-items:flex-start;">
+      <img src="${r.cover}" style="width:200px; height:200px; border-radius:14px; object-fit:cover; border:1px solid #171717;" />
+      <div>
+        <h2 style="margin:0 0 12px 0;">${r.title}</h2>
+        <div class="grid" id="tracklist"></div>
+      </div>
+    </div>
+  `;
+  
+  main.appendChild(overlay);
+  
+  const list = overlay.querySelector('#tracklist');
+  
   r.tracks.forEach((t,i)=>{
     const trackDiv = document.createElement('div');
     trackDiv.className='card-row';
     const duration = Math.floor(t.duration/60)+':' + String(t.duration%60).padStart(2,'0');
-    trackDiv.innerHTML=`<div>${i+1}. ${t.title}</div><div>${duration}</div>`;
-    trackDiv.addEventListener('click',()=>playTrack(t));
+    trackDiv.innerHTML = `<div style="flex:1;">${i+1}. ${t.title}</div><div>${duration}</div>`;
+    trackDiv.addEventListener('click', ()=>playTrack(t));
     list.appendChild(trackDiv);
   });
 }
@@ -224,17 +242,22 @@ function playTrack(track){
   document.getElementById('play').innerText='❚❚';
 }
 
-document.getElementById('play').addEventListener('click',()=>{
-  if(audio.paused) audio.play();
-  else audio.pause();
+document.getElementById('play').addEventListener('click', ()=>{
+  if(audio.paused) audio.play(); else audio.pause();
   document.getElementById('play').innerText=audio.paused?'▶':'❚❚';
 });
-document.getElementById('next').addEventListener('click',()=>{ currentTrackIndex=(currentTrackIndex+1)%releases.length; playTrack(releases[currentTrackIndex].tracks[0]); });
-document.getElementById('prev').addEventListener('click',()=>{ currentTrackIndex=(currentTrackIndex-1+releases.length)%releases.length; playTrack(releases[currentTrackIndex].tracks[0]); });
-audio.addEventListener('ended',()=>document.getElementById('play').innerText='▶');
+document.getElementById('next').addEventListener('click', ()=>{
+  currentTrackIndex=(currentTrackIndex+1)%releases.length;
+  playTrack(releases[currentTrackIndex].tracks[0]);
+});
+document.getElementById('prev').addEventListener('click', ()=>{
+  currentTrackIndex=(currentTrackIndex-1+releases.length)%releases.length;
+  playTrack(releases[currentTrackIndex].tracks[0]);
+});
+audio.addEventListener('ended', ()=>document.getElementById('play').innerText='▶');
 document.getElementById('volume').addEventListener('input',(e)=>{ audio.volume=e.target.value/100; });
 document.getElementById('progress').addEventListener('input',(e)=>{ audio.currentTime=e.target.value; });
-audio.addEventListener('timeupdate',()=>{ document.getElementById('progress').value=audio.currentTime; document.getElementById('progress').max=audio.duration; });
+audio.addEventListener('timeupdate', ()=>{ document.getElementById('progress').value=audio.currentTime; document.getElementById('progress').max=audio.duration; });
 
 const emailInput = document.getElementById('email');
 const passwordInput = document.getElementById('password');
@@ -247,42 +270,36 @@ const submitReleaseBtn = document.getElementById('submitRelease');
 
 loginBtn.addEventListener('click', async ()=>{
   const { data, error } = await supabase.from('admins').select('*').eq('email', emailInput.value).eq('password', passwordInput.value).single();
-  if(data && !error){
+  if(data){
     adminGate.style.display='none';
     adminPanel.style.display='block';
-  } else alert('Wrong email or password');
+  } else alert('Wrong credentials');
 });
 
 addTrackBtn.addEventListener('click', ()=>{
   const trackDiv = document.createElement('div');
   trackDiv.className='row';
-  trackDiv.innerHTML=`<input type="text" placeholder="Track Title" class="trackTitle"/>
-  <input type="text" placeholder="Track URL" class="trackURL"/>
-  <input type="number" placeholder="Duration (sec)" class="trackDuration"/>`;
+  trackDiv.innerHTML=`
+    <input placeholder="Track title" style="flex:2"/>
+    <input placeholder="Track URL" style="flex:3"/>
+    <input placeholder="Duration (sec)" style="flex:1"/>
+  `;
   tracksContainer.appendChild(trackDiv);
 });
 
 submitReleaseBtn.addEventListener('click', async ()=>{
-  const title = document.getElementById('title').value;
-  const cover = document.getElementById('cover').value;
-  const type = document.getElementById('type').value;
-  const tracksEls = tracksContainer.querySelectorAll('.row');
-  const tracks = Array.from(tracksEls).map(r=>{
-    return {
-      title: r.querySelector('.trackTitle').value,
-      url: r.querySelector('.trackURL').value,
-      duration: parseInt(r.querySelector('.trackDuration').value),
-      cover: cover
-    }
+  const title=document.getElementById('title').value;
+  const cover=document.getElementById('cover').value;
+  const type=document.getElementById('type').value;
+  const tracks=[];
+  tracksContainer.querySelectorAll('.row').forEach(r=>{
+    const [titleInput,urlInput,durationInput]=r.querySelectorAll('input');
+    tracks.push({ title:titleInput.value, url:urlInput.value, duration:Number(durationInput.value) });
   });
-  const { error } = await supabase.from('releases').insert([{ title, cover, type, tracks }]);
-  if(!error){
-    alert('Release added');
-    fetchReleases();
-    tracksContainer.innerHTML='';
-    document.getElementById('title').value='';
-    document.getElementById('cover').value='';
-  } else alert('Error adding release');
+  await supabase.from('releases').insert([{title,cover,type,tracks}]);
+  alert('Release added');
+  tracksContainer.innerHTML='';
+  fetchReleases();
 });
 
 fetchReleases();
