@@ -11,7 +11,7 @@
 html,body { height:100%; margin:0; background:var(--bg); color:var(--text); font-family:"IBM Plex Mono", monospace; text-transform:uppercase; letter-spacing:.06em; }
 a { color:inherit; text-decoration:none; }
 .app { display:grid; grid-template-columns:280px 1fr; height:100dvh; }
-.sidebar { background:linear-gradient(180deg, #0e0e0e, #070707); border-right:1px solid #111; padding:22px 16px; display:flex; flex-direction:column; gap:18px; z-index:2; }
+.sidebar { background:linear-gradient(180deg, #0e0e0e, #070707); border-right:1px solid #111; padding:22px 16px; display:flex; flex-direction:column; gap:18px; }
 .brand { font-size:22px; font-weight:600; letter-spacing:.18em; }
 .muted { color:var(--text2); font-size:11px; margin-top:2px; }
 .nav { display:flex; flex-direction:column; gap:10px; margin-top:18px; }
@@ -19,7 +19,7 @@ a { color:inherit; text-decoration:none; }
 .btn:hover { transform:translateY(-2px); background:var(--muted2); border-color:#242424; }
 .btn.active { outline:1px solid #2b2b2b; background:#131313; }
 .main { position:relative; overflow:hidden; }
-.page { position:absolute; inset:0; padding:24px; overflow:auto; opacity:0; transform:translateY(8px); pointer-events:none; transition:opacity .35s ease, transform .35s ease; z-index:1; }
+.page { position:absolute; inset:0; padding:24px; overflow:auto; opacity:0; transform:translateY(8px); pointer-events:none; transition:opacity .35s ease, transform .35s ease; }
 .page.show { opacity:1; transform:none; pointer-events:auto; }
 .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:16px; }
 .section { margin-bottom:28px; }
@@ -54,14 +54,14 @@ input:focus, select:focus { border-color:#2a2a2a; }
 .hint { color:var(--text2); font-size:11px; margin-top:6px; }
 .empty { color:var(--text2); text-align:center; padding:60px 10px; font-size:12px; }
 .spacer { height:84px; }
-.album-overlay { position:absolute; inset:0; background:var(--bg); z-index:10; display:none; flex-direction:column; padding:24px; overflow:auto; }
+.album-overlay { position:fixed; top:0; left:280px; right:0; bottom:80px; background:rgba(10,10,10,0.95); z-index:50; display:none; flex-direction:column; padding:24px; overflow-y:auto; }
 .album-overlay.show { display:flex; }
-.album-header { display:flex; gap:16px; margin-bottom:16px; }
-.album-header img { width:120px; height:120px; object-fit:cover; border-radius:14px; border:1px solid #171717; }
-.album-tracks { display:flex; flex-direction:column; gap:8px; }
-.track-row { display:flex; justify-content:space-between; padding:8px 12px; background:var(--card); border-radius:12px; cursor:pointer; transition:.2s; }
-.track-row:hover { background:var(--muted2); }
-@media (max-width: 900px) { .app { grid-template-columns:1fr; } .sidebar { position:fixed; inset:auto 0 0 0; flex-direction:row; align-items:center; z-index:10; border-right:0; border-top:1px solid #111; padding:8px; gap:8px; } .brand, .muted { display:none; } .nav { flex-direction:row; width:100%; margin:0; } .btn { flex:1; justify-content:center; } .player { left:0; } .page { padding-bottom:120px; } }
+.track-list-row { display:flex; justify-content:space-between; padding:6px 12px; background:#111; margin-bottom:4px; border-radius:8px; cursor:pointer; transition:.2s; }
+.track-list-row:hover { background:#1a1a1a; }
+.track-number { width:20px; text-align:left; }
+.track-name { flex:1; margin-left:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.track-duration { width:50px; text-align:right; }
+@media (max-width: 900px) { .app { grid-template-columns:1fr; } .sidebar { position:fixed; inset:auto 0 0 0; flex-direction:row; align-items:center; z-index:10; border-right:0; border-top:1px solid #111; padding:8px; gap:8px; } .brand, .muted { display:none; } .nav { flex-direction:row; width:100%; margin:0; } .btn { flex:1; justify-content:center; } .player { left:0; } .page { padding-bottom:120px; } .album-overlay { left:0; top:60px; right:0; bottom:120px; } }
 </style>
 </head>
 <body>
@@ -91,14 +91,14 @@ input:focus, select:focus { border-color:#2a2a2a; }
       <div id="adminGate" class="login">
         <div class="field">
           <label>EMAIL</label>
-          <input id="email" type="text" placeholder="ADMIN EMAIL" />
+          <input id="email" type="email" placeholder="ENTER ADMIN EMAIL" />
         </div>
         <div class="field">
           <label>PASSWORD</label>
-          <input id="password" type="password" placeholder="ADMIN PASSWORD" />
+          <input id="password" type="password" placeholder="ENTER ADMIN PASSWORD" />
         </div>
         <button id="login" class="submit">LOGIN</button>
-        <div class="hint">ADMIN CREDENTIALS REQUIRED</div>
+        <div class="hint">ADMIN LOGIN REQUIRED</div>
       </div>
       <div id="adminPanel" class="admin" style="display:none;">
         <div class="field">
@@ -124,13 +124,7 @@ input:focus, select:focus { border-color:#2a2a2a; }
     </section>
   </main>
 </div>
-<div class="album-overlay" id="albumOverlay">
-  <div class="album-header">
-    <img id="overlayCover" src="" />
-    <h2 id="overlayTitle"></h2>
-  </div>
-  <div class="album-tracks" id="overlayTracks"></div>
-</div>
+
 <div class="player">
   <div class="track">
     <img src="" id="trackCover" />
@@ -150,17 +144,27 @@ input:focus, select:focus { border-color:#2a2a2a; }
   </div>
 </div>
 
+<div class="album-overlay" id="albumOverlay"></div>
+
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-const supabase = createClient('https://mxprbsynyakkwdnpdmpr.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14cHJic3lueWFra3dkbnBkbXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMTExODUsImV4cCI6MjA3MDY4NzE4NX0.TCoRg7UcjT8kjHB0ltNiKN3IIFzFXfK5JvMy7PBfocA');
+const supabase = createClient('https://mxprbsynyakkwdnpdmpr.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14cHJic3lueWFra3dkbnBkbXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMTExODUsImV4cCI6MjA3MDY4NzE4NX0.TCoRg7UcjT8kjHB0ltNiKN3IIFzFXfK5JvMy7PBfocA')
+
+const adminUUIDs = [
+  '1b2383d0-9844-4eb0-8a01-ae5f184c1f12',
+  'b276784d-19b6-44bc-bd67-264ebff7f812',
+  'f6a5e484-67b0-4277-9e21-c9a32d9664a3'
+]
 
 const pages = document.querySelectorAll('.page');
 const navBtns = document.querySelectorAll('.btn');
+
 function showPage(route){
   pages.forEach(p=>p.classList.toggle('show', p.id===route));
   navBtns.forEach(b=>b.classList.toggle('active', b.dataset.route===route));
-  if(route!=='home') document.getElementById('albumOverlay').classList.remove('show');
+  document.getElementById('albumOverlay').classList.remove('show');
 }
+
 navBtns.forEach(btn=>{
   btn.addEventListener('click', e=>{
     e.preventDefault();
@@ -169,6 +173,7 @@ navBtns.forEach(btn=>{
     showPage(route);
   });
 });
+
 function nav(){
   const route = location.hash.replace('#','') || 'home';
   showPage(route);
@@ -177,111 +182,62 @@ window.addEventListener('hashchange', nav);
 nav();
 
 let releases = [], currentTrackIndex = 0, audio = new Audio();
+
 async function fetchReleases(){
   const { data } = await supabase.from('releases').select('*').order('id', {ascending:true});
   releases = data || [];
   renderReleases();
 }
+
 function renderReleases(){
   const albumsGrid = document.getElementById('albums');
   const epsGrid = document.getElementById('eps');
   const singlesGrid = document.getElementById('singles');
   albumsGrid.innerHTML=''; epsGrid.innerHTML=''; singlesGrid.innerHTML='';
-  releases.forEach(r=>{
+  releases.forEach((r,i)=>{
     const card = document.createElement('div');
     card.className='card';
     card.innerHTML=`<img class="cover" src="${r.cover}" />
       <div class="title">${r.title}</div>
       <div class="subtitle">${r.type.toUpperCase()}</div>`;
-    card.addEventListener('click', ()=>{
-      if(r.tracks.length>1){
-        showAlbumOverlay(r);
-      } else {
-        playTrack(r.tracks[0]);
-      }
-    });
+    card.addEventListener('click',()=>showAlbum(r));
     if(r.type==='album') albumsGrid.appendChild(card);
-    else if(r.type==='ep') epsGrid.appendChild(card);
-    else singlesGrid.appendChild(card);
+    if(r.type==='ep') epsGrid.appendChild(card);
+    if(r.type==='single') singlesGrid.appendChild(card);
   });
 }
 
-function showAlbumOverlay(album){
-  const overlay = document.getElementById('albumOverlay');
-  document.getElementById('overlayCover').src = album.cover;
-  document.getElementById('overlayTitle').innerText = album.title;
-  const trackContainer = document.getElementById('overlayTracks');
-  trackContainer.innerHTML='';
-  album.tracks.forEach((t,i)=>{
-    const trackRow = document.createElement('div');
-    trackRow.className='track-row';
-    const duration = Math.floor(t.duration/60)+':' + String(t.duration%60).padStart(2,'0');
-    trackRow.innerHTML = `<div>${i+1}. ${t.title}</div><div>${duration}</div>`;
-    trackRow.addEventListener('click',()=>playTrack(t));
-    trackContainer.appendChild(trackRow);
+const albumOverlay = document.getElementById('albumOverlay');
+function showAlbum(album){
+  albumOverlay.innerHTML = '';
+  album.tracks?.forEach((t,i)=>{
+    const row = document.createElement('div');
+    row.className='track-list-row';
+    row.innerHTML=`<div class="track-number">${i+1}</div>
+      <div class="track-name">${t.name}</div>
+      <div class="track-duration">${t.duration}</div>`;
+    albumOverlay.appendChild(row);
   });
-  overlay.classList.add('show');
+  albumOverlay.classList.add('show');
 }
 
-function playTrack(track){
-  audio.src=track.url;
-  audio.play();
-  document.getElementById('trackCover').src=track.cover || '';
-  document.getElementById('trackTitle').innerText=track.title;
-  document.getElementById('trackArtist').innerText=track.artist || '';
-  document.getElementById('play').innerText='❚❚';
-}
-
-document.getElementById('play').addEventListener('click',()=>{
-  if(audio.paused) audio.play(); else audio.pause();
-  document.getElementById('play').innerText=audio.paused?'▶':'❚❚';
-});
-document.getElementById('next').addEventListener('click',()=>{ currentTrackIndex=(currentTrackIndex+1)%releases.length; playTrack(releases[currentTrackIndex].tracks[0]); });
-document.getElementById('prev').addEventListener('click',()=>{ currentTrackIndex=(currentTrackIndex-1+releases.length)%releases.length; playTrack(releases[currentTrackIndex].tracks[0]); });
-
-const ADMIN_UUIDS = [
-  '1b2383d0-9844-4eb0-8a01-ae5f184c1f12',
-  'b276784d-19b6-44bc-bd67-264ebff7f812',
-  'f6a5e484-67b0-4277-9e21-c9a32d9664a3'
-];
-const loginBtn = document.getElementById('login');
-const emailInput = document.getElementById('email');
-const passwordInput = document.getElementById('password');
-const adminGate = document.getElementById('adminGate');
-const adminPanel = document.getElementById('adminPanel');
-const addTrackBtn = document.getElementById('addTrack');
-const tracksContainer = document.getElementById('tracksContainer');
-const submitReleaseBtn = document.getElementById('submitRelease');
-
-loginBtn.addEventListener('click', async()=>{
-  const { data, error } = await supabase.auth.signInWithPassword({ email: emailInput.value, password: passwordInput.value });
-  if(error) { alert('Invalid login'); return; }
-  if(!ADMIN_UUIDS.includes(data.user.id)) { alert('Not an admin'); return; }
-  adminGate.style.display='none';
-  adminPanel.style.display='block';
+document.getElementById('login').addEventListener('click', async ()=>{
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  const { user, error } = await supabase.auth.signInWithPassword({ email, password });
+  if(error) return alert('Login failed');
+  if(!adminUUIDs.includes(user.id)) return alert('Not authorized');
+  document.getElementById('adminGate').style.display='none';
+  document.getElementById('adminPanel').style.display='block';
 });
 
-addTrackBtn.addEventListener('click', ()=>{
-  const trackRow = document.createElement('div');
-  trackRow.className='row';
-  trackRow.innerHTML=`<input placeholder="TRACK NAME"/><input placeholder="TRACK URL"/><input placeholder="DURATION"/>`;
-  tracksContainer.appendChild(trackRow);
-});
-
-submitReleaseBtn.addEventListener('click', async()=>{
-  const tracks = Array.from(tracksContainer.querySelectorAll('.row')).map(r=>{
-    const inputs = r.querySelectorAll('input');
-    return { title:inputs[0].value, url:inputs[1].value, duration: parseInt(inputs[2].value)||0 };
-  });
-  const { error } = await supabase.from('releases').insert([{ title: document.getElementById('title').value, cover: document.getElementById('cover').value, type: document.getElementById('type').value, tracks }]);
-  if(error) { alert('Error adding release'); console.error(error); return; }
-  alert('Release added');
-  tracksContainer.innerHTML=''; document.getElementById('title').value=''; document.getElementById('cover').value='';
+document.getElementById('submitRelease').addEventListener('click', async ()=>{
+  const title = document.getElementById('title').value;
+  const cover = document.getElementById('cover').value;
+  const type = document.getElementById('type').value;
+  const { error } = await supabase.from('releases').insert([{ title, cover, type }]);
+  if(error) return alert('Failed to add release');
   fetchReleases();
-});
-
-document.getElementById('albumOverlay').addEventListener('click',(e)=>{
-  if(e.target.id==='albumOverlay') document.getElementById('albumOverlay').classList.remove('show');
 });
 
 fetchReleases();
