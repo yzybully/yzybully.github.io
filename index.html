@@ -47,8 +47,8 @@ a { color:inherit; text-decoration:none; }
 .login, .admin { max-width:680px; margin:0 auto; background:var(--card); border:1px solid #171717; border-radius:18px; padding:18px; box-shadow:var(--shadow); }
 .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 .field { display:flex; flex-direction:column; gap:8px; }
-input, select { background:#0e0e0e; border:1px solid #1a1a1a; border-radius:12px; padding:12px 12px; color:var(--text); outline:none; transition:.2s; font-family:"IBM Plex Mono", monospace; text-transform:uppercase; }
-input:focus, select:focus { border-color:#2a2a2a; }
+input, select, textarea { background:#0e0e0e; border:1px solid #1a1a1a; border-radius:12px; padding:12px 12px; color:var(--text); outline:none; transition:.2s; font-family:"IBM Plex Mono", monospace; text-transform:uppercase; }
+input:focus, select:focus, textarea:focus { border-color:#2a2a2a; }
 .submit { margin-top:10px; width:100%; padding:12px; border-radius:14px; background:#151515; border:1px solid #222; cursor:pointer; font-size:12px; color:var(--text);}
 .ghost { background:#101010; }
 .hint { color:var(--text2); font-size:11px; margin-top:6px; }
@@ -95,82 +95,92 @@ input:focus, select:focus { border-color:#2a2a2a; }
         <div class="hint">Only approved admins can log in</div>
       </div>
       <div id="adminPanel" class="admin" style="display:none;">
-        <div class="field"><label>Release JSON</label><textarea id="releaseJSON" rows="6"></textarea></div>
+        <div class="field"><label>Release JSON</label><textarea id="releaseData" rows="6"></textarea></div>
         <button id="addReleaseBtn" class="submit">ADD RELEASE</button>
-        <div class="hint">Paste release JSON and submit</div>
       </div>
     </section>
   </main>
 </div>
 
+<div class="player">
+  <div class="track"><img id="playerCover" src="" /><div class="meta"><div id="playerTitle">--</div><div id="playerSubtitle">--</div></div></div>
+  <div class="controls"><div class="ctl" id="prev">⏮</div><div class="ctl" id="play">▶</div><div class="ctl" id="next">⏭</div></div>
+  <div class="progress"><input type="range" class="range" id="seek"><input type="range" class="range vol" id="volume"></div>
+</div>
+
 <script>
-const routeButtons = document.querySelectorAll(".btn[data-route]");
-const pages = document.querySelectorAll(".page");
-routeButtons.forEach(btn=>{
-  btn.addEventListener("click",()=>{pages.forEach(p=>p.classList.remove("show"));document.getElementById(btn.dataset.route).classList.add("show");});
-});
+const SUPABASE_URL = "https://mxprbsynyakkwdnpdmpr.supabase.co/functions/v1/clever-worker";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14cHJic3lueWFra3dkbnBkbXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMTExODUsImV4cCI6MjA3MDY4NzE4NX0.TCoRg7UcjT8kjHB0ltNiKN3IIFzFXfK5JvMy7PBfocA";
 
 const loginBtn = document.getElementById("loginBtn");
-loginBtn.addEventListener("click", async ()=>{
-  const email = document.getElementById("adminEmail").value;
-  const password = document.getElementById("adminPass").value;
+const adminEmail = document.getElementById("adminEmail");
+const adminPass = document.getElementById("adminPass");
+const loginPanel = document.getElementById("loginPanel");
+const adminPanel = document.getElementById("adminPanel");
+const addReleaseBtn = document.getElementById("addReleaseBtn");
+const releaseData = document.getElementById("releaseData");
 
-  try {
-    const res = await fetch("https://mxprbsynyakkwdnpdmpr.supabase.co/functions/v1/clever-worker", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action:"login", email, password })
-    });
-    const data = await res.json();
-    if(data.success){
-      document.getElementById("loginPanel").style.display="none";
-      document.getElementById("adminPanel").style.display="block";
-      alert("Logged in successfully");
-    } else {
-      alert(data.error || "Login failed");
-    }
-  } catch(e){
-    console.error(e);
-    alert("Network error");
-  }
+loginBtn.addEventListener("click", async () => {
+  const email = adminEmail.value.trim();
+  const password = adminPass.value.trim();
+  const res = await fetch(SUPABASE_URL, {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ action:"login", email, password })
+  });
+  const data = await res.json();
+  if(data.success){ loginPanel.style.display="none"; adminPanel.style.display="block"; alert("Logged in!"); }
+  else alert(data.error || "Login failed");
 });
 
-const addBtn = document.getElementById("addReleaseBtn");
-addBtn.addEventListener("click", async ()=>{
-  const release = JSON.parse(document.getElementById("releaseJSON").value);
-  try {
-    const res = await fetch("https://mxprbsynyakkwdnpdmpr.supabase.co/functions/v1/clever-worker", {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({ action:"addRelease", release })
-    });
-    const data = await res.json();
-    if(data.success){ alert("Release added!"); document.getElementById("releaseJSON").value=""; loadReleases(); }
-    else alert(data.error || "Failed to add release");
-  } catch(e){ console.error(e); alert("Network error"); }
+addReleaseBtn.addEventListener("click", async () => {
+  let release;
+  try{ release = JSON.parse(releaseData.value); }
+  catch(e){ return alert("Invalid JSON"); }
+  const res = await fetch(SUPABASE_URL, {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ action:"addRelease", release })
+  });
+  const data = await res.json();
+  if(data.success){ alert("Release added!"); releaseData.value=""; }
+  else alert(data.error || "Failed to add release");
 });
 
-async function loadReleases(){
-  try{
-    const res = await fetch("https://mxprbsynyakkwdnpdmpr.supabase.co/rest/v1/releases?select=*",{
-      headers:{apikey:"PUBLIC_ANON_KEY","Authorization":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14cHJic3lueWFra3dkbnBkbXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMTExODUsImV4cCI6MjA3MDY4NzE4NX0.TCoRg7UcjT8kjHB0ltNiKN3IIFzFXfK5JvMy7PBfocA"}
-    });
-    const releases = await res.json();
-    const container = document.getElementById("albums");
-    container.innerHTML="";
-    releases.forEach(r=>{
-      const card = document.createElement("div");
-      card.className="card";
-      card.innerHTML=`<img src="${r.cover}" class="cover"><div class="title">${r.title}</div><div class="subtitle">${r.artist}</div>`;
-      card.addEventListener("click",()=>playRelease(r));
-      container.appendChild(card);
-    });
-  } catch(e){ console.error(e); }
+// Navigation
+document.querySelectorAll(".nav .btn").forEach(btn=>{
+  btn.addEventListener("click", e=>{
+    e.preventDefault();
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("show"));
+    document.getElementById(btn.dataset.route).classList.add("show");
+  });
+});
+
+// Fetch releases
+async function loadReleases(type,id){
+  const res = await fetch(`${SUPABASE_URL}?action=fetch&type=${type}`,{ headers:{"Content-Type":"application/json"} });
+  const data = await res.json();
+  const container = document.getElementById(id);
+  container.innerHTML="";
+  data.forEach(r=>{
+    const div=document.createElement("div");
+    div.className="card";
+    div.innerHTML=`<img class="cover" src="${r.cover}"><div class="title">${r.title}</div><div class="subtitle">${r.artist}</div>`;
+    div.addEventListener("click",()=>playRelease(r));
+    container.appendChild(div);
+  });
 }
 
-function playRelease(release){ console.log("Play:", release); }
+function playRelease(r){
+  document.getElementById("playerCover").src=r.cover;
+  document.getElementById("playerTitle").textContent=r.title;
+  document.getElementById("playerSubtitle").textContent=r.artist;
+}
 
-loadReleases();
+// Load all
+loadReleases("albums","albums");
+loadReleases("eps","eps");
+loadReleases("singles","singles");
 </script>
 </body>
 </html>
