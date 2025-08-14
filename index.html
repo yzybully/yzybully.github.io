@@ -47,14 +47,36 @@ a { color:inherit; text-decoration:none; }
 .login, .admin { max-width:680px; margin:0 auto; background:var(--card); border:1px solid #171717; border-radius:18px; padding:18px; box-shadow:var(--shadow); }
 .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 .field { display:flex; flex-direction:column; gap:8px; }
-input, select { background:#0e0e0e; border:1px solid #1a1a1a; border-radius:12px; padding:12px 12px; color:var(--text); outline:none; transition:.2s; font-family:"IBM Plex Mono", monospace; text-transform:uppercase; }
-input:focus, select:focus { border-color:#2a2a2a; }
+input, select, textarea { background:#0e0e0e; border:1px solid #1a1a1a; border-radius:12px; padding:12px 12px; color:var(--text); outline:none; transition:.2s; font-family:"IBM Plex Mono", monospace; text-transform:uppercase; }
+input:focus, select:focus, textarea:focus { border-color:#2a2a2a; }
 .submit { margin-top:10px; width:100%; padding:12px; border-radius:14px; background:#151515; border:1px solid #222; cursor:pointer; font-size:12px; color:var(--text);}
 .ghost { background:#101010; }
 .hint { color:var(--text2); font-size:11px; margin-top:6px; }
 .empty { color:var(--text2); text-align:center; padding:60px 10px; font-size:12px; }
 .spacer { height:84px; }
-@media (max-width: 900px) { .app { grid-template-columns:1fr; } .sidebar { position:fixed; inset:auto 0 0 0; flex-direction:row; align-items:center; z-index:10; border-right:0; border-top:1px solid #111; padding:8px; gap:8px; } .brand, .muted { display:none; } .nav { flex-direction:row; width:100%; margin:0; } .btn { flex:1; justify-content:center; } .player { left:0; } .page { padding-bottom:120px; } }
+
+/* Album detail view (keeps layout, just styles the injected section) */
+.album-detail { display:grid; grid-template-columns:240px 1fr; gap:20px; align-items:start; }
+.album-cover { width:100%; border-radius:16px; border:1px solid #1a1a1a; background:#0d0d0d; object-fit:cover; }
+.track-list { margin-top:6px; border:1px solid #171717; border-radius:16px; overflow:hidden; }
+.track-row { display:grid; grid-template-columns:42px 1fr 64px; align-items:center; padding:10px 14px; border-bottom:1px solid #191919; }
+.track-row:last-child { border-bottom:none; }
+.track-num { color:var(--text2); text-align:right; padding-right:8px; }
+.track-name { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.track-dur { color:var(--text2); text-align:right; }
+.track-row:hover { background:#131313; cursor:pointer; }
+
+@media (max-width: 900px) {
+  .app { grid-template-columns:1fr; }
+  .sidebar { position:fixed; inset:auto 0 0 0; flex-direction:row; align-items:center; z-index:10; border-right:0; border-top:1px solid #111; padding:8px; gap:8px; }
+  .brand, .muted { display:none; }
+  .nav { flex-direction:row; width:100%; margin:0; }
+  .btn { flex:1; justify-content:center; }
+  .player { left:0; }
+  .page { padding-bottom:120px; }
+  .album-detail { grid-template-columns:1fr; }
+  .track-row { grid-template-columns:34px 1fr 54px; }
+}
 </style>
 </head>
 <body>
@@ -139,151 +161,239 @@ input:focus, select:focus { border-color:#2a2a2a; }
 
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-const supabase = createClient(
-  'https://mxprbsynyakkwdnpdmpr.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14cHJic3lueWFra3dkbnBkbXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMTExODUsImV4cCI6MjA3MDY4NzE4NX0.TCoRg7UcjT8kjHB0ltNiKN3IIFzFXfK5JvMy7PBfocA'
-)
 
-const pages = document.querySelectorAll('.page');
-const navBtns = document.querySelectorAll('.btn');
+const SUPABASE_URL = 'https://mxprbsynyakkwdnpdmpr.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14cHJic3lueWFra3dkbnBkbXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMTExODUsImV4cCI6MjA3MDY4NzE4NX0.TCoRg7UcjT8kjHB0ltNiKN3IIFzFXfK5JvMy7PBfocA'
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+const adminUIDs = [
+  '1b2383d0-9844-4eb0-8a01-ae5f184c1f12',
+  'b276784d-19b6-44bc-bd67-264ebff7f812',
+  'f6a5e484-67b0-4277-9e21-c9a32d9664a3'
+]
+
+const pages = document.querySelectorAll('.page')
+const navBtns = document.querySelectorAll('.btn')
+
 function showPage(route){
-  pages.forEach(p=>p.classList.toggle('show', p.id===route));
-  navBtns.forEach(b=>b.classList.toggle('active', b.dataset.route===route));
+  pages.forEach(p=>p.classList.toggle('show', p.id===route))
+  navBtns.forEach(b=>b.classList.toggle('active', b.dataset.route===route))
 }
+
 navBtns.forEach(btn=>{
   btn.addEventListener('click', e=>{
-    e.preventDefault();
-    const route = btn.dataset.route;
-    location.hash = route;
-    showPage(route);
-  });
-});
+    e.preventDefault()
+    const route = btn.dataset.route
+    location.hash = route
+    routeGuard(route)
+  })
+})
+
+async function routeGuard(route){
+  if(route === 'admin'){
+    const { data } = await supabase.auth.getUser()
+    const user = data?.user
+    if(!user || !adminUIDs.includes(user.id)){
+      location.hash = 'home'
+      showPage('home')
+      return
+    }
+  }
+  showPage(route)
+}
+
 function nav(){
-  const route = location.hash.replace('#','') || 'home';
-  showPage(route);
+  const route = (location.hash.replace('#','') || 'home')
+  routeGuard(route)
 }
-window.addEventListener('hashchange', nav);
-nav();
+window.addEventListener('hashchange', nav)
+nav()
 
-let releases = [], currentTrackIndex = 0, audio = new Audio();
+let releases = [], currentTrackIndex = 0, audio = new Audio()
+
+function formatDuration(sec){
+  if(!isFinite(sec)) return '0:00'
+  const m = Math.floor(sec/60)
+  const s = Math.floor(sec%60).toString().padStart(2,'0')
+  return `${m}:${s}`
+}
+
 async function fetchReleases(){
-  const { data } = await supabase.from('releases').select('*').order('id',{ascending:true});
-  releases = data || [];
-  renderReleases();
+  const { data } = await supabase.from('releases').select('*').order('id',{ascending:true})
+  releases = data || []
+  renderReleases()
 }
+
 function renderReleases(){
-  const albumsGrid = document.getElementById('albums');
-  const epsGrid = document.getElementById('eps');
-  const singlesGrid = document.getElementById('singles');
-  albumsGrid.innerHTML=''; epsGrid.innerHTML=''; singlesGrid.innerHTML='';
+  const albumsGrid = document.getElementById('albums')
+  const epsGrid = document.getElementById('eps')
+  const singlesGrid = document.getElementById('singles')
+  albumsGrid.innerHTML=''; epsGrid.innerHTML=''; singlesGrid.innerHTML=''
+
   releases.forEach(r=>{
-    const card = document.createElement('div');
-    card.className='card';
-    card.innerHTML=`<img class="cover" src="${r.cover}" />
+    const card = document.createElement('div')
+    card.className='card'
+    card.innerHTML=`<img class="cover" src="${r.cover}" alt="">
       <div class="title">${r.title}</div>
-      <div class="subtitle">${r.type.toUpperCase()}</div>`;
+      <div class="subtitle">${(r.type||'').toUpperCase()}</div>`
     card.addEventListener('click', ()=>{
-      if(r.tracks.length>1){
-        showAlbumTracks(r);
-      } else {
-        playTrack(r.tracks[0]);
+      if(r.tracks && r.tracks.length>1){
+        renderTracksPage(r)
+      } else if(r.tracks && r.tracks[0]){
+        playTrack({ ...r.tracks[0], cover: r.cover, artist: r.artist || '' })
       }
-    });
-    if(r.type==='album') albumsGrid.appendChild(card);
-    else if(r.type==='ep') epsGrid.appendChild(card);
-    else singlesGrid.appendChild(card);
-  });
+    })
+    if(r.type==='album') albumsGrid.appendChild(card)
+    else if(r.type==='ep') epsGrid.appendChild(card)
+    else singlesGrid.appendChild(card)
+  })
 }
-function showAlbumTracks(r){
-  const main = document.querySelector('.main');
-  main.innerHTML = `<div class="page show"><h2>${r.title}</h2><div class="grid" id="tracklist"></div></div>`;
-  const list = document.getElementById('tracklist');
-  r.tracks.forEach((t,i)=>{
-    const trackDiv = document.createElement('div');
-    trackDiv.className='card-row';
-    const duration = Math.floor(t.duration/60)+':' + String(t.duration%60).padStart(2,'0');
-    trackDiv.innerHTML=`<div>${i+1}. ${t.title}</div><div>${duration}</div>`;
-    trackDiv.addEventListener('click',()=>playTrack(t));
-    list.appendChild(trackDiv);
-  });
+
+function renderTracksPage(album){
+  const main = document.querySelector('.main')
+  const temp = document.createElement('section')
+  temp.className='page show'
+  const safeCover = album.cover || ''
+  temp.innerHTML = `
+    <div class="section">
+      <h2>${album.title}</h2>
+      <div class="album-detail">
+        <img class="album-cover" src="${safeCover}" alt="">
+        <div>
+          <div class="track-list">
+            ${album.tracks.map((t,i)=>`
+              <div class="track-row" data-index="${i}">
+                <div class="track-num">${i+1}</div>
+                <div class="track-name">${t.title}</div>
+                <div class="track-dur">${formatDuration(t.duration)}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+  Array.from(document.querySelectorAll('.page')).forEach(p=>p.classList.remove('show'))
+  main.appendChild(temp)
+
+  const rows = temp.querySelectorAll('.track-row')
+  rows.forEach(row=>{
+    row.addEventListener('click', ()=>{
+      const idx = Number(row.getAttribute('data-index'))
+      const queue = album.tracks.map(tr=>({
+        title: tr.title,
+        url: tr.url,
+        duration: tr.duration,
+        artist: album.artist || '',
+        cover: album.cover || ''
+      }))
+      state.queue = queue
+      state.current = Math.max(0, idx)
+      setNow(state.queue[state.current])
+    })
+  })
+  temp.scrollIntoView({behavior:'smooth'})
 }
+
+const state = { queue: [], current: -1 }
+
 function playTrack(track){
-  audio.src=track.url;
-  audio.play();
-  document.getElementById('trackCover').src=track.cover || '';
-  document.getElementById('trackTitle').innerText=track.title;
-  document.getElementById('trackArtist').innerText=track.artist || '';
-  document.getElementById('play').innerText='❚❚';
+  setNow(track)
 }
+
+function setNow(item){
+  if(!item) return
+  document.getElementById('trackCover').src = item.cover || ''
+  document.getElementById('trackTitle').innerText = item.title || ''
+  document.getElementById('trackArtist').innerText = item.artist || ''
+  audio.src = item.url || ''
+  audio.play()
+  document.getElementById('play').innerText='❚❚'
+}
+
 document.getElementById('play').addEventListener('click',()=>{
-  if(audio.paused) audio.play();
-  else audio.pause();
-  document.getElementById('play').innerText=audio.paused?'▶':'❚❚';
-});
-document.getElementById('next').addEventListener('click',()=>{ currentTrackIndex=(currentTrackIndex+1)%releases.length; playTrack(releases[currentTrackIndex].tracks[0]); });
-document.getElementById('prev').addEventListener('click',()=>{ currentTrackIndex=(currentTrackIndex-1+releases.length)%releases.length; playTrack(releases[currentTrackIndex].tracks[0]); });
-audio.addEventListener('ended',()=>document.getElementById('play').innerText='▶');
-document.getElementById('volume').addEventListener('input',(e)=>{ audio.volume=e.target.value/100; });
-document.getElementById('progress').addEventListener('input',(e)=>{ audio.currentTime=e.target.value; });
-audio.addEventListener('timeupdate',()=>{ document.getElementById('progress').value=audio.currentTime; document.getElementById('progress').max=audio.duration; });
+  if(audio.paused) audio.play(); else audio.pause()
+  document.getElementById('play').innerText=audio.paused?'▶':'❚❚'
+})
+document.getElementById('next').addEventListener('click',()=>{
+  if(state.queue.length<1) return
+  state.current = Math.min(state.queue.length-1, state.current+1)
+  setNow(state.queue[state.current])
+})
+document.getElementById('prev').addEventListener('click',()=>{
+  if(state.queue.length<1) return
+  state.current = Math.max(0, state.current-1)
+  setNow(state.queue[state.current])
+})
+audio.addEventListener('ended',()=>document.getElementById('play').innerText='▶')
+document.getElementById('volume').addEventListener('input',(e)=>{ audio.volume=e.target.value/100 })
+document.getElementById('progress').addEventListener('input',(e)=>{ audio.currentTime=e.target.value })
+audio.addEventListener('timeupdate',()=>{
+  document.getElementById('progress').value=audio.currentTime
+  document.getElementById('progress').max=audio.duration||0
+})
 
-// ADMIN LOGIN USING SUPABASE AUTH
-const loginBtn = document.getElementById('login');
-const adminGate = document.getElementById('adminGate');
-const adminPanel = document.getElementById('adminPanel');
-loginBtn.addEventListener('click', async ()=>{
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if(error){
-    alert('Login failed');
-    return;
-  }
-  const user = data.user;
-  const adminUIDs = [
-    '1b2383d0-9844-4eb0-8a01-ae5f184c1f12',
-    'b276784d-19b6-44bc-bd67-264ebff7f812',
-    'f6a5e484-67b0-4277-9e21-c9a32d9664a3'
-  ];
-  if(adminUIDs.includes(user.id)){
-    adminGate.style.display='none';
-    adminPanel.style.display='block';
+// Admin auth and guard
+const loginBtn = document.getElementById('login')
+const adminGate = document.getElementById('adminGate')
+const adminPanel = document.getElementById('adminPanel')
+
+async function showAdminIfAllowed(){
+  const { data } = await supabase.auth.getUser()
+  const user = data?.user
+  if(user && adminUIDs.includes(user.id)){
+    adminGate.style.display='none'
+    adminPanel.style.display='block'
   } else {
-    alert('Not authorized');
-    await supabase.auth.signOut();
+    adminPanel.style.display='none'
+    adminGate.style.display='block'
   }
-});
+}
 
-// ADMIN RELEASE CREATION
-const addTrackBtn = document.getElementById('addTrack');
-const tracksContainer = document.getElementById('tracksContainer');
-const submitReleaseBtn = document.getElementById('submitRelease');
+loginBtn.addEventListener('click', async ()=>{
+  const email = document.getElementById('email').value.trim()
+  const password = document.getElementById('password').value.trim()
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  if(error){ alert('Login failed'); return }
+  await showAdminIfAllowed()
+})
+
+await showAdminIfAllowed()
+
+// Admin: add tracks & submit
+const addTrackBtn = document.getElementById('addTrack')
+const tracksContainer = document.getElementById('tracksContainer')
+const submitReleaseBtn = document.getElementById('submitRelease')
+
 addTrackBtn.addEventListener('click', ()=>{
-  const trackDiv = document.createElement('div');
-  trackDiv.className='row';
+  const trackDiv = document.createElement('div')
+  trackDiv.className='row'
   trackDiv.innerHTML=`<input type="text" placeholder="Track Title" class="trackTitle"/>
   <input type="text" placeholder="Track URL" class="trackURL"/>
-  <input type="number" placeholder="Duration (sec)" class="trackDuration"/>`;
-  tracksContainer.appendChild(trackDiv);
-});
-submitReleaseBtn.addEventListener('click', async ()=>{
-  const title = document.getElementById('title').value;
-  const cover = document.getElementById('cover').value;
-  const type = document.getElementById('type').value;
-  const tracksEls = tracksContainer.querySelectorAll('.row');
-  const tracks = Array.from(tracksEls).map(r=>{
-    return {
-      title: r.querySelector('.trackTitle').value,
-      url: r.querySelector('.trackURL').value,
-      duration: parseInt(r.querySelector('.trackDuration').value)
-    };
-  });
-  const { data, error } = await supabase.from('releases').insert([{ title, cover, type, tracks }]);
-  if(error) alert('Error adding release: '+error.message);
-  else { alert('Release added'); fetchReleases(); tracksContainer.innerHTML=''; }
-});
+  <input type="number" placeholder="Duration (sec)" class="trackDuration"/>`
+  tracksContainer.appendChild(trackDiv)
+})
 
-fetchReleases();
+submitReleaseBtn.addEventListener('click', async ()=>{
+  const { data: userData } = await supabase.auth.getUser()
+  const user = userData?.user
+  if(!user || !adminUIDs.includes(user.id)){ alert('Not authorized'); return }
+
+  const title = document.getElementById('title').value
+  const cover = document.getElementById('cover').value
+  const type = document.getElementById('type').value
+  const tracksEls = tracksContainer.querySelectorAll('.row')
+  const tracks = Array.from(tracksEls).map(r=>({
+    title: r.querySelector('.trackTitle').value,
+    url: r.querySelector('.trackURL').value,
+    duration: parseInt(r.querySelector('.trackDuration').value||'0',10)
+  }))
+  const { error } = await supabase.from('releases').insert([{ title, cover, type, tracks }])
+  if(error){ alert('Error adding release: '+error.message) }
+  else { alert('Release added'); tracksContainer.innerHTML=''; fetchReleases() }
+})
+
+fetchReleases()
 </script>
 </body>
 </html>
