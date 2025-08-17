@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GETYEEZY #1 EXECUTOR</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      background: #0a0a0a;
+      font-family: 'IBM Plex Mono', monospace;
+      color: white;
+      text-transform: uppercase;
+      font-weight: 700;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Navbar */
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 5rem;
+      padding: 1.5rem 0;
+      font-size: 1.3rem;
+      letter-spacing: 2px;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #888;
+      transition: color 0.3s ease;
+    }
+
+    nav a:hover {
+      color: #ff0057;
+    }
+
+    nav a.active {
+      color: white;
+    }
+
+    /* Main container */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      text-align: center;
+      gap: 2rem;
+      padding: 2rem 0;
+    }
+
+    /* Projects grid */
+    .projects {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .project-card {
+      background: #111;
+      border: 1px solid white;
+      border-radius: 12px;
+      padding: 2rem;
+      width: 300px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .project-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 20px #ff0057;
+    }
+
+    .project-card h2 {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+
+    .project-card ul {
+      margin: 0;
+      padding-left: 1.2rem;
+      list-style: disc;
+      font-weight: 400;
+      color: #ccc;
+      text-transform: none;
+    }
+
+    .project-card ul li {
+      margin-bottom: 0.5rem;
+    }
+
+    .project-card .btn {
+      margin-top: auto;
+      padding: 0.6rem 1.5rem;
+      font-size: 0.9rem;
+      border: 1px solid white;
+      background: transparent;
+      color: white;
+      cursor: pointer;
+      letter-spacing: 1px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+      align-self: center;
+    }
+
+    .project-card .btn:hover {
+      background: white;
+      color: black;
+    }
+  </style>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="download.html" class="active">Download</a>
+    <a href="https://discord.com/users/1399582162100949003">Discord</a>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main>
+    <div class="projects">
+      <!-- Project 1 -->
+      <div class="project-card">
+        <h2>Project One</h2>
+        <ul>
+          <li>Feature 1 of project</li>
+          <li>Feature 2 of project</li>
+          <li>Feature 3 of project</li>
+        </ul>
+        <button class="btn">Download</button>
+      </div>
+
+      <!-- Project 2 -->
+      <div class="project-card">
+        <h2>Project Two</h2>
+        <ul>
+          <li>Feature 1 of project</li>
+          <li>Feature 2 of project</li>
+          <li>Feature 3 of project</li>
+        </ul>
+        <button class="btn">Download</button>
+      </div>
+
+      <!-- Project 3 -->
+      <div class="project-card">
+        <h2>Project Three</h2>
+        <ul>
+          <li>Feature 1 of project</li>
+          <li>Feature 2 of project</li>
+          <li>Feature 3 of project</li>
+        </ul>
+        <button class="btn">Download</button>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
