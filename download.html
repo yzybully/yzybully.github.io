@@ -60,6 +60,9 @@
       gap: 2rem;
       flex-wrap: wrap;
       justify-content: center;
+      background: linear-gradient(0deg, #0a0a0a 0%, #111 100%);
+      padding: 2rem 0;
+      border-radius: 12px;
     }
 
     .project-card {
@@ -72,17 +75,20 @@
       flex-direction: column;
       align-items: flex-start;
       gap: 1rem;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
     }
 
     .project-card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 0 20px #ff0057;
+      box-shadow: 0 0 25px #ff0057;
+      border-color: #ff0057;
     }
 
     .project-card h2 {
       margin: 0;
       font-size: 1.4rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
     }
 
     .project-card ul {
@@ -110,11 +116,24 @@
       border-radius: 6px;
       transition: all 0.3s ease;
       align-self: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .project-card .btn::after {
+      content: '→';
+      margin-left: 0.5rem;
+      display: inline-block;
+      transition: transform 0.3s ease;
     }
 
     .project-card .btn:hover {
       background: white;
       color: black;
+    }
+
+    .project-card .btn:hover::after {
+      transform: translateX(5px);
     }
   </style>
 </head>
@@ -131,10 +150,10 @@
     <div class="projects">
       <!-- Project 1 -->
       <div class="project-card">
-        <h2>discord active developer bagde giver</h2>
+        <h2>Discord Active Developer Badge Giver</h2>
         <ul>
           <li>Helps you obtain the discord active developer badge</li>
-          <li>Written in javascript</li>
+          <li>Written in JavaScript</li>
           <li>Unarchived version of @User9684's code, check out the documentation on a tutorial.</li>
         </ul>
         <button class="btn">Download</button>
@@ -142,10 +161,10 @@
 
       <!-- Project 2 -->
       <div class="project-card">
-        <h2>ye archive</h2>
+        <h2>YE Archive</h2>
         <ul>
-          <li>Spent a lot of time archiving ye's tweets/unreleased</li>
-          <li>Contains very unknown leaks such as untagged lovely</li>
+          <li>Spent a lot of time archiving YE's tweets/unreleased</li>
+          <li>Contains very unknown leaks such as untagged Lovely</li>
           <li>I was bored</li>
         </ul>
         <button class="btn">Download</button>
@@ -153,11 +172,11 @@
 
       <!-- Project 3 -->
       <div class="project-card">
-        <h2>stone haven county asylum harassment script</h2>
+        <h2>Stone Haven County Asylum Harassment Script</h2>
         <ul>
-          <li>requirements: atleast 5-10 alt accounts</li>
-          <li>requirements: voicechat on 3 or more accounts</li>
-          <li>uses non body mover movement to bypass anticheat which //beeswarms// selected users character to the point where its unmuteable.</li>
+          <li>Requirements: at least 5-10 alt accounts</li>
+          <li>Requirements: voice chat on 3 or more accounts</li>
+          <li>Uses non-body-mover movement to bypass anticheat which //beeswarms// selected users character to the point where it's unmuteable.</li>
         </ul>
         <button class="btn">Download</button>
       </div>
