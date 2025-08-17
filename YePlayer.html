@@ -148,7 +148,11 @@ input:focus, select:focus { border-color:#2a2a2a; }
 
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-const supabase = createClient('https://mxprbsynyakkwdnpdmpr.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14cHJic3lueWFra3dkbnBkbXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMTExODUsImV4cCI6MjA3MDY4NzE4NX0.TCoRg7UcjT8kjHB0ltNiKN3IIFzFXfK5JvMy7PBfocA')
+
+const supabase = createClient(
+  'https://mxprbsynyakkwdnpdmpr.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14cHJic3lueWFra3dkbnBkbXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMTExODUsImV4cCI6MjA3MDY4NzE4NX0.TCoRg7UcjT8kjHB0ltNiKN3IIFzFXfK5JvMy7PBfocA'
+)
 
 const adminUUIDs = [
   '1b2383d0-9844-4eb0-8a01-ae5f184c1f12',
@@ -156,17 +160,19 @@ const adminUUIDs = [
   'f6a5e484-67b0-4277-9e21-c9a32d9664a3'
 ]
 
+// --------------------- Navigation ---------------------
 const pages = document.querySelectorAll('.page');
 const navBtns = document.querySelectorAll('.btn');
+const albumOverlay = document.getElementById('albumOverlay');
 
 function showPage(route){
-  pages.forEach(p=>p.classList.toggle('show', p.id===route));
-  navBtns.forEach(b=>b.classList.toggle('active', b.dataset.route===route));
-  document.getElementById('albumOverlay').classList.remove('show');
+  pages.forEach(p => p.classList.toggle('show', p.id === route));
+  navBtns.forEach(b => b.classList.toggle('active', b.dataset.route === route));
+  albumOverlay.classList.remove('show');
 }
 
-navBtns.forEach(btn=>{
-  btn.addEventListener('click', e=>{
+navBtns.forEach(btn => {
+  btn.addEventListener('click', e => {
     e.preventDefault();
     const route = btn.dataset.route;
     location.hash = route;
@@ -181,10 +187,12 @@ function nav(){
 window.addEventListener('hashchange', nav);
 nav();
 
+// --------------------- Releases ---------------------
 let releases = [], currentTrackIndex = 0, audio = new Audio();
+let currentAlbumTracks = [];
 
 async function fetchReleases(){
-  const { data } = await supabase.from('releases').select('*').order('id', {ascending:true});
+  const { data } = await supabase.from('releases').select('*').order('id', { ascending:true });
   releases = data || [];
   renderReleases();
 }
@@ -194,43 +202,127 @@ function renderReleases(){
   const epsGrid = document.getElementById('eps');
   const singlesGrid = document.getElementById('singles');
   albumsGrid.innerHTML=''; epsGrid.innerHTML=''; singlesGrid.innerHTML='';
-  releases.forEach((r,i)=>{
+
+  if(releases.length === 0){
+    albumsGrid.innerHTML = epsGrid.innerHTML = singlesGrid.innerHTML = '<div class="empty">No releases yet</div>';
+    return;
+  }
+
+  releases.forEach(r => {
     const card = document.createElement('div');
     card.className='card';
-    card.innerHTML=`<img class="cover" src="${r.cover}" />
+    const coverUrl = r.cover || 'https://via.placeholder.com/150';
+    card.innerHTML = `
+      <img class="cover" src="${coverUrl}" />
       <div class="title">${r.title}</div>
-      <div class="subtitle">${r.type.toUpperCase()}</div>`;
-    card.addEventListener('click',()=>showAlbum(r));
-    if(r.type==='album') albumsGrid.appendChild(card);
-    if(r.type==='ep') epsGrid.appendChild(card);
-    if(r.type==='single') singlesGrid.appendChild(card);
+      <div class="subtitle">${r.type.toUpperCase()}</div>
+    `;
+    card.addEventListener('click', () => showAlbum(r));
+    if(r.type === 'album') albumsGrid.appendChild(card);
+    if(r.type === 'ep') epsGrid.appendChild(card);
+    if(r.type === 'single') singlesGrid.appendChild(card);
   });
 }
 
-const albumOverlay = document.getElementById('albumOverlay');
+// --------------------- Album Overlay ---------------------
 function showAlbum(album){
-  albumOverlay.innerHTML = '';
-  album.tracks?.forEach((t,i)=>{
-    const row = document.createElement('div');
-    row.className='track-list-row';
-    row.innerHTML=`<div class="track-number">${i+1}</div>
-      <div class="track-name">${t.name}</div>
-      <div class="track-duration">${t.duration}</div>`;
-    albumOverlay.appendChild(row);
-  });
+  albumOverlay.innerHTML = `<div style="align-self:flex-end; cursor:pointer; margin-bottom:10px;" id="closeOverlay">CLOSE X</div>`;
+  currentAlbumTracks = album.tracks || [];
+  
+  if(currentAlbumTracks.length === 0){
+    albumOverlay.innerHTML += '<div class="empty">No tracks available</div>';
+  } else {
+    currentAlbumTracks.forEach((t, i) => {
+      const row = document.createElement('div');
+      row.className='track-list-row';
+      row.innerHTML = `
+        <div class="track-number">${i+1}</div>
+        <div class="track-name">${t.name}</div>
+        <div class="track-duration">${t.duration || ''}</div>
+      `;
+      row.addEventListener('click', () => {
+        playTrack(i);
+      });
+      albumOverlay.appendChild(row);
+    });
+  }
+
   albumOverlay.classList.add('show');
+  document.getElementById('closeOverlay').addEventListener('click', ()=> albumOverlay.classList.remove('show'));
 }
 
+// --------------------- Audio Player ---------------------
+const trackCover = document.getElementById('trackCover');
+const trackTitle = document.getElementById('trackTitle');
+const trackArtist = document.getElementById('trackArtist');
+const playBtn = document.getElementById('play');
+const prevBtn = document.getElementById('prev');
+const nextBtn = document.getElementById('next');
+const progress = document.getElementById('progress');
+const volume = document.getElementById('volume');
+
+function playTrack(index){
+  if(!currentAlbumTracks[index]) return;
+  currentTrackIndex = index;
+  const track = currentAlbumTracks[index];
+  audio.src = track.url || '';
+  audio.play();
+  trackTitle.innerText = track.name || 'Unknown';
+  trackArtist.innerText = track.artist || 'Unknown';
+  trackCover.src = track.cover || 'https://via.placeholder.com/150';
+  playBtn.innerText = '⏸';
+}
+
+playBtn.addEventListener('click', () => {
+  if(audio.paused) audio.play();
+  else audio.pause();
+});
+
+prevBtn.addEventListener('click', () => {
+  if(currentTrackIndex > 0) playTrack(currentTrackIndex - 1);
+});
+
+nextBtn.addEventListener('click', () => {
+  if(currentTrackIndex < currentAlbumTracks.length - 1) playTrack(currentTrackIndex + 1);
+});
+
+audio.addEventListener('ended', () => {
+  if(currentTrackIndex < currentAlbumTracks.length - 1) playTrack(currentTrackIndex + 1);
+});
+
+// Update progress bar
+audio.addEventListener('timeupdate', () => {
+  progress.value = (audio.currentTime / audio.duration) * 100 || 0;
+});
+
+progress.addEventListener('input', () => {
+  audio.currentTime = (progress.value / 100) * audio.duration || 0;
+});
+
+// Volume control
+volume.addEventListener('input', () => {
+  audio.volume = volume.value / 100;
+});
+
+// --------------------- Admin Login ---------------------
 document.getElementById('login').addEventListener('click', async ()=>{
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
-  const { user, error } = await supabase.auth.signInWithPassword({ email, password });
-  if(error) return alert('Login failed');
-  if(!adminUUIDs.includes(user.id)) return alert('Not authorized');
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if(error) {
+    alert('Login failed');
+    return;
+  }
+  const user = data.user;
+  if(!adminUUIDs.includes(user.id)) {
+    alert('Not authorized');
+    return;
+  }
   document.getElementById('adminGate').style.display='none';
   document.getElementById('adminPanel').style.display='block';
 });
 
+// --------------------- Submit Release ---------------------
 document.getElementById('submitRelease').addEventListener('click', async ()=>{
   const title = document.getElementById('title').value;
   const cover = document.getElementById('cover').value;
@@ -240,6 +332,7 @@ document.getElementById('submitRelease').addEventListener('click', async ()=>{
   fetchReleases();
 });
 
+// --------------------- Initial Fetch ---------------------
 fetchReleases();
 </script>
 </body>
