@@ -74,10 +74,6 @@
       border-radius:16px;
       padding:18px;
       overflow:auto;
-      /* Keep the glassmorphism background visible but hide form content */
-    }
-    .main > *:not(.music-library) {
-      visibility: hidden;
     }
     
     /* Music Library Styles */
@@ -327,6 +323,13 @@
     .file-input-label { display: inline-flex; align-items: center; gap: 8px; }
     .icon { width: 16px; height: 16px; }
 
+    .content-section {
+      display: none;
+    }
+    .content-section.active {
+      display: block;
+    }
+
     @media (max-width:1100px){
       body{overflow: auto;}
       .app{grid-template-columns:1fr;grid-template-rows:auto auto auto;grid-template-areas:"topbar" "main" "preview"}
@@ -344,10 +347,10 @@
         <div class="divider"></div>
         
         <div class="nav-buttons">
-            <button class="nav-btn active">Home</button>
-            <button class="nav-btn">Liked Songs</button>
-            <button class="nav-btn">Profile</button>
-            <button class="nav-btn">Admin Panel</button>
+            <button class="nav-btn active" data-section="home">Home</button>
+            <button class="nav-btn" data-section="liked">Liked Songs</button>
+            <button class="nav-btn" data-section="profile">Profile</button>
+            <button class="nav-btn" data-section="admin">Admin Panel</button>
         </div>
         
         <div style="margin-top: auto; margin-bottom: 16px;">
@@ -355,56 +358,58 @@
             <div class="pill">Main UI aspects, @matthewmason & @tootheh</div>
         </div>
     </aside>
-    <header class="topbar"><div class="brand" style="gap:8px"><span class="pill">home</span><span class="muted">ye please suck my yenis</span></div></header>
+    <header class="topbar"><div class="brand" style="gap:8px"><span class="pill" id="topbarSection">home</span><span class="muted">ye please suck my yenis</span></div></header>
     <main class="main" id="main">
       <!-- Music Library Section (Home) -->
-      <div class="music-library" id="homeContent">
-        <div class="library-section">
-          <div class="library-section-title">Albums</div>
-          <div class="tracks-grid">
-            <div class="track-card">
-              <div class="track-cover">
-                <img src="nocover.png" alt="Album cover">
-              </div>
-              <div class="track-info">
-                <div class="track-title">Placeholder Album</div>
-                <div class="track-artist">Kanye West</div>
-                <div class="track-album">Album • 2024</div>
-                <div class="track-duration">12 tracks</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="library-section">
-          <div class="library-section-title">EPs</div>
-          <div class="tracks-grid">
-            <div class="track-card">
-              <div class="track-cover">
-                <img src="nocover.png" alt="EP cover">
-              </div>
-              <div class="track-info">
-                <div class="track-title">Placeholder EP</div>
-                <div class="track-artist">Kanye West</div>
-                <div class="track-album">EP • 2024</div>
-                <div class="track-duration">6 tracks</div>
+      <div class="content-section active" id="homeContent">
+        <div class="music-library">
+          <div class="library-section">
+            <div class="library-section-title">Albums</div>
+            <div class="tracks-grid">
+              <div class="track-card">
+                <div class="track-cover">
+                  <img src="nocover.png" alt="Album cover">
+                </div>
+                <div class="track-info">
+                  <div class="track-title">Placeholder Album</div>
+                  <div class="track-artist">Kanye West</div>
+                  <div class="track-album">Album • 2024</div>
+                  <div class="track-duration">12 tracks</div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="library-section">
-          <div class="library-section-title">Singles</div>
-          <div class="tracks-grid">
-            <div class="track-card">
-              <div class="track-cover">
-                <img src="nocover.png" alt="Single cover">
+          <div class="library-section">
+            <div class="library-section-title">EPs</div>
+            <div class="tracks-grid">
+              <div class="track-card">
+                <div class="track-cover">
+                  <img src="nocover.png" alt="EP cover">
+                </div>
+                <div class="track-info">
+                  <div class="track-title">Placeholder EP</div>
+                  <div class="track-artist">Kanye West</div>
+                  <div class="track-album">EP • 2024</div>
+                  <div class="track-duration">6 tracks</div>
+                </div>
               </div>
-              <div class="track-info">
-                <div class="track-title">Placeholder Single</div>
-                <div class="track-artist">Kanye West</div>
-                <div class="track-album">Single • 2024</div>
-                <div class="track-duration">3:24</div>
+            </div>
+          </div>
+
+          <div class="library-section">
+            <div class="library-section-title">Singles</div>
+            <div class="tracks-grid">
+              <div class="track-card">
+                <div class="track-cover">
+                  <img src="nocover.png" alt="Single cover">
+                </div>
+                <div class="track-info">
+                  <div class="track-title">Placeholder Single</div>
+                  <div class="track-artist">Kanye West</div>
+                  <div class="track-album">Single • 2024</div>
+                  <div class="track-duration">3:24</div>
+                </div>
               </div>
             </div>
           </div>
@@ -412,95 +417,103 @@
       </div>
 
       <!-- Liked Songs Section -->
-      <div class="coming-soon" id="likedSongsContent" style="display: none;">
-        coming soon &lt;3
+      <div class="content-section" id="likedContent">
+        <div class="coming-soon">
+          coming soon &lt;3
+        </div>
       </div>
 
       <!-- Profile Section -->
-      <div class="coming-soon" id="profileContent" style="display: none;">
-        coming soon &lt;3
+      <div class="content-section" id="profileContent">
+        <div class="coming-soon">
+          coming soon &lt;3
+        </div>
       </div>
 
       <!-- Admin Panel Section -->
-      <div class="coming-soon" id="adminContent" style="display: none;">
-        coming soon &lt;3
-      </div>
-
-      <!-- Original form content (hidden) -->
-      <div class="section-title">upload files</div>
-      <div class="field">
-        <label>MP3 File</label>
-        <div class="file-input-wrapper">
-          <input type="file" id="mp3File" accept="audio/mpeg" />
-          <label for="mp3File" class="file-input-label">
-            <svg viewBox="0 0 24 24" class="icon"><path fill="currentColor" d="M12,3V13.55A4,4 0 1,0 14,17V7H18V3H12Z"></path></svg>
-            Choose File
-          </label>
-          <span class="file-name" id="mp3FileName">No file chosen</span>
+      <div class="content-section" id="adminContent">
+        <div class="coming-soon">
+          coming soon &lt;3
         </div>
       </div>
-      <div class="field">
-          <label>Album Cover</label>
-          <div class="custom-select" id="coverSelect">
-              <div class="fake-input" id="coverDisplay" style="cursor:pointer; padding-right:36px; display:flex; align-items:center; gap:10px">
-                  <span class="muted">Select a preset or upload</span>
-              </div>
-              <div class="arrow">▼</div>
-              <div class="dropdown-panel" id="coverDropdownPanel"></div>
-          </div>
-      </div>
-      <div class="field">
-          <label>... or Upload Custom Cover (JPG/PNG)</label>
+
+      <!-- Upload Form Section (hidden by default) -->
+      <div class="content-section" id="uploadContent">
+        <div class="section-title">upload files</div>
+        <div class="field">
+          <label>MP3 File</label>
           <div class="file-input-wrapper">
-            <input type="file" id="coverFile" accept="image/*" />
-            <label for="coverFile" class="file-input-label">
-              <svg viewBox="0 0 24 24" class="icon"><path fill="currentColor" d="M19,19H5V5H19M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M13.96,12.29L11.21,15.83L9.25,13.47L6.5,17H17.5L13.96,12.29Z"></path></svg>
+            <input type="file" id="mp3File" accept="audio/mpeg" />
+            <label for="mp3File" class="file-input-label">
+              <svg viewBox="0 0 24 24" class="icon"><path fill="currentColor" d="M12,3V13.55A4,4 0 1,0 14,17V7H18V3H12Z"></path></svg>
               Choose File
             </label>
-            <span class="file-name" id="coverFileName">No file chosen</span>
+            <span class="file-name" id="mp3FileName">No file chosen</span>
+          </div>
         </div>
-      </div>
+        <div class="field">
+            <label>Album Cover</label>
+            <div class="custom-select" id="coverSelect">
+                <div class="fake-input" id="coverDisplay" style="cursor:pointer; padding-right:36px; display:flex; align-items:center; gap:10px">
+                    <span class="muted">Select a preset or upload</span>
+                </div>
+                <div class="arrow">▼</div>
+                <div class="dropdown-panel" id="coverDropdownPanel"></div>
+            </div>
+        </div>
+        <div class="field">
+            <label>... or Upload Custom Cover (JPG/PNG)</label>
+            <div class="file-input-wrapper">
+              <input type="file" id="coverFile" accept="image/*" />
+              <label for="coverFile" class="file-input-label">
+                <svg viewBox="0 0 24 24" class="icon"><path fill="currentColor" d="M19,19H5V5H19M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M13.96,12.29L11.21,15.83L9.25,13.47L6.5,17H17.5L13.96,12.29Z"></path></svg>
+                Choose File
+              </label>
+              <span class="file-name" id="coverFileName">No file chosen</span>
+          </div>
+        </div>
 
-      <div class="divider"></div>
-      <div class="section-title">track info</div>
-      <div class="row">
-        <div class="field" style="flex:1"><label>Song Title *</label><input type="text" id="title" placeholder="Paranoid"/></div>
-        <div class="field" style="flex:1">
-          <label>Album Name</label>
-          <div class="custom-select" id="albumSelect">
-            <input type="text" id="album" placeholder="808s & Heartbreak" autocomplete="off"/>
-            <div class="arrow">▼</div>
-            <div class="dropdown-panel" id="albumDropdownPanel"></div>
+        <div class="divider"></div>
+        <div class="section-title">track info</div>
+        <div class="row">
+          <div class="field" style="flex:1"><label>Song Title *</label><input type="text" id="title" placeholder="Paranoid"/></div>
+          <div class="field" style="flex:1">
+            <label>Album Name</label>
+            <div class="custom-select" id="albumSelect">
+              <input type="text" id="album" placeholder="808s & Heartbreak" autocomplete="off"/>
+              <div class="arrow">▼</div>
+              <div class="dropdown-panel" id="albumDropdownPanel"></div>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="field" style="flex:1"><label>Release Date</label><input type="date" id="releaseDate"/></div>
-        <div class="field" style="flex:1">
-          <label>Multiple Artists?</label>
-          <div class="row"><input id="multiToggle" type="checkbox"/><span class="muted">Check to add 2+ artists</span></div>
-        </div>
-      </div>
-      <div id="artistsArea">
-        <div class="field artist-field">
-          <label>Artist *</label>
-          <div class="custom-select" id="artistSelect">
-            <input type="text" class="artistInput" placeholder="Kanye West" autocomplete="off" />
-            <div class="arrow">▼</div>
-            <div class="dropdown-panel" id="artistDropdownPanel"><div class="dropdown-option">Kanye West</div></div>
+        <div class="row">
+          <div class="field" style="flex:1"><label>Release Date</label><input type="date" id="releaseDate"/></div>
+          <div class="field" style="flex:1">
+            <label>Multiple Artists?</label>
+            <div class="row"><input id="multiToggle" type="checkbox"/><span class="muted">Check to add 2+ artists</span></div>
           </div>
         </div>
+        <div id="artistsArea">
+          <div class="field artist-field">
+            <label>Artist *</label>
+            <div class="custom-select" id="artistSelect">
+              <input type="text" class="artistInput" placeholder="Kanye West" autocomplete="off" />
+              <div class="arrow">▼</div>
+              <div class="dropdown-panel" id="artistDropdownPanel"><div class="dropdown-option">Kanye West</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="row" id="addArtistRow" style="display:none;margin-top:8px">
+          <button class="btn secondary" id="addArtistBtn" type="button">Add another artist</button>
+          <button class="btn danger" id="clearArtistsBtn" type="button">Clear extra artists</button>
+        </div>
+        <div class="divider"></div>
+        <div class="row">
+          <button class="btn" id="downloadBtn" type="button">Download</button>
+          <button class="btn ghost" id="resetBtn" type="button">Reset</button>
+        </div>
+        <p class="muted" style="margin-top:12px">note: all processing happens in your browser. large files may take a few seconds to tag.</p>
       </div>
-      <div class="row" id="addArtistRow" style="display:none;margin-top:8px">
-        <button class="btn secondary" id="addArtistBtn" type="button">Add another artist</button>
-        <button class="btn danger" id="clearArtistsBtn" type="button">Clear extra artists</button>
-      </div>
-      <div class="divider"></div>
-      <div class="row">
-        <button class="btn" id="downloadBtn" type="button">Download</button>
-        <button class="btn ghost" id="resetBtn" type="button">Reset</button>
-      </div>
-      <p class="muted" style="margin-top:12px">note: all processing happens in your browser. large files may take a few seconds to tag.</p>
     </main>
     <aside class="preview" id="preview">
       <div class="section-title">Live Preview</div>
@@ -556,6 +569,52 @@ let coverArrayBuffer = null, currentCoverURL = null, currentAudioURL = null,
     previewInterval = null, isCycling = true, userHasInteracted = false;
 
 const colorThief = new ColorThief();
+
+// Navigation functionality
+function initNavigation() {
+  const navButtons = $$('.nav-btn');
+  const topbarSection = $('#topbarSection');
+  
+  navButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const section = button.dataset.section;
+      
+      // Update active button
+      navButtons.forEach(btn => btn.classList.remove('active'));
+      button.classList.add('active');
+      
+      // Update topbar
+      topbarSection.textContent = section;
+      
+      // Show corresponding content
+      showSection(section);
+    });
+  });
+}
+
+function showSection(section) {
+  // Hide all sections
+  $$('.content-section').forEach(el => el.classList.remove('active'));
+  
+  // Show selected section
+  switch(section) {
+    case 'home':
+      $('#homeContent').classList.add('active');
+      break;
+    case 'liked':
+      $('#likedContent').classList.add('active');
+      break;
+    case 'profile':
+      $('#profileContent').classList.add('active');
+      break;
+    case 'admin':
+      $('#adminContent').classList.add('active');
+      break;
+    case 'upload':
+      $('#uploadContent').classList.add('active');
+      break;
+  }
+}
 
 async function imageURLToBuffer(url) {
     try {
@@ -633,7 +692,7 @@ function setupCustomSelect(containerId) {
     const container = $(containerId), trigger = container.querySelector('input, .fake-input'), panel = container.querySelector('.dropdown-panel');
     trigger.addEventListener('click', () => { const isOpen = container.classList.contains('open'); closeAllDropdowns(); if (!isOpen) { container.classList.add('open'); panel.classList.add('open'); } });
 }
-function closeAllDropdowns() { $$('.custom-select.open').forEach(sel => sel.classList.remove('open')); $$('.dropdown-panel.open').forEach(p => p.classList.remove('open')); }
+function closeAllDropdowns() { $('.custom-select.open').forEach(sel => sel.classList.remove('open')); $('.dropdown-panel.open').forEach(p => p.classList.remove('open')); }
 document.addEventListener('click', (e) => { if (!e.target.closest('.custom-select')) closeAllDropdowns(); });
 
 function populateDropdowns() {
@@ -651,4 +710,353 @@ function populateDropdowns() {
         opt.innerHTML = `<img src="${cleanName}.png" alt="${albumName} cover"><span>${albumName}</span>`;
         opt.addEventListener('click', async () => {
             await stopCyclingAndUpdate(async () => {
-                $('#coverDisplay').innerHTML =
+                $('#coverDisplay').innerHTML = `<img src="${cleanName}.png" alt="${albumName} cover"><span>${albumName}</span>`;
+                await handlePresetCoverSelection(albumName);
+                closeAllDropdowns();
+            });
+        });
+        coverPanel.appendChild(opt);
+    });
+}
+
+async function handlePresetCoverSelection(albumName) {
+    const cleanName = sanitizeForFilename(albumName);
+    const imageUrl = `${cleanName}.png`;
+    coverArrayBuffer = await imageURLToBuffer(imageUrl);
+    if (coverArrayBuffer) {
+        updateArtAndBackground(imageUrl);
+        if (currentCoverURL) URL.revokeObjectURL(currentCoverURL);
+        currentCoverURL = imageUrl;
+    }
+    updatePreview();
+}
+
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+function updatePreview() {
+    const title = titleInput.value || "Song Title";
+    const album = albumInput.value || "Album";
+    const releaseYear = dateInput.value ? new Date(dateInput.value).getFullYear() : "Year";
+    const artistInputs = $('.artistInput');
+    const artists = artistInputs.map(input => input.value).filter(val => val.trim());
+    
+    pTitle.textContent = title;
+    pArtists.textContent = artists.length > 0 ? artists.join(', ') : "Artist";
+    pAlbum.textContent = `${album} • ${releaseYear}`;
+    
+    artistChips.innerHTML = '';
+    artists.forEach(artist => {
+        if (artist.trim()) {
+            const chip = document.createElement('div');
+            chip.className = 'chip';
+            chip.textContent = artist;
+            artistChips.appendChild(chip);
+        }
+    });
+}
+
+async function stopCyclingAndUpdate(updateFn) {
+    if (isCycling) {
+        isCycling = false;
+        clearInterval(previewInterval);
+    }
+    await updateFn();
+}
+
+function startPreviewCycling() {
+    if (!isCycling) return;
+    
+    let currentIndex = 0;
+    const cycleTracks = async () => {
+        if (!isCycling) return;
+        
+        const track = randomPreviewTracks[currentIndex];
+        titleInput.value = track.title;
+        albumInput.value = track.album;
+        
+        const artistsArea = $('#artistsArea');
+        artistsArea.innerHTML = '';
+        
+        track.artists.forEach((artist, index) => {
+            const field = document.createElement('div');
+            field.className = 'field artist-field';
+            field.innerHTML = `
+                <label>Artist ${index === 0 ? '*' : ''}</label>
+                <div class="custom-select">
+                    <input type="text" class="artistInput" value="${artist}" autocomplete="off" />
+                    <div class="arrow">▼</div>
+                    <div class="dropdown-panel"><div class="dropdown-option">Kanye West</div></div>
+                </div>
+            `;
+            artistsArea.appendChild(field);
+        });
+        
+        if (track.artists.length > 1) {
+            multiToggle.checked = true;
+            addArtistRow.style.display = 'flex';
+        } else {
+            multiToggle.checked = false;
+            addArtistRow.style.display = 'none';
+        }
+        
+        await handlePresetCoverSelection(track.album);
+        updatePreview();
+        
+        currentIndex = (currentIndex + 1) % randomPreviewTracks.length;
+    };
+    
+    cycleTracks();
+    previewInterval = setInterval(cycleTracks, 3000);
+}
+
+// Audio player functionality
+function setupAudioPlayer() {
+    audioPlayer.addEventListener('loadedmetadata', () => {
+        durationEl.textContent = formatTime(audioPlayer.duration);
+        scrubber.max = audioPlayer.duration;
+        scrubber.disabled = false;
+        playPauseBtn.disabled = false;
+    });
+    
+    audioPlayer.addEventListener('timeupdate', () => {
+        if (!scrubber.matches(':active')) {
+            scrubber.value = audioPlayer.currentTime;
+        }
+        currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
+    });
+    
+    audioPlayer.addEventListener('ended', () => {
+        playIcon.style.display = 'block';
+        pauseIcon.style.display = 'none';
+    });
+    
+    playPauseBtn.addEventListener('click', () => {
+        if (!userHasInteracted) {
+            userHasInteracted = true;
+            audioPlayer.volume = volumeSlider.value;
+        }
+        
+        if (audioPlayer.paused) {
+            audioPlayer.play();
+            playIcon.style.display = 'none';
+            pauseIcon.style.display = 'block';
+        } else {
+            audioPlayer.pause();
+            playIcon.style.display = 'block';
+            pauseIcon.style.display = 'none';
+        }
+    });
+    
+    scrubber.addEventListener('input', () => {
+        audioPlayer.currentTime = scrubber.value;
+    });
+    
+    volumeSlider.addEventListener('input', () => {
+        if (userHasInteracted) {
+            audioPlayer.volume = volumeSlider.value;
+        }
+    });
+}
+
+// File handling
+function setupFileHandling() {
+    mp3Input.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            $('#mp3FileName').textContent = file.name;
+            
+            if (currentAudioURL) URL.revokeObjectURL(currentAudioURL);
+            currentAudioURL = URL.createObjectURL(file);
+            audioPlayer.src = currentAudioURL;
+            
+            stopCyclingAndUpdate(() => {});
+        } else {
+            $('#mp3FileName').textContent = 'No file chosen';
+            audioPlayer.src = '';
+            scrubber.disabled = true;
+            playPauseBtn.disabled = true;
+        }
+    });
+    
+    coverInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            $('#coverFileName').textContent = file.name;
+            
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                coverArrayBuffer = e.target.result;
+                const imageUrl = URL.createObjectURL(file);
+                
+                $('#coverDisplay').innerHTML = `<img src="${imageUrl}"><span>Custom Upload</span>`;
+                await stopCyclingAndUpdate(() => updateArtAndBackground(imageUrl));
+                
+                if (currentCoverURL && !currentCoverURL.includes('.png')) {
+                    URL.revokeObjectURL(currentCoverURL);
+                }
+                currentCoverURL = imageUrl;
+            };
+            reader.readAsArrayBuffer(file);
+        } else {
+            $('#coverFileName').textContent = 'No file chosen';
+        }
+    });
+}
+
+// Multiple artists functionality
+function setupMultipleArtists() {
+    multiToggle.addEventListener('change', () => {
+        if (multiToggle.checked) {
+            addArtistRow.style.display = 'flex';
+        } else {
+            addArtistRow.style.display = 'none';
+            const extraFields = $('.artist-field:not(:first-child)');
+            extraFields.forEach(field => field.remove());
+            updatePreview();
+        }
+    });
+    
+    addArtistBtn.addEventListener('click', () => {
+        const newField = document.createElement('div');
+        newField.className = 'field artist-field';
+        newField.innerHTML = `
+            <label>Artist</label>
+            <div class="custom-select">
+                <input type="text" class="artistInput" placeholder="Artist Name" autocomplete="off" />
+                <div class="arrow">▼</div>
+                <div class="dropdown-panel"><div class="dropdown-option">Kanye West</div></div>
+            </div>
+        `;
+        artistsArea.appendChild(newField);
+        
+        const newInput = newField.querySelector('.artistInput');
+        newInput.addEventListener('input', updatePreview);
+        newInput.focus();
+    });
+    
+    clearArtistsBtn.addEventListener('click', () => {
+        const extraFields = $('.artist-field:not(:first-child)');
+        extraFields.forEach(field => field.remove());
+        updatePreview();
+    });
+}
+
+// Download functionality
+async function setupDownload() {
+    $('#downloadBtn').addEventListener('click', async () => {
+        const file = mp3Input.files[0];
+        if (!file) {
+            alert('Please select an MP3 file first.');
+            return;
+        }
+        
+        try {
+            const arrayBuffer = await file.arrayBuffer();
+            const ID3Writer = getID3Ctor();
+            const writer = new ID3Writer(arrayBuffer);
+            
+            const title = titleInput.value || 'Unknown Title';
+            const album = albumInput.value || 'Unknown Album';
+            const artistInputs = $('.artistInput');
+            const artists = artistInputs.map(input => input.value).filter(val => val.trim());
+            const mainArtist = artists.length > 0 ? artists[0] : 'Unknown Artist';
+            const releaseYear = dateInput.value ? new Date(dateInput.value).getFullYear() : null;
+            
+            writer.setFrame('TIT2', title).setFrame('TALB', album).setFrame('TPE1', mainArtist);
+            
+            if (releaseYear) writer.setFrame('TYER', releaseYear);
+            if (coverArrayBuffer) writer.setFrame('APIC', { type: 3, data: coverArrayBuffer, description: 'Cover' });
+            
+            writer.addTag();
+            const taggedBuffer = writer.arrayBuffer;
+            const blob = new Blob([taggedBuffer], { type: 'audio/mpeg' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${title} - ${mainArtist}.mp3`;
+            a.click();
+            
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Download error:', error);
+            alert('Error processing file. Please try again.');
+        }
+    });
+}
+
+// Reset functionality
+function setupReset() {
+    $('#resetBtn').addEventListener('click', () => {
+        mp3Input.value = '';
+        coverInput.value = '';
+        titleInput.value = '';
+        albumInput.value = '';
+        dateInput.value = '';
+        multiToggle.checked = false;
+        
+        $('#mp3FileName').textContent = 'No file chosen';
+        $('#coverFileName').textContent = 'No file chosen';
+        $('#coverDisplay').innerHTML = '<span class="muted">Select a preset or upload</span>';
+        
+        const extraFields = $('.artist-field:not(:first-child)');
+        extraFields.forEach(field => field.remove());
+        $('.artistInput').value = '';
+        addArtistRow.style.display = 'none';
+        
+        audioPlayer.src = '';
+        scrubber.disabled = true;
+        playPauseBtn.disabled = true;
+        playIcon.style.display = 'block';
+        pauseIcon.style.display = 'none';
+        
+        if (currentAudioURL) {
+            URL.revokeObjectURL(currentAudioURL);
+            currentAudioURL = null;
+        }
+        
+        if (currentCoverURL && !currentCoverURL.includes('.png')) {
+            URL.revokeObjectURL(currentCoverURL);
+        }
+        currentCoverURL = null;
+        coverArrayBuffer = null;
+        
+        updateArtAndBackground('nocover.png');
+        
+        isCycling = true;
+        startPreviewCycling();
+        updatePreview();
+    });
+}
+
+// Initialize everything
+function init() {
+    initNavigation();
+    populateDropdowns();
+    setupCustomSelect('#albumSelect');
+    setupCustomSelect('#coverSelect');
+    setupCustomSelect('#artistSelect');
+    setupAudioPlayer();
+    setupFileHandling();
+    setupMultipleArtists();
+    setupDownload();
+    setupReset();
+    
+    // Add input listeners
+    titleInput.addEventListener('input', () => stopCyclingAndUpdate(updatePreview));
+    albumInput.addEventListener('input', () => stopCyclingAndUpdate(updatePreview));
+    dateInput.addEventListener('input', () => stopCyclingAndUpdate(updatePreview));
+    $('.artistInput').addEventListener('input', () => stopCyclingAndUpdate(updatePreview));
+    
+    // Start initial preview cycling
+    startPreviewCycling();
+    updatePreview();
+}
+
+// Start the app
+document.addEventListener('DOMContentLoaded', init);
+      
