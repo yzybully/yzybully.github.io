@@ -70,9 +70,23 @@
       margin-bottom: 8px;
     }
     .tracks-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      display: flex;
       gap: 16px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+    .tracks-grid::-webkit-scrollbar {
+      height: 6px;
+    }
+    .tracks-grid::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .tracks-grid::-webkit-scrollbar-thumb {
+      background: #2b2f38;
+      border-radius: 3px;
+    }
+    .tracks-grid::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-2);
     }
     .track-card {
       background: linear-gradient(180deg, #141821 0%, #10141b 100%);
@@ -283,8 +297,11 @@
             <div>yzy player | YZYBULLY</div>
         </div>
         <div class="divider"></div>
-        <div class="pill">created by yzydotcom // allofthelovwe</div>
-        <div class="pill">Main UI aspects, @matthewmason & @tootheh</div>
+        
+        <div style="margin-top: auto;">
+            <div class="pill">created by yzydotcom // allofthelovwe</div>
+            <div class="pill">Main UI aspects, @matthewmason & @tootheh</div>
+        </div>
     </aside>
     <header class="topbar"><div class="brand" style="gap:8px"><span class="pill">home</span><span class="muted">ye please suck my yenis</span></div></header>
     <main class="main" id="main">
