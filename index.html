@@ -46,10 +46,95 @@
       border-radius:16px;
       padding:18px;
       overflow:auto;
-      /* Keep the glassmorphism background visible but hide all content */
+      /* Keep the glassmorphism background visible but hide form content */
     }
-    .main > * {
+    .main > *:not(.music-library) {
       visibility: hidden;
+    }
+    
+    /* Music Library Styles */
+    .music-library {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .library-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .library-section-title {
+      font-weight: 800;
+      font-size: 1.3rem;
+      color: #e9edf2;
+      margin-bottom: 8px;
+    }
+    .tracks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .track-card {
+      background: linear-gradient(180deg, #141821 0%, #10141b 100%);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .track-card:hover {
+      background: linear-gradient(180deg, #1a1f28 0%, #151920 100%);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    .track-cover {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      background: #0f1217;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .track-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .track-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+      flex: 1;
+    }
+    .track-title {
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .track-artist {
+      font-size: 0.85rem;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .track-album {
+      font-size: 0.8rem;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .track-duration {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: auto;
     }
     .preview{
       grid-area:preview;
@@ -203,6 +288,61 @@
     </aside>
     <header class="topbar"><div class="brand" style="gap:8px"><span class="pill">home</span><span class="muted">ye please suck my yenis</span></div></header>
     <main class="main" id="main">
+      <!-- Music Library Section -->
+      <div class="music-library">
+        <div class="library-section">
+          <div class="library-section-title">Albums</div>
+          <div class="tracks-grid">
+            <div class="track-card">
+              <div class="track-cover">
+                <img src="nocover.png" alt="Album cover">
+              </div>
+              <div class="track-info">
+                <div class="track-title">Placeholder Album</div>
+                <div class="track-artist">Kanye West</div>
+                <div class="track-album">Album • 2024</div>
+                <div class="track-duration">12 tracks</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="library-section">
+          <div class="library-section-title">EPs</div>
+          <div class="tracks-grid">
+            <div class="track-card">
+              <div class="track-cover">
+                <img src="nocover.png" alt="EP cover">
+              </div>
+              <div class="track-info">
+                <div class="track-title">Placeholder EP</div>
+                <div class="track-artist">Kanye West</div>
+                <div class="track-album">EP • 2024</div>
+                <div class="track-duration">6 tracks</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="library-section">
+          <div class="library-section-title">Singles</div>
+          <div class="tracks-grid">
+            <div class="track-card">
+              <div class="track-cover">
+                <img src="nocover.png" alt="Single cover">
+              </div>
+              <div class="track-info">
+                <div class="track-title">Placeholder Single</div>
+                <div class="track-artist">Kanye West</div>
+                <div class="track-album">Single • 2024</div>
+                <div class="track-duration">3:24</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Original form content (hidden) -->
       <div class="section-title">upload files</div>
       <div class="field">
         <label>MP3 File</label>
