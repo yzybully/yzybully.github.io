@@ -97,6 +97,23 @@
       color: #e9edf2;
       margin-bottom: 8px;
     }
+    
+    /* Coming Soon Placeholder */
+    .coming-soon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 300px;
+      background: rgba(18, 20, 24, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--muted);
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    }
     .tracks-grid {
       display: flex;
       gap: 16px;
@@ -340,8 +357,8 @@
     </aside>
     <header class="topbar"><div class="brand" style="gap:8px"><span class="pill">home</span><span class="muted">ye please suck my yenis</span></div></header>
     <main class="main" id="main">
-      <!-- Music Library Section -->
-      <div class="music-library">
+      <!-- Music Library Section (Home) -->
+      <div class="music-library" id="homeContent">
         <div class="library-section">
           <div class="library-section-title">Albums</div>
           <div class="tracks-grid">
@@ -392,6 +409,21 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Liked Songs Section -->
+      <div class="coming-soon" id="likedSongsContent" style="display: none;">
+        coming soon &lt;3
+      </div>
+
+      <!-- Profile Section -->
+      <div class="coming-soon" id="profileContent" style="display: none;">
+        coming soon &lt;3
+      </div>
+
+      <!-- Admin Panel Section -->
+      <div class="coming-soon" id="adminContent" style="display: none;">
+        coming soon &lt;3
       </div>
 
       <!-- Original form content (hidden) -->
