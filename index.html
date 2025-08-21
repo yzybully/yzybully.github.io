@@ -1,305 +1,593 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>YZY Player BETA SITE</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap" rel="stylesheet" />
-<style>
-:root {
-  --bg:#0a0a0a;
-  --primary:#1c1c2a;
-  --accent:#4e5dff;
-  --text:#ffffff;
-  --muted:#888888;
-  --hover:#6666ff;
-}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Play Ye Unreleased From Your Browser</title>
+  <link rel="icon" type="image/png" href="logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.js"></script>
+  <script src="./browser-id3-writer.umd.min.js"></script>
+  <style>
+    :root{
+      --bg:#0f1116; --panel:#121418; --panel-2:#0b0d10; --muted:#a8b0bb;
+      --text:#e8ebef; --accent:#4a50a3; --accent-2:#5c63b8; --border:#1f232b;
+      --chip:#22262e; --danger:#e34d4d;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: linear-gradient(rgba(11, 13, 16, 0.7), rgba(11, 13, 16, 0.7)), url(bg.png);
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      color:var(--text);
+      overflow: hidden;
+    }
+    .app{
+      display:grid; grid-template-columns:260px 1fr 420px; grid-template-rows:64px 1fr;
+      grid-template-areas:"sidebar topbar preview" "sidebar main   preview";
+      min-height:100vh; gap:16px; padding:16px;
+    }
+    .sidebar, .topbar, .main, .preview {
+      background: rgba(18, 20, 24, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+    }
+    .sidebar{grid-area:sidebar;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
+    .topbar{grid-area:topbar;border-radius:16px;padding:14px 18px;display:flex;align-items:center;gap:12px}
+    .main{grid-area:main;border-radius:16px;padding:18px;overflow:auto}
+    .preview{
+      grid-area:preview;
+      background:rgba(11,13,16,0.6);
+      border-radius:16px;padding:18px;padding-top:8px;position:sticky;top:16px;
+      height:calc(100vh - 32px);
+      transition: background-color 1.5s ease-in-out;
+    }
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;letter-spacing:.2px}
+    .pill{padding:6px 12px;background:var(--chip);border-radius:14px;color:var(--muted);font-size:.8rem}
+    .section-title{font-weight:800;font-size:1.1rem;margin:8px 0 6px 0;color:#e9edf2}
+    .field{display:flex;flex-direction:column;margin:10px 0}
+    .field label{font-size:.9rem;color:var(--muted);margin-bottom:8px}
+    .row{display:flex;gap:12px;align-items:center}
 
-* {
-  box-sizing: border-box;
-  font-family: 'IBM Plex Mono', monospace;
-}
+    input[type="text"],input[type="date"],.fake-input{
+      background:#171a20;border:1px solid var(--border);color:var(--text);
+      padding:12px 12px;border-radius:12px;outline:none;width:100%;
+      font-size: 1rem;
+    }
+    .btn{
+      border:none;border-radius:12px;padding:12px 14px;font-weight:700;
+      cursor:pointer;color:white;background:var(--accent);
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+    .btn:hover{background:var(--accent-2); transform: translateY(-2px);}
+    .btn:active{transform: translateY(-1px);}
+    .btn.secondary{background:#2b2f38;color:#dfe6ee}
+    .btn.ghost{background:transparent;color:#cfe7d6;border:1px solid var(--accent)}
+    .btn.danger{background:var(--danger)}
+    .divider{height:1px;background:var(--border);margin:18px 0}
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{background:#1a1f27;border:1px solid var(--border);padding:4px 10px;border-radius:999px;color:#cfd6df;font-size:.82rem}
+    .card{background:linear-gradient(180deg,#141821 0,#10141b 100%);border:1px solid var(--border);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:14px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    .art{width:100%;aspect-ratio:1/1;background:#0f1217;border-radius:15px;display:grid;place-items:center;overflow:hidden}
+    .art img{width:100%;height:100%;object-fit:cover; crossOrigin:"Anonymous"}
+    .song-title{font-size:1.25rem;font-weight:800}
+    .muted{color:var(--muted)}
+    .stack{display:flex;flex-direction:column;gap:4px}
+    .custom-select{position:relative}
+    .custom-select input{padding-right:36px}
+    .custom-select .arrow{position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;width:20px;height:20px;pointer-events:none;transition:transform .2s ease-in-out; display:grid; place-items:center; color: var(--muted)}
+    .custom-select.open .arrow{transform:translateY(-50%) rotate(180deg)}
+    .dropdown-panel{
+      position:absolute;top:calc(100% + 4px);left:0;right:0;background:#1e222a;
+      border:1px solid var(--border);border-radius:12px;z-index:100;max-height:250px;
+      overflow-y:auto;opacity:0;visibility:hidden;transform:translateY(-10px);
+      transition:opacity .2s ease,transform .2s ease,visibility .2s;
+    }
+    .dropdown-panel.open{opacity:1;visibility:visible;transform:translateY(0)}
+    .dropdown-option{padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:.9rem}
+    .dropdown-option:hover{background:var(--accent-2)}
+    .dropdown-option img, .fake-input img {width:32px;height:32px;border-radius:4px;object-fit:cover}
 
-body {
-  margin:0;
-  padding:0;
-  background: var(--bg);
-  color: var(--text);
-  display: flex;
-  height: 100vh;
-  overflow: hidden;
-}
+    .file-input-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .file-input-wrapper input[type="file"] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+    .file-input-label {
+      padding: 10px 18px;
+      cursor: pointer;
+      border-radius: 12px;
+      background: #2b2f38;
+      color: #dfe6ee;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .file-name {
+        font-size: 0.9rem;
+        color: var(--muted);
+    }
+    .main::-webkit-scrollbar { width: 8px; }
+    .main::-webkit-scrollbar-track { background: transparent; }
+    .main::-webkit-scrollbar-thumb { background: #2b2f38; border-radius: 4px; }
+    .main::-webkit-scrollbar-thumb:hover { background: var(--accent-2); }
+    
+    .player-controls{display:flex;align-items:center;gap:16px;padding:8px 0}
+    .player-controls button, .player-controls .volume-icon {
+      background:none;border:none;color:var(--text);cursor:pointer;padding:0;
+      width: 24px; height: 24px; display: grid; place-items: center;
+    }
+    .player-controls svg {width:100%;height:100%;}
+    
+    .volume-control{position:relative;display:flex;align-items:center}
+    .volume-slider-container{
+      position:absolute; left: 50%; bottom: calc(100% + 12px); transform: translateX(-50%);
+      background: rgba(30, 34, 42, 0.9);
+      width: 32px; height: 130px;
+      border-radius: 16px; border:1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      opacity:0; visibility:hidden; transition: .2s ease;
+      backdrop-filter: blur(8px);
+    }
+    .volume-control:hover .volume-slider-container{opacity:1;visibility:visible}
+    .volume-slider {
+      -webkit-appearance: none; appearance: none;
+      width: 100px; height: 6px; transform: rotate(-90deg);
+      background: #444; border-radius: 3px; cursor: pointer;
+    }
+    .volume-slider::-webkit-slider-thumb{
+      -webkit-appearance:none;appearance:none;
+      width:16px; height:16px;
+      background:var(--accent); border-radius:50%;
+      border: 3px solid #1e222a;
+    }
+    
+    .scrubber{ flex:1; display:flex; align-items:center; gap:8px }
+    .scrubber input[type="range"]{
+      -webkit-appearance: none; appearance: none; width:100%; height:4px;
+      background: #444; border-radius: 2px; cursor: pointer; outline: none;
+    }
+    .scrubber input[type="range"]::-webkit-slider-thumb{
+      -webkit-appearance: none; appearance: none; width:14px; height:14px;
+      background: var(--text); border-radius: 50%;
+    }
+    .player-controls [disabled], .scrubber input[disabled] { cursor: not-allowed; opacity: 0.4; }
 
-.sidebar {
-  width: 220px;
-  background: var(--primary);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 20px;
-  position: relative;
-}
+    .brand-logo { width: 28px; height: 28px; }
+    .file-input-label { display: inline-flex; align-items: center; gap: 8px; }
+    .icon { width: 16px; height: 16px; }
 
-.sidebar h1 {
-  font-size: 20px;
-  margin: 0 0 40px 0;
-  text-align: center;
-  position: relative;
-  z-index: 1;
-}
-
-.sidebar .bubble {
-  position: absolute;
-  width: 180px;
-  height: 60px;
-  background: var(--accent);
-  border-radius: 40px;
-  top: 10px;
-  left: 20px;
-  z-index: 0;
-  filter: blur(30px);
-}
-
-.sidebar button {
-  background: none;
-  border: none;
-  color: var(--text);
-  padding: 12px;
-  margin: 6px 0;
-  text-align: left;
-  cursor: pointer;
-  border-radius: 10px;
-  transition: background 0.3s;
-}
-
-.sidebar button:hover {
-  background: var(--hover);
-}
-
-.sidebar .credits {
-  font-size: 12px;
-  color: var(--muted);
-  text-align: center;
-  padding: 10px;
-  position: relative;
-  z-index: 1;
-}
-
-.sidebar .credits-bubble {
-  position: absolute;
-  width: 180px;
-  height: 50px;
-  background: var(--accent);
-  border-radius: 40px;
-  bottom: 10px;
-  left: 20px;
-  z-index: 0;
-  filter: blur(25px);
-}
-
-.main {
-  flex:1;
-  padding: 20px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.section-title {
-  font-size: 18px;
-  margin-bottom: 10px;
-}
-
-.track-cards {
-  display: flex;
-  gap: 15px;
-  flex-wrap: wrap;
-}
-
-.track-card {
-  background: var(--primary);
-  border-radius: 15px;
-  width: 150px;
-  height: 200px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 10px;
-  position: relative;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.track-card:hover {
-  transform: scale(1.05);
-}
-
-.track-card .cover {
-  position: absolute;
-  top:0;
-  left:0;
-  width: 100%;
-  height: 100%;
-  border-radius: 15px;
-  object-fit: cover;
-  z-index: 0;
-  opacity: 0.8;
-}
-
-.track-card .info {
-  position: relative;
-  z-index: 1;
-}
-
-.track-card .title {
-  font-size: 14px;
-  font-weight: bold;
-}
-
-.track-card .artist {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-/* Crack card styling */
-.crack-card {
-  background: #ff4e5d;
-  border-radius: 15px;
-  width: 150px;
-  height: 200px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 10px;
-  position: relative;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.crack-card:hover {
-  transform: scale(1.05);
-}
-
-.crack-card .cover {
-  position: absolute;
-  top:0;
-  left:0;
-  width: 100%;
-  height: 100%;
-  border-radius: 15px;
-  object-fit: cover;
-  z-index: 0;
-  opacity: 0.8;
-}
-
-.crack-card .info {
-  position: relative;
-  z-index: 1;
-}
-
-.crack-card .title {
-  font-size: 14px;
-  font-weight: bold;
-}
-
-.crack-card .artist {
-  font-size: 12px;
-  color: var(--text);
-}
-
-</style>
+    @media (max-width:1100px){
+      body{overflow: auto;}
+      .app{grid-template-columns:1fr;grid-template-rows:auto auto auto;grid-template-areas:"topbar" "main" "preview"}
+      .preview{position:relative;height:auto} .sidebar{display:none}
+    }
+  </style>
 </head>
 <body>
-
-<div class="sidebar">
-  <div class="bubble"></div>
-  <h1>YZY Player</h1>
-
-  <div>
-    <button onclick="showSection('home')">HOME</button>
-    <button onclick="showSection('profile')">PROFILE</button>
-    <button onclick="showSection('liked')">LIKED SONGS</button>
-    <button onclick="showSection('admin')">ADMIN PANEL</button>
-  </div>
-
-  <div class="credits">
-    created by @allofthelovwe on discord<br>
-    certain UI aspects, vulnerability finder @tootheh<br>
-    base UI and other aspects @matthewmason
-  </div>
-  <div class="credits-bubble"></div>
-</div>
-
-<div class="main">
-  <!-- Home Section -->
-  <div id="home">
-    <div class="section-title">ALBUMS</div>
-    <div class="track-cards">
-      <div class="track-card">
-        <img src="https://via.placeholder.com/150" class="cover"/>
-        <div class="info">
-          <div class="title">Late Registration</div>
-          <div class="artist">Kanye West</div>
+  <div class="app">
+    <aside class="sidebar">
+        <div class="brand">
+            <img src="logo.png" alt="LOGOFORLINK" class="brand-logo">
+            <div>yzy player</div>
+        </div>
+        <div class="divider"></div>
+        <div class="pill">created by @allofthelovwe on discord</div>
+        <div class="pill">certian ui aspects, vulnrability finder @tootheh, base UI and other aspects @matthewmason</div>
+    </aside>
+    <header class="topbar"><div class="brand" style="gap:8px"><span class="pill">MP3</span><span class="muted">select an audio file and edit tags</span></div></header>
+    <main class="main" id="main">
+      <div class="section-title">upload files</div>
+      <div class="field">
+        <label>MP3 File</label>
+        <div class="file-input-wrapper">
+          <input type="file" id="mp3File" accept="audio/mpeg" />
+          <label for="mp3File" class="file-input-label">
+            <svg viewBox="0 0 24 24" class="icon"><path fill="currentColor" d="M12,3V13.55A4,4 0 1,0 14,17V7H18V3H12Z"></path></svg>
+            Choose File
+          </label>
+          <span class="file-name" id="mp3FileName">No file chosen</span>
+        </div>
+      </div>
+      <div class="field">
+          <label>Album Cover</label>
+          <div class="custom-select" id="coverSelect">
+              <div class="fake-input" id="coverDisplay" style="cursor:pointer; padding-right:36px; display:flex; align-items:center; gap:10px">
+                  <span class="muted">Select a preset or upload</span>
+              </div>
+              <div class="arrow">▼</div>
+              <div class="dropdown-panel" id="coverDropdownPanel"></div>
+          </div>
+      </div>
+      <div class="field">
+          <label>... or Upload Custom Cover (JPG/PNG)</label>
+          <div class="file-input-wrapper">
+            <input type="file" id="coverFile" accept="image/*" />
+            <label for="coverFile" class="file-input-label">
+              <svg viewBox="0 0 24 24" class="icon"><path fill="currentColor" d="M19,19H5V5H19M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M13.96,12.29L11.21,15.83L9.25,13.47L6.5,17H17.5L13.96,12.29Z"></path></svg>
+              Choose File
+            </label>
+            <span class="file-name" id="coverFileName">No file chosen</span>
         </div>
       </div>
 
-      <div class="crack-card">
-        <img src="https://via.placeholder.com/150" class="cover"/>
-        <div class="info">
-          <div class="title">Sample Crack</div>
-          <div class="artist">YZY Player</div>
+      <div class="divider"></div>
+      <div class="section-title">track info</div>
+      <div class="row">
+        <div class="field" style="flex:1"><label>Song Title *</label><input type="text" id="title" placeholder="Paranoid"/></div>
+        <div class="field" style="flex:1">
+          <label>Album Name</label>
+          <div class="custom-select" id="albumSelect">
+            <input type="text" id="album" placeholder="808s & Heartbreak" autocomplete="off"/>
+            <div class="arrow">▼</div>
+            <div class="dropdown-panel" id="albumDropdownPanel"></div>
+          </div>
         </div>
       </div>
-    </div>
-
-    <div class="section-title">EPS</div>
-    <div class="track-cards">
-      <div class="track-card">
-        <img src="https://via.placeholder.com/150" class="cover"/>
-        <div class="info">
-          <div class="title">Summer Ep</div>
-          <div class="artist">Kanye West</div>
+      <div class="row">
+        <div class="field" style="flex:1"><label>Release Date</label><input type="date" id="releaseDate"/></div>
+        <div class="field" style="flex:1">
+          <label>Multiple Artists?</label>
+          <div class="row"><input id="multiToggle" type="checkbox"/><span class="muted">Check to add 2+ artists</span></div>
         </div>
       </div>
-    </div>
-
-    <div class="section-title">SINGLES</div>
-    <div class="track-cards">
-      <div class="track-card">
-        <img src="https://via.placeholder.com/150" class="cover"/>
-        <div class="info">
-          <div class="title">Heard 'Em Say</div>
-          <div class="artist">Kanye West</div>
+      <div id="artistsArea">
+        <div class="field artist-field">
+          <label>Artist *</label>
+          <div class="custom-select" id="artistSelect">
+            <input type="text" class="artistInput" placeholder="Kanye West" autocomplete="off" />
+            <div class="arrow">▼</div>
+            <div class="dropdown-panel" id="artistDropdownPanel"><div class="dropdown-option">Kanye West</div></div>
+          </div>
         </div>
       </div>
-    </div>
+      <div class="row" id="addArtistRow" style="display:none;margin-top:8px">
+        <button class="btn secondary" id="addArtistBtn" type="button">Add another artist</button>
+        <button class="btn danger" id="clearArtistsBtn" type="button">Clear extra artists</button>
+      </div>
+      <div class="divider"></div>
+      <div class="row">
+        <button class="btn" id="downloadBtn" type="button">Download</button>
+        <button class="btn ghost" id="resetBtn" type="button">Reset</button>
+      </div>
+      <p class="muted" style="margin-top:12px">note: all processing happens in your browser. large files may take a few seconds to tag.</p>
+    </main>
+    <aside class="preview" id="preview">
+      <div class="section-title">Live Preview</div>
+      <div class="card">
+        <div class="art" id="artBox"><img id="artImage" src="nocover.png" alt="Album Cover"/></div>
+        <div class="stack">
+          <div class="song-title" id="pTitle">Song Title</div>
+          <div class="muted" id="pArtists">Artist</div>
+          <div class="muted" id="pAlbum">Album • Year</div>
+        </div>
+        
+        <div class="player-controls">
+          <div class="scrubber">
+            <span id="currentTime">0:00</span>
+            <input type="range" id="scrubber" value="0" step="1" disabled>
+            <span id="duration">0:00</span>
+          </div>
+          <button id="playPauseBtn" disabled>
+             <svg id="playIcon" viewBox="0 0 24 24"><path fill="currentColor" d="M8,5.14V19.14L19,12.14L8,5.14Z"></path></svg>
+             <svg id="pauseIcon" viewBox="0 0 24 24" style="display:none;"><path fill="currentColor" d="M14,19H18V5H14M6,19H10V5H6V19Z"></path></svg>
+          </button>
+          <div class="volume-control">
+             <div class="volume-icon" id="volumeIcon">
+                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.84 14,18.7V20.77C18,19.86 21,16.28 21,12C21,7.72 18,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16C15.5,15.29 16.5,13.76 16.5,12M3,9V15H7L12,20V4L7,9H3Z"></path></svg>
+             </div>
+             <div class="volume-slider-container">
+               <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="1">
+             </div>
+          </div>
+        </div>
+        <div class="chips" id="artistChips"></div>
+      </div>
+    </aside>
+    <audio id="audioPlayer"></audio>
   </div>
-
-  <!-- Profile Section -->
-  <div id="profile" style="display:none">
-    <p>coming soon &lt;3</p>
-  </div>
-
-  <!-- Liked Songs Section -->
-  <div id="liked" style="display:none">
-    <p>Liked songs will appear here</p>
-  </div>
-
-  <!-- Admin Panel Section -->
-  <div id="admin" style="display:none">
-    <p>Admin panel coming soon</p>
-  </div>
-</div>
 
 <script>
-function showSection(section) {
-  const sections = ['home','profile','liked','admin'];
-  sections.forEach(sec => {
-    document.getElementById(sec).style.display = sec===section?'block':'none';
-  });
-}
-</script>
+const $ = (q) => document.querySelector(q);
+const $$ = (q) => Array.from(document.querySelectorAll(q));
 
+const mp3Input = $('#mp3File'), coverInput = $('#coverFile'), titleInput = $('#title'),
+      albumInput = $('#album'), dateInput = $('#releaseDate'), multiToggle = $('#multiToggle'),
+      artistsArea = $('#artistsArea'), addArtistRow = $('#addArtistRow'),
+      addArtistBtn = $('#addArtistBtn'), clearArtistsBtn = $('#clearArtistsBtn'),
+      artBox = $('#artBox'), artImage = $('#artImage'), pTitle = $('#pTitle'), pArtists = $('#pArtists'),
+      pAlbum = $('#pAlbum'), artistChips = $('#artistChips'),
+      audioPlayer = $('#audioPlayer'), playPauseBtn = $('#playPauseBtn'),
+      playIcon = $('#playIcon'), pauseIcon = $('#pauseIcon'), scrubber = $('#scrubber'),
+      currentTimeEl = $('#currentTime'), durationEl = $('#duration'),
+      volumeSlider = $('#volumeSlider'), volumeIcon = $('#volumeIcon');
+
+let coverArrayBuffer = null, currentCoverURL = null, currentAudioURL = null,
+    previewInterval = null, isCycling = true, userHasInteracted = false;
+
+const colorThief = new ColorThief();
+
+async function imageURLToBuffer(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) { throw new Error(`HTTP error! Status: ${response.status}`); }
+        return await response.arrayBuffer();
+    } catch (error) { console.error(`Failed to fetch image '${url}':`, error); return null; }
+}
+
+function getID3Ctor() {
+    const g = window.ID3Writer; if (!g) throw new Error('ID3Writer not loaded.');
+    if (typeof g === 'function') return g; if (g?.ID3Writer) return g.ID3Writer; if (g?.default) return g.default;
+    throw new Error('ID3Writer constructor not found.');
+}
+
+const rawAlbumList = ["before college dropout", "the college dropout", "late registration", "graduation", "808's & Heartbreak", "good ass job", "my beautiful dark twisted fantasy", "watch the throne", "cruel summer", "Thank God For Drugs", "yeezus", "cruel winter", "yeezus 2", "so help me god", "SWISH", "the life of pablo", "cruel winter [V2]", "turbografx16", "LOVE EVERYONE", "DAYTONA", "ye", "KIDS SEE GHOSTS", "Nasir", "K.T.S.E.", "Good Ass Job (2018)", "Yandhi [V1]", "Yandhi [V2]", "JESUS IS KING", "JESUS IS LORD", "JESUS IS KING: The Dr. Dre Version", "DONDA: WITH CHILD", "DONDA [V2]", "DONDA [V3]", "DONDA 2", "WAR", "YEBU", "Bad Bitch Playbook", "VULTURES 1", "VULTURES 2", "VULTURES 3", "BULLY", "CUCK", "IN A PERFECT WORLD"];
+const allCaps = ["SWISH", "LOVE EVERYONE", "DAYTONA", "NASIR", "KIDS SEE GHOSTS", "K.T.S.E.", "JESUS IS KING", "DONDA: WITH CHILD", "DONDA [V2]", "DONDA [V3]", "DONDA 2", "WAR", "YEBU", "VULTURES 1", "VULTURES 2", "VULTURES 3", "BULLY", "CUCK", "IN A PERFECT WORLD"];
+const allLower = ["ye"];
+const albumsToExcludeFromCovers = ["before college dropout", "cruel winter [V2]", "Good Ass Job (2018)", "Yandhi [V2]"];
+
+function formatAlbumName(name) {
+    const upperName = name.toUpperCase();
+    if (allCaps.includes(upperName)) return upperName;
+    if (allLower.includes(name.toLowerCase())) return name.toLowerCase();
+    if (upperName.startsWith("JESUS IS KING:")) return "JESUS IS KING" + name.substring(13);
+    return name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+}
+const formattedAlbumList = rawAlbumList.map(formatAlbumName);
+const albumCoverList = formattedAlbumList.filter(name => !albumsToExcludeFromCovers.map(formatAlbumName).includes(name));
+const sanitizeForFilename = (text) => text.replace(/'/g, '').replace(/&/g, 'and').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+
+const randomPreviewTracks = [
+    { title: "Power", album: "My Beautiful Dark Twisted Fantasy", artists: ["Kanye West", "Dwele"] },
+    { title: "Heard 'Em Say", album: "Late Registration", artists: ["Kanye West", "Adam Levine"] },
+    { title: "Stronger", album: "Graduation", artists: ["Kanye West"] },
+    { title: "Heartless", album: "808's & Heartbreak", artists: ["Kanye West"] },
+    { title: "Famous", album: "The Life Of Pablo", artists: ["Kanye West", "Rihanna", "Swizz Beatz"] },
+    { title: "All Day", album: "So Help Me God", artists: ["Kanye West", "Theophilus London", "Allan Kingdom", "Paul McCartney"] },
+    { title: "City in the Sky", album: "Yandhi [V1]", artists: ["Kanye West", "Ty Dolla $ign", "Jeremih", "070 Shake"] },
+    { title: "80 Degrees", album: "Yandhi [V1]", artists: ["Kanye West", "Big Sean", "Ty Dolla $ign", "Ant Clemons"] },
+    { title: "Follow God", album: "JESUS IS KING", artists: ["Kanye West"] },
+    { title: "Future Sounds", album: "DONDA: WITH CHILD", artists: ["Kanye West", "Travis Scott", "Victory Boyd"] },
+    { title: "Come to Life", album: "DONDA [V2]", artists: ["Kanye West"] },
+    { title: "Can't Look In My Eyes", album: "Yeezus 2", artists: ["Kanye West", "Kid Cudi"] },
+    { title: "MISSION CONTROL", album: "IN A PERFECT WORLD", artists: ["Kanye West", "Tony Williams"] },
+    { title: "MATTHEW", album: "Vultures 1", artists: ["Kanye West", "North West", "Charlie Wilson"] },
+    { title: "See Me Now", album: "My Beautiful Dark Twisted Fantasy", artists: ["Kanye West", "Beyonce", "Charlie Wilson", "Big Sean"] },
+    { title: "Enjoy The Pain", album: "Cruel Winter", artists: ["Kanye West", "John Legend"] },
+    { title: "AWESOME [V4]", album: "Thank God For Drugs", artists: ["Kanye West", "Stevie Wonder", "Charles Wilson"] },
+    { title: "BELIEVER", album: "Vultures 2", artists: ["Kanye West", "Ty Dolla $ign", "Charlie Wilson"] },
+    { title: "THIS ONE HERE", album: "BULLY", artists: ["Kanye West", "Don Toliver"] },
+    { title: "Showtime ", album: "WAR", artists: ["Kanye West", "James Blake"] },
+    { title: "What I Would've Said At Virgil's Funeral", album: "WAR", artists: ["Kanye West", "James Blake", "Vory"] },
+    { title: "LA Monster [V11]", album: "JESUS IS KING: The Dr. Dre Version", artists: ["Kanye West", "A$AP FERG", "??? Choir"] },
+    { title: "Glory [V4]", album: "JESUS IS KING: The Dr. Dre Version", artists: ["Kanye West", "Dr. Dre", "Snoop Dogg", "Dem Jointz"] },
+    { title: "WHITE CHICKS", album: "CUCK", artists: ["Kanye West (AI)", "DAVE BLUNTS"] },
+    { title: "See Me Again [V3]", album: "Good Ass Job", artists: ["Kanye West", "Bon Iver", "Tony Williams", "The WRLDFMS", "Elly Jackson"] },
+];
+
+function updateArtAndBackground(imageUrl) {
+    artImage.src = imageUrl;
+    artImage.onerror = () => { artImage.src = 'nocover.png'; };
+
+    artImage.onload = () => {
+        try {
+            const color = colorThief.getColor(artImage);
+            $('#preview').style.backgroundColor = `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.2)`;
+        } catch(e) {
+             $('#preview').style.backgroundColor = 'rgba(11,13,16,0.6)';
+        }
+    }
+}
+
+function setupCustomSelect(containerId) {
+    const container = $(containerId), trigger = container.querySelector('input, .fake-input'), panel = container.querySelector('.dropdown-panel');
+    trigger.addEventListener('click', () => { const isOpen = container.classList.contains('open'); closeAllDropdowns(); if (!isOpen) { container.classList.add('open'); panel.classList.add('open'); } });
+}
+function closeAllDropdowns() { $$('.custom-select.open').forEach(sel => sel.classList.remove('open')); $$('.dropdown-panel.open').forEach(p => p.classList.remove('open')); }
+document.addEventListener('click', (e) => { if (!e.target.closest('.custom-select')) closeAllDropdowns(); });
+
+function populateDropdowns() {
+    const albumPanel = $('#albumDropdownPanel'), coverPanel = $('#coverDropdownPanel');
+    albumPanel.innerHTML = ''; coverPanel.innerHTML = '';
+    formattedAlbumList.forEach(albumName => {
+        const opt = document.createElement('div'); opt.className = 'dropdown-option'; opt.textContent = albumName;
+        opt.addEventListener('click', async () => { await stopCyclingAndUpdate(async () => { albumInput.value = albumName; await handlePresetCoverSelection(albumName); }); });
+        albumPanel.appendChild(opt);
+    });
+    albumCoverList.forEach(albumName => {
+        const cleanName = sanitizeForFilename(albumName);
+        const opt = document.createElement('div');
+        opt.className = 'dropdown-option';
+        opt.innerHTML = `<img src="${cleanName}.png" alt="${albumName} cover"><span>${albumName}</span>`;
+        opt.addEventListener('click', async () => {
+            await stopCyclingAndUpdate(async () => {
+                $('#coverDisplay').innerHTML = `<img src="${cleanName}.png" alt="${albumName} cover"><span>${albumName}</span>`;
+                albumInput.value = albumName;
+                await handlePresetCoverSelection(albumName);
+            });
+        });
+        coverPanel.appendChild(opt);
+    });
+    $('#artistDropdownPanel .dropdown-option').addEventListener('click', () => { stopCyclingAndUpdate(() => { $('.artistInput').value = 'Kanye West'; }); });
+}
+
+function stopCycling() {
+    if (!userHasInteracted) {
+        userHasInteracted = true;
+        clearInterval(previewInterval);
+        isCycling = false;
+    }
+}
+function startCycling() {
+    userHasInteracted = false;
+    [titleInput, albumInput, dateInput].forEach(el => { el.value = ''; });
+    $$('.artist-field').slice(1).forEach(n=>n.remove()); $$('.artistInput')[0].value='';
+    if (!isCycling) {
+        previewInterval = setInterval(setRandomPreview, 3250);
+        isCycling = true;
+    }
+}
+async function stopCyclingAndUpdate(action) {
+    stopCycling();
+    if (action && typeof action === 'function') { await action(); }
+    updatePreview();
+}
+
+async function handlePresetCoverSelection(albumName) {
+    if (coverInput.files.length > 0) return;
+    const filename = `${sanitizeForFilename(albumName)}.png`;
+    updateArtAndBackground(filename);
+    if (currentCoverURL) { URL.revokeObjectURL(currentCoverURL); currentCoverURL = null; }
+    coverArrayBuffer = await imageURLToBuffer(filename);
+    coverInput.value = '';
+    $('#coverFileName').textContent = 'No file chosen';
+}
+
+function updatePreview() {
+    const title = titleInput.value.trim() || titleInput.placeholder;
+    const album = albumInput.value.trim() || albumInput.placeholder;
+    const year = dateInput.value ? new Date(dateInput.value).getFullYear().toString() : '';
+    let artists = $$('.artistInput').map(i => i.value.trim()).filter(Boolean);
+    if (!userHasInteracted && artists.length === 0 && $$('.artistInput')[0].placeholder === 'Kanye West') {
+        artists = pArtists.textContent.split(', ');
+    }
+    const displayArtists = artists.length ? artists : ['Artist'];
+    pTitle.textContent = title;
+    pArtists.textContent = displayArtists.join(', ');
+    pAlbum.textContent = album + (year ? ` • ${year}` : '');
+    artistChips.innerHTML = displayArtists.map(a => `<div class="chip">${a}</div>`).join('');
+}
+
+function setRandomPreview() {
+    if (userHasInteracted) return;
+    const track = randomPreviewTracks[Math.floor(Math.random() * randomPreviewTracks.length)];
+    titleInput.placeholder = track.title;
+    albumInput.placeholder = track.album;
+    $('.artistInput').placeholder = track.artists[0];
+    if (coverInput.files.length === 0 && !coverArrayBuffer) {
+        const coverFilename = sanitizeForFilename(track.album) + '.png';
+        updateArtAndBackground(coverFilename);
+    }
+    pArtists.textContent = track.artists.join(', ');
+    updatePreview();
+}
+
+const formatTime = (time) => { const min = Math.floor(time/60); const sec = Math.floor(time%60); return `${min}:${sec < 10 ? '0'+sec : sec}`;}
+playPauseBtn.onclick = () => { audioPlayer.paused ? audioPlayer.play() : audioPlayer.pause(); };
+audioPlayer.onplay = () => { playIcon.style.display = 'none'; pauseIcon.style.display = 'block'; };
+audioPlayer.onpause = () => { playIcon.style.display = 'block'; pauseIcon.style.display = 'none'; };
+audioPlayer.onloadedmetadata = () => { scrubber.max = audioPlayer.duration; durationEl.textContent = formatTime(audioPlayer.duration); };
+audioPlayer.ontimeupdate = () => { scrubber.value = audioPlayer.currentTime; currentTimeEl.textContent = formatTime(audioPlayer.currentTime); };
+scrubber.oninput = () => { audioPlayer.currentTime = scrubber.value; };
+volumeSlider.oninput = () => { audioPlayer.volume = volumeSlider.value; };
+
+
+function setPlayerEnabled(enabled){
+    [playPauseBtn, scrubber].forEach(el => el.disabled = !enabled);
+    if(!enabled) {
+        if(currentAudioURL) { URL.revokeObjectURL(currentAudioURL); currentAudioURL = null; }
+        audioPlayer.src = "";
+        playIcon.style.display = 'block';
+        pauseIcon.style.display = 'none';
+        scrubber.value = 0;
+        currentTimeEl.textContent = "0:00";
+        durationEl.textContent = "0:00";
+    }
+}
+
+[titleInput, dateInput, albumInput].forEach(el => el.addEventListener('input', () => stopCyclingAndUpdate()));
+artistsArea.addEventListener('input', e => { if (e.target.classList.contains('artistInput')) stopCyclingAndUpdate(); });
+
+mp3Input.addEventListener('change', () => {
+    stopCyclingAndUpdate(() => {
+        const file = mp3Input.files?.[0];
+        $('#mp3FileName').textContent = file ? file.name : 'No file chosen';
+        setPlayerEnabled(!!file);
+        if (file) {
+            if(currentAudioURL) URL.revokeObjectURL(currentAudioURL);
+            currentAudioURL = URL.createObjectURL(file);
+            audioPlayer.src = currentAudioURL;
+            if(!titleInput.value) titleInput.value = file.name.replace(/\.[^.]+$/, '');
+        }
+    });
+});
+coverInput.addEventListener('change', async () => {
+    await stopCyclingAndUpdate(async () => {
+        const file = coverInput.files?.[0];
+        $('#coverFileName').textContent = file ? file.name : 'No file chosen';
+        if (!file) { coverArrayBuffer = null; return; }
+        coverArrayBuffer = await file.arrayBuffer();
+        if (currentCoverURL) URL.revokeObjectURL(currentCoverURL);
+        currentCoverURL = URL.createObjectURL(file);
+        updateArtAndBackground(currentCoverURL);
+        $('#coverDisplay').innerHTML = `<span>${file.name}</span>`;
+    });
+});
+
+multiToggle.addEventListener('change', () => { stopCyclingAndUpdate(() => { if (multiToggle.checked) { addArtistRow.style.display = 'flex'; if ($$('.artistInput').length === 1) addArtist(); } else { $$('.artist-field').slice(1).forEach(n => n.remove()); addArtistRow.style.display = 'none'; } }); });
+addArtistBtn?.addEventListener('click', () => { stopCyclingAndUpdate(addArtist); });
+clearArtistsBtn?.addEventListener('click', () => { stopCyclingAndUpdate(() => $$('.artist-field').slice(1).forEach(n => n.remove())); });
+function addArtist() { const wrap = document.createElement('div'); wrap.className = 'field artist-field'; wrap.innerHTML = `<label>Artist</label><input type="text" class="artistInput" placeholder="Feature / Producer" />`; artistsArea.appendChild(wrap); }
+
+document.getElementById('downloadBtn').addEventListener('click', async () => {
+    stopCycling();
+    const mp3 = mp3Input.files?.[0]; if (!mp3) return alert('Please choose an MP3 file first.');
+    const title = titleInput.value.trim(); if (!title) return alert('Please enter a Song Title.');
+    let artists = $$('.artistInput').map(i=>i.value.trim()).filter(Boolean); if (!artists.length) { artists = ['Unknown Artist']; }
+    try {
+        const ID3 = getID3Ctor(); const mp3Buffer = await mp3.arrayBuffer(); const writer = new ID3(mp3Buffer);
+        const album = albumInput.value.trim();
+        const year = dateInput.value ? new Date(dateInput.value).getFullYear().toString() : null;
+        writer.setFrame('TIT2', title).setFrame('TPE1', artists);
+        if (album) writer.setFrame('TALB', album);
+        if (year) { try { writer.setFrame('TDRC', year); } catch(_) {} try { writer.setFrame('TYER', year); } catch(_) {} }
+        if (coverArrayBuffer) { const mime = coverInput.files?.[0]?.type || 'image/png'; writer.setFrame('APIC', { type: 3, data: new Uint8Array(coverArrayBuffer), description: 'Cover', mime }); } else { console.warn("No cover data was available to embed."); }
+        writer.addTag(); const url = URL.createObjectURL(writer.getBlob()), a = document.createElement('a'); a.href = url;
+        const safe = (s) => s.replace(/[\/:*?"<>|]+/g, '').trim(); a.download = `${safe(artists.join(', '))} - ${safe(title)}.mp3`;
+        a.click(); URL.revokeObjectURL(url);
+    } catch(err) { console.error('Tagging/Download failed:', err); alert(`Something went wrong: ${err?.message || err}`); }
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+    mp3Input.value=''; coverInput.value=''; coverArrayBuffer=null;
+    if(currentCoverURL) { URL.revokeObjectURL(currentCoverURL); currentCoverURL=null; }
+    $('#mp3FileName').textContent = 'No file chosen'; $('#coverFileName').textContent = 'No file chosen';
+    $('#coverDisplay').innerHTML = '<span class="muted">Select a preset or upload</span>';
+    $('.artistInput').placeholder = 'Kanye West';
+    artImage.src = 'nocover.png';
+    $('#preview').style.backgroundColor = 'rgba(11,13,16,0.6)';
+    pArtists.textContent = 'Artist'; pTitle.textContent="Song Title"; pAlbum.textContent="Album • Year";
+    artistChips.innerHTML = `<div class="chip">Artist</div>`;
+    setPlayerEnabled(false);
+    startCycling();
+    setRandomPreview();
+});
+
+populateDropdowns();
+setupCustomSelect('#albumSelect');
+setupCustomSelect('#artistSelect');
+setupCustomSelect('#coverSelect');
+setRandomPreview();
+previewInterval = setInterval(setRandomPreview, 3250);
+</script>
 </body>
 </html>
+
