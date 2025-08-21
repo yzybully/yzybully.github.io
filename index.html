@@ -41,7 +41,16 @@
     }
     .sidebar{grid-area:sidebar;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
     .topbar{grid-area:topbar;border-radius:16px;padding:14px 18px;display:flex;align-items:center;gap:12px}
-    .main{grid-area:main;border-radius:16px;padding:18px;overflow:auto;display:none} /* ← Hidden */
+    .main{
+      grid-area:main;
+      border-radius:16px;
+      padding:18px;
+      overflow:auto;
+      /* Keep the glassmorphism background visible but hide all content */
+    }
+    .main > * {
+      visibility: hidden;
+    }
     .preview{
       grid-area:preview;
       background:rgba(11,13,16,0.6);
@@ -76,7 +85,7 @@
     .chip{background:#1a1f27;border:1px solid var(--border);padding:4px 10px;border-radius:999px;color:#cfd6df;font-size:.82rem}
     .card{background:linear-gradient(180deg,#141821 0,#10141b 100%);border:1px solid var(--border);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:14px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
     .art{width:100%;aspect-ratio:1/1;background:#0f1217;border-radius:15px;display:grid;place-items:center;overflow:hidden}
-    .art img{width:100%;height:100%;object-fit:cover; crossOrigin:"Anonymous"}
+    .art img{width:100%;height:100%;object-fit:cover;}
     .song-title{font-size:1.25rem;font-weight:800}
     .muted{color:var(--muted)}
     .stack{display:flex;flex-direction:column;gap:4px}
@@ -418,174 +427,4 @@ function populateDropdowns() {
         opt.innerHTML = `<img src="${cleanName}.png" alt="${albumName} cover"><span>${albumName}</span>`;
         opt.addEventListener('click', async () => {
             await stopCyclingAndUpdate(async () => {
-                $('#coverDisplay').innerHTML = `<img src="${cleanName}.png" alt="${albumName} cover"><span>${albumName}</span>`;
-                albumInput.value = albumName;
-                await handlePresetCoverSelection(albumName);
-            });
-        });
-        coverPanel.appendChild(opt);
-    });
-    $('#artistDropdownPanel .dropdown-option').addEventListener('click', () => { stopCyclingAndUpdate(() => { $('.artistInput').value = 'Kanye West'; }); });
-}
-
-function stopCycling() {
-    if (!userHasInteracted) {
-        userHasInteracted = true;
-        clearInterval(previewInterval);
-        isCycling = false;
-    }
-}
-function startCycling() {
-    userHasInteracted = false;
-    [titleInput, albumInput, dateInput].forEach(el => { el.value = ''; });
-    $$('.artist-field').slice(1).forEach(n=>n.remove()); $$('.artistInput')[0].value='';
-    if (!isCycling) {
-        previewInterval = setInterval(setRandomPreview, 3250);
-        isCycling = true;
-    }
-}
-async function stopCyclingAndUpdate(action) {
-    stopCycling();
-    if (action && typeof action === 'function') { await action(); }
-    updatePreview();
-}
-
-async function handlePresetCoverSelection(albumName) {
-    if (coverInput.files.length > 0) return;
-    const filename = `${sanitizeForFilename(albumName)}.png`;
-    updateArtAndBackground(filename);
-    if (currentCoverURL) { URL.revokeObjectURL(currentCoverURL); currentCoverURL = null; }
-    coverArrayBuffer = await imageURLToBuffer(filename);
-    coverInput.value = '';
-    $('#coverFileName').textContent = 'No file chosen';
-}
-
-function updatePreview() {
-    const title = titleInput.value.trim() || titleInput.placeholder;
-    const album = albumInput.value.trim() || albumInput.placeholder;
-    const year = dateInput.value ? new Date(dateInput.value).getFullYear().toString() : '';
-    let artists = $$('.artistInput').map(i => i.value.trim()).filter(Boolean);
-    if (!userHasInteracted && artists.length === 0 && $$('.artistInput')[0].placeholder === 'Kanye West') {
-        artists = pArtists.textContent.split(', ');
-    }
-    const displayArtists = artists.length ? artists : ['Artist'];
-    pTitle.textContent = title;
-    pArtists.textContent = displayArtists.join(', ');
-    pAlbum.textContent = album + (year ? ` • ${year}` : '');
-    artistChips.innerHTML = displayArtists.map(a => `<div class="chip">${a}</div>`).join('');
-}
-
-function setRandomPreview() {
-    if (userHasInteracted) return;
-    const track = randomPreviewTracks[Math.floor(Math.random() * randomPreviewTracks.length)];
-    titleInput.placeholder = track.title;
-    albumInput.placeholder = track.album;
-    $('.artistInput').placeholder = track.artists[0];
-    if (coverInput.files.length === 0 && !coverArrayBuffer) {
-        const coverFilename = sanitizeForFilename(track.album) + '.png';
-        updateArtAndBackground(coverFilename);
-    }
-    pArtists.textContent = track.artists.join(', ');
-    updatePreview();
-}
-
-const formatTime = (time) => { const min = Math.floor(time/60); const sec = Math.floor(time%60); return `${min}:${sec < 10 ? '0'+sec : sec}`;}
-playPauseBtn.onclick = () => { audioPlayer.paused ? audioPlayer.play() : audioPlayer.pause(); };
-audioPlayer.onplay = () => { playIcon.style.display = 'none'; pauseIcon.style.display = 'block'; };
-audioPlayer.onpause = () => { playIcon.style.display = 'block'; pauseIcon.style.display = 'none'; };
-audioPlayer.onloadedmetadata = () => { scrubber.max = audioPlayer.duration; durationEl.textContent = formatTime(audioPlayer.duration); };
-audioPlayer.ontimeupdate = () => { scrubber.value = audioPlayer.currentTime; currentTimeEl.textContent = formatTime(audioPlayer.currentTime); };
-scrubber.oninput = () => { audioPlayer.currentTime = scrubber.value; };
-volumeSlider.oninput = () => { audioPlayer.volume = volumeSlider.value; };
-
-
-function setPlayerEnabled(enabled){
-    [playPauseBtn, scrubber].forEach(el => el.disabled = !enabled);
-    if(!enabled) {
-        if(currentAudioURL) { URL.revokeObjectURL(currentAudioURL); currentAudioURL = null; }
-        audioPlayer.src = "";
-        playIcon.style.display = 'block';
-        pauseIcon.style.display = 'none';
-        scrubber.value = 0;
-        currentTimeEl.textContent = "0:00";
-        durationEl.textContent = "0:00";
-    }
-}
-
-[titleInput, dateInput, albumInput].forEach(el => el.addEventListener('input', () => stopCyclingAndUpdate()));
-artistsArea.addEventListener('input', e => { if (e.target.classList.contains('artistInput')) stopCyclingAndUpdate(); });
-
-mp3Input.addEventListener('change', () => {
-    stopCyclingAndUpdate(() => {
-        const file = mp3Input.files?.[0];
-        $('#mp3FileName').textContent = file ? file.name : 'No file chosen';
-        setPlayerEnabled(!!file);
-        if (file) {
-            if(currentAudioURL) URL.revokeObjectURL(currentAudioURL);
-            currentAudioURL = URL.createObjectURL(file);
-            audioPlayer.src = currentAudioURL;
-            if(!titleInput.value) titleInput.value = file.name.replace(/\.[^.]+$/, '');
-        }
-    });
-});
-coverInput.addEventListener('change', async () => {
-    await stopCyclingAndUpdate(async () => {
-        const file = coverInput.files?.[0];
-        $('#coverFileName').textContent = file ? file.name : 'No file chosen';
-        if (!file) { coverArrayBuffer = null; return; }
-        coverArrayBuffer = await file.arrayBuffer();
-        if (currentCoverURL) URL.revokeObjectURL(currentCoverURL);
-        currentCoverURL = URL.createObjectURL(file);
-        updateArtAndBackground(currentCoverURL);
-        $('#coverDisplay').innerHTML = `<span>${file.name}</span>`;
-    });
-});
-
-multiToggle.addEventListener('change', () => { stopCyclingAndUpdate(() => { if (multiToggle.checked) { addArtistRow.style.display = 'flex'; if ($$('.artistInput').length === 1) addArtist(); } else { $$('.artist-field').slice(1).forEach(n => n.remove()); addArtistRow.style.display = 'none'; } }); });
-addArtistBtn?.addEventListener('click', () => { stopCyclingAndUpdate(addArtist); });
-clearArtistsBtn?.addEventListener('click', () => { stopCyclingAndUpdate(() => $$('.artist-field').slice(1).forEach(n => n.remove())); });
-function addArtist() { const wrap = document.createElement('div'); wrap.className = 'field artist-field'; wrap.innerHTML = `<label>Artist</label><input type="text" class="artistInput" placeholder="Feature / Producer" />`; artistsArea.appendChild(wrap); }
-
-document.getElementById('downloadBtn').addEventListener('click', async () => {
-    stopCycling();
-    const mp3 = mp3Input.files?.[0]; if (!mp3) return alert('Please choose an MP3 file first.');
-    const title = titleInput.value.trim(); if (!title) return alert('Please enter a Song Title.');
-    let artists = $$('.artistInput').map(i=>i.value.trim()).filter(Boolean); if (!artists.length) { artists = ['Unknown Artist']; }
-    try {
-        const ID3 = getID3Ctor(); const mp3Buffer = await mp3.arrayBuffer(); const writer = new ID3(mp3Buffer);
-        const album = albumInput.value.trim();
-        const year = dateInput.value ? new Date(dateInput.value).getFullYear().toString() : null;
-          writer.setFrame('TIT2', title).setFrame('TPE1', artists);
-        if (album) writer.setFrame('TALB', album);
-        if (year) { try { writer.setFrame('TDRC', year); } catch(_) {} try { writer.setFrame('TYER', year); } catch(_) {} }
-        if (coverArrayBuffer) { const mime = coverInput.files?.[0]?.type || 'image/png'; writer.setFrame('APIC', { type: 3, data: new Uint8Array(coverArrayBuffer), description: 'Cover', mime }); } else { console.warn("No cover data was available to embed."); }
-        writer.addTag(); const url = URL.createObjectURL(writer.getBlob()), a = document.createElement('a'); a.href = url;
-        const safe = (s) => s.replace(/[\/:*?"<>|]+/g, '').trim(); a.download = `${safe(artists.join(', '))} - ${safe(title)}.mp3`;
-        a.click(); URL.revokeObjectURL(url);
-    } catch(err) { console.error('Tagging/Download failed:', err); alert(`Something went wrong: ${err?.message || err}`); }
-});
-
-document.getElementById('resetBtn').addEventListener('click', () => {
-    mp3Input.value=''; coverInput.value=''; coverArrayBuffer=null;
-    if(currentCoverURL) { URL.revokeObjectURL(currentCoverURL); currentCoverURL=null; }
-    $('#mp3FileName').textContent = 'No file chosen'; $('#coverFileName').textContent = 'No file chosen';
-    $('#coverDisplay').innerHTML = '<span class="muted">Select a preset or upload</span>';
-    $('.artistInput').placeholder = 'Kanye West';
-    artImage.src = 'nocover.png';
-    $('#preview').style.backgroundColor = 'rgba(11,13,16,0.6)';
-    pArtists.textContent = 'Artist'; pTitle.textContent="Song Title"; pAlbum.textContent="Album • Year";
-    artistChips.innerHTML = `<div class="chip">Artist</div>`;
-    setPlayerEnabled(false);
-    startCycling();
-    setRandomPreview();
-});
-
-populateDropdowns();
-setupCustomSelect('#albumSelect');
-setupCustomSelect('#artistSelect');
-setupCustomSelect('#coverSelect');
-setRandomPreview();
-previewInterval = setInterval(setRandomPreview, 3250);
-</script>
-</body>
-</html>
+                $('#coverDisplay').innerHTML =
