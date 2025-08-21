@@ -23,7 +23,6 @@
       z-index: -1;
     }
 
-    /* Sidebar */
     .sidebar {
       width: 240px;
       background: linear-gradient(135deg, rgba(0,153,255,0.25), rgba(0,0,0,0.5));
@@ -32,195 +31,57 @@
       flex-direction: column;
       justify-content: space-between;
       padding: 1rem;
-      font-family: 'Segoe UI', sans-serif;
     }
-    .sidebar-header { margin-bottom: 2rem; }
-    .brand {
-      font-size: 1.6rem;
-      font-weight: 700;
-      color: #fff;
-      text-transform: lowercase;
-      letter-spacing: 1px;
-    }
-    .brand span { font-weight: 400; opacity: 0.85; }
+    .brand { font-size: 1.6rem; font-weight: 700; text-transform: lowercase; }
 
-    .nav-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
+    .nav-buttons { display: flex; flex-direction: column; gap: 1rem; }
     .nav-buttons button {
-      background: transparent;
-      border: none;
-      color: #fff;
-      text-align: left;
-      font-size: 1rem;
-      padding: 0.6rem 0.8rem;
-      border-radius: 0.75rem;
-      cursor: pointer;
-      transition: 0.2s;
-      font-family: 'Segoe UI', sans-serif;
+      background: transparent; border: none; color: #fff; text-align: left;
+      font-size: 1rem; padding: 0.6rem 0.8rem; border-radius: 0.75rem; cursor: pointer;
     }
     .nav-buttons button:hover,
-    .nav-buttons button.active {
-      background: rgba(76,201,240,0.2);
-    }
+    .nav-buttons button.active { background: rgba(76,201,240,0.2); }
 
-    .sidebar-footer { font-size: 0.75rem; opacity: 0.7; }
-
-    /* Main Content */
-    .main {
-      flex: 1;
-      padding: 2rem;
-      background: linear-gradient(135deg, rgba(0,153,255,0.15), rgba(0,0,0,0.4));
-      backdrop-filter: blur(14px);
-      display: flex;
-      flex-direction: column;
-    }
-    .page-header {
-      margin-bottom: 2rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
+    .main { flex: 1; padding: 2rem; background: linear-gradient(135deg, rgba(0,153,255,0.15), rgba(0,0,0,0.4)); backdrop-filter: blur(14px); }
+    .page-header { margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem; }
     .page-header h1 {
-      font-size: 1rem;
-      font-weight: 700;
-      padding: 0.4rem 0.8rem;
-      border-radius: 1rem;
+      font-size: 1rem; font-weight: 700; padding: 0.4rem 0.8rem; border-radius: 1rem;
       background: linear-gradient(135deg, rgba(0,153,255,0.25), rgba(0,0,0,0.25));
-      backdrop-filter: blur(8px);
       text-transform: lowercase;
     }
-    .page-header p { font-size: 1rem; opacity: 0.85; }
 
-    .tracks-section h2 {
-      font-size: 1.3rem;
-      margin-bottom: 1rem;
-      font-family: 'Segoe UI', sans-serif;
-    }
-
-    .track-row {
-      display: flex;
-      gap: 1.5rem;
-      overflow-x: auto;
-      padding-bottom: 1rem;
-    }
+    .track-row { display: flex; gap: 1.5rem; overflow-x: auto; padding-bottom: 1rem; flex-wrap: wrap; }
     .track-card {
-      min-width: 160px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background: rgba(255,255,255,0.05);
-      border-radius: 1rem;
-      padding: 1rem;
-      transition: transform 0.2s, box-shadow 0.2s;
+      width: 160px; background: rgba(255,255,255,0.05); border-radius: 1rem; padding: 1rem; cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s; text-align: center;
     }
-    .track-card:hover {
-      transform: scale(1.05);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    }
-    .track-card img {
-      width: 140px;
-      height: 140px;
-      object-fit: cover;
-      border-radius: 0.75rem;
-      margin-bottom: 0.5rem;
-    }
-    .track-card h3 { font-size: 1rem; margin-bottom: 0.25rem; }
-    .track-card p { font-size: 0.85rem; opacity: 0.8; }
+    .track-card:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+    .track-card img { width: 140px; height: 140px; object-fit: cover; border-radius: 0.75rem; margin-bottom: 0.5rem; }
 
-    /* Player Bar */
     .player-bar {
-      position: fixed;
-      bottom: 0;
-      left: 240px;
-      right: 0;
-      height: 100px;
-      background: linear-gradient(90deg, rgba(0,153,255,0.25), rgba(0,0,0,0.5));
-      backdrop-filter: blur(12px);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 2rem;
+      position: fixed; bottom: 0; left: 240px; right: 0; height: 100px;
+      background: linear-gradient(90deg, rgba(0,153,255,0.25), rgba(0,0,0,0.5)); backdrop-filter: blur(12px);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 2rem;
     }
-    .controls {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.5rem;
-      flex: 1;
-    }
-    .buttons {
-      display: flex;
-      align-items: center;
-      gap: 2rem;
-      justify-content: center;
-      width: 100%;
-    }
-    .buttons button {
-      background: none;
-      border: none;
-      color: #fff;
-      cursor: pointer;
-    }
-    .buttons .play-btn {
-      font-size: 2.5rem;
-      font-weight: bold;
-    }
-    .buttons .skip-btn {
-      font-size: 1.4rem;
-    }
-    .progress-container {
-      width: 400px;
-      height: 6px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-    .progress {
-      height: 100%;
-      width: 0;
-      background: #fff;
-    }
-    .volume {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .volume input[type=range] {
-      width: 100px;
-    }
-
-    .login-form input {
-      padding: 0.6rem;
-      border-radius: 0.5rem;
-      border: none;
-      margin-bottom: 1rem;
-      width: 200px;
-    }
-    .login-form button {
-      padding: 0.6rem 1rem;
-      border: none;
-      border-radius: 0.5rem;
-      background: rgba(0,153,255,0.4);
-      color: white;
-      cursor: pointer;
-    }
+    .controls { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; flex: 1; }
+    .buttons { display: flex; align-items: center; gap: 2rem; justify-content: center; width: 100%; }
+    .buttons button { background: none; border: none; color: #fff; cursor: pointer; font-size: 1.4rem; }
+    .buttons .play-btn { font-size: 2.2rem; font-weight: bold; }
+    .progress-container { width: 400px; height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; overflow: hidden; }
+    .progress { height: 100%; width: 0; background: #fff; }
+    .volume { display: flex; align-items: center; gap: 0.5rem; }
   </style>
 </head>
 <body>
   <aside class="sidebar">
     <div>
-      <div class="sidebar-header">
-        <h1 class="brand">yzy player</h1>
-      </div>
+      <div class="sidebar-header"><h1 class="brand">yzy player</h1></div>
       <div class="nav-buttons">
         <button class="active" onclick="showHome()">home</button>
         <button onclick="comingSoon()">liked songs</button>
         <button onclick="comingSoon()">profile</button>
         <button onclick="comingSoon()">playlists</button>
-        <button onclick="showAdminLogin()">admin</button>
+        <button onclick="showAdmin()">admin</button>
       </div>
     </div>
     <div class="sidebar-footer">
@@ -234,32 +95,23 @@
       <h1>home</h1>
       <p>select a track for you to play and enjoy</p>
     </div>
-
     <div class="tracks-section">
-      <h2>all tracks</h2>
-      <div class="track-row" id="track-list">
-        <div class="track-card" onclick="playTrack('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3')">
-          <img src="https://via.placeholder.com/150" alt="Album Art">
-          <h3>Track Title</h3>
-          <p>Artist Name</p>
-        </div>
-      </div>
+      <h2>all releases</h2>
+      <div class="track-row" id="release-list"></div>
     </div>
   </main>
 
   <div class="player-bar">
     <div class="controls">
       <div class="buttons">
-        <button class="skip-btn" onclick="prevTrack()">⏮</button>
+        <button onclick="prevTrack()">⏮</button>
         <button class="play-btn" onclick="togglePlay()">▶</button>
-        <button class="skip-btn" onclick="nextTrack()">⏭</button>
+        <button onclick="nextTrack()">⏭</button>
       </div>
-      <div class="progress-container">
-        <div class="progress" id="progress"></div>
-      </div>
+      <div class="progress-container"><div class="progress" id="progress"></div></div>
     </div>
     <div class="volume">
-      <label for="volume">🔊</label>
+      <label>🔊</label>
       <input type="range" id="volume" min="0" max="1" step="0.01" value="1" onchange="setVolume(this.value)">
     </div>
   </div>
@@ -272,19 +124,12 @@
     const playBtn = document.querySelector(".play-btn");
     let isPlaying = false;
     let currentTrack = null;
+    let releases = [];
 
     function togglePlay(){
-      if(!currentTrack){
-        alert("Select a track first");
-        return;
-      }
-      if(isPlaying){
-        audio.pause();
-        playBtn.textContent = "▶";
-      } else {
-        audio.play();
-        playBtn.textContent = "⏸";
-      }
+      if(!currentTrack){ alert("Select a track first"); return; }
+      if(isPlaying){ audio.pause(); playBtn.textContent = "▶"; }
+      else { audio.play(); playBtn.textContent = "⏸"; }
       isPlaying = !isPlaying;
     }
 
@@ -299,62 +144,72 @@
     function prevTrack(){ alert("Previous track"); }
     function nextTrack(){ alert("Next track"); }
     function setVolume(val){ audio.volume = val; }
+    audio.ontimeupdate = () => { progress.style.width = (audio.currentTime / audio.duration) * 100 + "%"; };
 
-    audio.ontimeupdate = () => {
-      const percent = (audio.currentTime / audio.duration) * 100;
-      progress.style.width = percent + "%";
-    };
+    function comingSoon(){ document.getElementById("main-content").innerHTML = `<div class='page-header'><h1>coming soon <3</h1></div>`; }
+    function showHome(){ renderHome(); }
 
-    function comingSoon(){
-      document.getElementById("main-content").innerHTML = `<div class='page-header'><h1>coming soon <3</h1></div>`;
-    }
-
-    function showHome(){ location.reload(); }
-
-    function showAdminLogin(){
+    function showAdmin(){
       document.getElementById("main-content").innerHTML = `
-        <div class='page-header'><h1>admin login</h1></div>
-        <form class='login-form' onsubmit='checkAdminPassword(event)'>
-          <input type='password' id='admin-pass' placeholder='Enter password' required><br>
-          <button type='submit'>Login</button>
+        <div class='page-header'><h1>admin panel</h1><p>upload your releases</p></div>
+        <form id='release-form'>
+          <input type='text' id='release-name' placeholder='Release Name' required><br><br>
+          <input type='text' id='artist-name' placeholder='Artist Name' required><br><br>
+          <input type='url' id='album-art' placeholder='Album Art URL' required><br><br>
+          <select id='release-type' required>
+            <option value='album'>Album</option>
+            <option value='ep'>EP</option>
+            <option value='single'>Single</option>
+          </select><br><br>
+          <div id='tracks-inputs'>
+            <input type='url' placeholder='Track MP3 URL' required><br><br>
+          </div>
+          <button type='button' onclick='addTrackField()'>Add another track</button><br><br>
+          <button type='submit'>Upload</button>
         </form>`;
-    }
 
-    async function checkAdminPassword(e){
-      e.preventDefault();
-      const password = document.getElementById("admin-pass").value;
-      const hashBuffer = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(password));
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
-      const correctHash = "2e39250f9f5878f9273f19773db6e3cc1f3b5b292aee9012e9892a567a47c94e"; // allo
-
-      if(hashHex === correctHash){
-        document.getElementById("main-content").innerHTML = `
-          <div class='page-header'><h1>admin panel</h1><p>upload your tracks</p></div>
-          <form onsubmit='event.preventDefault(); alert("Tracks uploaded!")'>
-            <input type='text' placeholder='Release Name' required><br><br>
-            <select required>
-              <option value='album'>Album</option>
-              <option value='ep'>EP</option>
-              <option value='single'>Single</option>
-            </select><br><br>
-            <div id='tracks-inputs'>
-              <input type='url' placeholder='Album Art URL' required><br><br>
-              <input type='url' placeholder='Track MP3 URL' required><br><br>
-            </div>
-            <button type='button' onclick='addTrackField()'>Add another track</button><br><br>
-            <button type='submit'>Upload</button>
-          </form>`;
-      } else {
-        alert("Wrong password");
+      document.getElementById("release-form").onsubmit = (e) => {
+        e.preventDefault();
+        const name = document.getElementById("release-name").value;
+        const artist = document.getElementById("artist-name").value;
+        const art = document.getElementById("album-art").value;
+        const type = document.getElementById("release-type").value;
+        const tracks = Array.from(document.querySelectorAll("#tracks-inputs input"))
+                        .map(i => i.value).filter(v => v);
+        releases.push({ name, artist, art, type, tracks });
+        renderHome();
       }
     }
 
     function addTrackField(){
-      const container = document.getElementById('tracks-inputs');
-      const html = `<input type='url' placeholder='Track MP3 URL' required><br><br>`;
-      container.insertAdjacentHTML('beforeend', html);
+      document.getElementById('tracks-inputs').insertAdjacentHTML('beforeend', `<input type='url' placeholder='Track MP3 URL' required><br><br>`);
+    }
+
+    function renderHome(){
+      document.getElementById("main-content").innerHTML = `
+        <div class='page-header'><h1>home</h1><p>select a track for you to play and enjoy</p></div>
+        <div class='tracks-section'><h2>all releases</h2><div class='track-row' id='release-list'></div></div>`;
+      const container = document.getElementById("release-list");
+      releases.forEach((r, index) => {
+        const card = document.createElement("div");
+        card.className = "track-card";
+        card.innerHTML = `<img src='${r.art}'><h3>${r.name}</h3><p>${r.artist}</p>`;
+        card.onclick = () => showRelease(index);
+        container.appendChild(card);
+      });
+    }
+
+    function showRelease(index){
+      const r = releases[index];
+      document.getElementById("main-content").innerHTML = `
+        <div class='page-header'><h1>${r.name}</h1><p>${r.artist} • ${r.type}</p></div>
+        <div><img src='${r.art}' style='width:200px;border-radius:1rem;'><h2>Tracks</h2><ul id='track-list'></ul></div>`;
+      const ul = document.getElementById("track-list");
+      r.tracks.forEach((t,i)=>{
+        const li = document.createElement("li");
+        li.innerHTML = `<button onclick=\"playTrack('${t}')\">▶</button> Track ${i+1}`;
+        ul.appendChild(li);
+      });
     }
   </script>
 </body>
