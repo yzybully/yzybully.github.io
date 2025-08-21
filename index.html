@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -42,7 +41,7 @@
     }
     .sidebar{grid-area:sidebar;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
     .topbar{grid-area:topbar;border-radius:16px;padding:14px 18px;display:flex;align-items:center;gap:12px}
-    .main{grid-area:main;border-radius:16px;padding:18px;overflow:auto}
+    .main{grid-area:main;border-radius:16px;padding:18px;overflow:auto;display:none} /* ← Hidden */
     .preview{
       grid-area:preview;
       background:rgba(11,13,16,0.6);
@@ -556,7 +555,7 @@ document.getElementById('downloadBtn').addEventListener('click', async () => {
         const ID3 = getID3Ctor(); const mp3Buffer = await mp3.arrayBuffer(); const writer = new ID3(mp3Buffer);
         const album = albumInput.value.trim();
         const year = dateInput.value ? new Date(dateInput.value).getFullYear().toString() : null;
-        writer.setFrame('TIT2', title).setFrame('TPE1', artists);
+          writer.setFrame('TIT2', title).setFrame('TPE1', artists);
         if (album) writer.setFrame('TALB', album);
         if (year) { try { writer.setFrame('TDRC', year); } catch(_) {} try { writer.setFrame('TYER', year); } catch(_) {} }
         if (coverArrayBuffer) { const mime = coverInput.files?.[0]?.type || 'image/png'; writer.setFrame('APIC', { type: 3, data: new Uint8Array(coverArrayBuffer), description: 'Cover', mime }); } else { console.warn("No cover data was available to embed."); }
@@ -590,4 +589,3 @@ previewInterval = setInterval(setRandomPreview, 3250);
 </script>
 </body>
 </html>
-
