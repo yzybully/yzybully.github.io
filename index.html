@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>yzy player</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -89,7 +88,7 @@
       font-weight: 700;
       padding: 0.4rem 0.8rem;
       border-radius: 1rem;
-      background: linear-gradient(135deg, rgba(0,153,255,0.15), rgba(0,0,0,0.25));
+      background: linear-gradient(135deg, rgba(0,153,255,0.25), rgba(0,0,0,0.25));
       backdrop-filter: blur(8px);
       text-transform: lowercase;
     }
@@ -164,11 +163,13 @@
       border: none;
       color: #fff;
       cursor: pointer;
-      font-size: 1.8rem;
     }
     .buttons .play-btn {
-      font-size: 2.6rem;
+      font-size: 2.5rem;
       font-weight: bold;
+    }
+    .buttons .skip-btn {
+      font-size: 1.4rem;
     }
     .progress-container {
       width: 400px;
@@ -190,6 +191,22 @@
     .volume input[type=range] {
       width: 100px;
     }
+
+    .login-form input {
+      padding: 0.6rem;
+      border-radius: 0.5rem;
+      border: none;
+      margin-bottom: 1rem;
+      width: 200px;
+    }
+    .login-form button {
+      padding: 0.6rem 1rem;
+      border: none;
+      border-radius: 0.5rem;
+      background: rgba(0,153,255,0.4);
+      color: white;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -203,7 +220,7 @@
         <button onclick="comingSoon()">liked songs</button>
         <button onclick="comingSoon()">profile</button>
         <button onclick="comingSoon()">playlists</button>
-        <button onclick="showAdmin()">admin</button>
+        <button onclick="showAdminLogin()">admin</button>
       </div>
     </div>
     <div class="sidebar-footer">
@@ -233,16 +250,16 @@
   <div class="player-bar">
     <div class="controls">
       <div class="buttons">
-        <button class="skip-btn" onclick="prevTrack()"><i class="fas fa-backward"></i></button>
-        <button class="play-btn" onclick="togglePlay()"><i class="fas fa-play"></i></button>
-        <button class="skip-btn" onclick="nextTrack()"><i class="fas fa-forward"></i></button>
+        <button class="skip-btn" onclick="prevTrack()">⏮</button>
+        <button class="play-btn" onclick="togglePlay()">▶</button>
+        <button class="skip-btn" onclick="nextTrack()">⏭</button>
       </div>
       <div class="progress-container">
         <div class="progress" id="progress"></div>
       </div>
     </div>
     <div class="volume">
-      <i class="fas fa-volume-up"></i>
+      <label for="volume">🔊</label>
       <input type="range" id="volume" min="0" max="1" step="0.01" value="1" onchange="setVolume(this.value)">
     </div>
   </div>
@@ -252,7 +269,7 @@
   <script>
     const audio = document.getElementById("audio");
     const progress = document.getElementById("progress");
-    const playBtn = document.querySelector(".play-btn i");
+    const playBtn = document.querySelector(".play-btn");
     let isPlaying = false;
     let currentTrack = null;
 
@@ -263,10 +280,10 @@
       }
       if(isPlaying){
         audio.pause();
-        playBtn.classList.replace("fa-pause", "fa-play");
+        playBtn.textContent = "▶";
       } else {
         audio.play();
-        playBtn.classList.replace("fa-play", "fa-pause");
+        playBtn.textContent = "⏸";
       }
       isPlaying = !isPlaying;
     }
@@ -275,7 +292,7 @@
       currentTrack = url;
       audio.src = url;
       audio.play();
-      playBtn.classList.replace("fa-play", "fa-pause");
+      playBtn.textContent = "⏸";
       isPlaying = true;
     }
 
@@ -294,15 +311,23 @@
 
     function showHome(){ location.reload(); }
 
-    async function showAdmin(){
-      const password = prompt("Enter admin password:");
-      if(!password) return;
+    function showAdminLogin(){
+      document.getElementById("main-content").innerHTML = `
+        <div class='page-header'><h1>admin login</h1></div>
+        <form class='login-form' onsubmit='checkAdminPassword(event)'>
+          <input type='password' id='admin-pass' placeholder='Enter password' required><br>
+          <button type='submit'>Login</button>
+        </form>`;
+    }
 
+    async function checkAdminPassword(e){
+      e.preventDefault();
+      const password = document.getElementById("admin-pass").value;
       const hashBuffer = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(password));
       const hashArray = Array.from(new Uint8Array(hashBuffer));
       const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
-      const correctHash = "2a07198c7588b3cc832d2b2043614d00f90e1aaff42ebaa7924e4c34d6f4c9f8"; // hash of 'allofthelovwe'
+      const correctHash = "2e39250f9f5878f9273f19773db6e3cc1f3b5b292aee9012e9892a567a47c94e"; // allo
 
       if(hashHex === correctHash){
         document.getElementById("main-content").innerHTML = `
