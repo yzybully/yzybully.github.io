@@ -40,7 +40,7 @@
       border: 1px solid var(--border);
     }
     .sidebar{grid-area:sidebar;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px;height:calc(100vh - 32px);}
-    
+
     .nav-buttons {
       display: flex;
       flex-direction: column;
@@ -75,7 +75,7 @@
       padding:18px;
       overflow:auto;
     }
-    
+
     /* Music Library Styles */
     .music-library {
       display: flex;
@@ -93,7 +93,7 @@
       color: #e9edf2;
       margin-bottom: 8px;
     }
-    
+
     /* Coming Soon Placeholder */
     .coming-soon {
       display: flex;
@@ -277,14 +277,14 @@
     .main::-webkit-scrollbar-track { background: transparent; }
     .main::-webkit-scrollbar-thumb { background: #2b2f38; border-radius: 4px; }
     .main::-webkit-scrollbar-thumb:hover { background: var(--accent-2); }
-    
+
     .player-controls{display:flex;align-items:center;gap:16px;padding:8px 0}
     .player-controls button, .player-controls .volume-icon {
       background:none;border:none;color:var(--text);cursor:pointer;padding:0;
       width: 24px; height: 24px; display: grid; place-items: center;
     }
     .player-controls svg {width:100%;height:100%;}
-    
+
     .volume-control{position:relative;display:flex;align-items:center}
     .volume-slider-container{
       position:absolute; left: 50%; bottom: calc(100% + 12px); transform: translateX(-50%);
@@ -294,6 +294,7 @@
       display: flex; align-items: center; justify-content: center;
       opacity:0; visibility:hidden; transition: .2s ease;
       backdrop-filter: blur(8px);
+      padding: 8px 0;
     }
     .volume-control:hover .volume-slider-container{opacity:1;visibility:visible}
     .volume-slider {
@@ -307,7 +308,7 @@
       background:var(--accent); border-radius:50%;
       border: 3px solid #1e222a;
     }
-    
+
     .scrubber{ flex:1; display:flex; align-items:center; gap:8px }
     .scrubber input[type="range"]{
       -webkit-appearance: none; appearance: none; width:100%; height:4px;
@@ -323,12 +324,8 @@
     .file-input-label { display: inline-flex; align-items: center; gap: 8px; }
     .icon { width: 16px; height: 16px; }
 
-    .content-section {
-      display: none;
-    }
-    .content-section.active {
-      display: block;
-    }
+    .content-section { display: none; }
+    .content-section.active { display: block; }
 
     @media (max-width:1100px){
       body{overflow: auto;}
@@ -345,20 +342,27 @@
             <div>yzy player | YZYBULLY</div>
         </div>
         <div class="divider"></div>
-        
+
         <div class="nav-buttons">
             <button class="nav-btn active" data-section="home">Home</button>
             <button class="nav-btn" data-section="liked">Liked Songs</button>
             <button class="nav-btn" data-section="profile">Profile</button>
             <button class="nav-btn" data-section="admin">Admin Panel</button>
         </div>
-        
+
         <div style="margin-top: auto; margin-bottom: 16px;">
             <div class="pill">created by yzydotcom // allofthelovwe</div>
             <div class="pill">Main UI aspects, @matthewmason & @tootheh</div>
         </div>
     </aside>
-    <header class="topbar"><div class="brand" style="gap:8px"><span class="pill" id="topbarSection">home</span><span class="muted">ye please suck my yenis</span></div></header>
+
+    <header class="topbar">
+      <div class="brand" style="gap:8px">
+        <span class="pill" id="topbarSection">home</span>
+        <span class="muted">ye please suck my yenis</span>
+      </div>
+    </header>
+
     <main class="main" id="main">
       <!-- Music Library Section (Home) -->
       <div class="content-section active" id="homeContent">
@@ -437,7 +441,7 @@
         </div>
       </div>
 
-      <!-- Upload Form Section (hidden by default) -->
+      <!-- Upload Form Section (hidden by default; no button added) -->
       <div class="content-section" id="uploadContent">
         <div class="section-title">upload files</div>
         <div class="field">
@@ -451,6 +455,7 @@
             <span class="file-name" id="mp3FileName">No file chosen</span>
           </div>
         </div>
+
         <div class="field">
             <label>Album Cover</label>
             <div class="custom-select" id="coverSelect">
@@ -461,6 +466,7 @@
                 <div class="dropdown-panel" id="coverDropdownPanel"></div>
             </div>
         </div>
+
         <div class="field">
             <label>... or Upload Custom Cover (JPG/PNG)</label>
             <div class="file-input-wrapper">
@@ -496,10 +502,10 @@
         <div id="artistsArea">
           <div class="field artist-field">
             <label>Artist *</label>
-            <div class="custom-select" id="artistSelect">
+            <div class="custom-select artistSelect">
               <input type="text" class="artistInput" placeholder="Kanye West" autocomplete="off" />
               <div class="arrow">▼</div>
-              <div class="dropdown-panel" id="artistDropdownPanel"><div class="dropdown-option">Kanye West</div></div>
+              <div class="dropdown-panel artistDropdownPanel"></div>
             </div>
           </div>
         </div>
@@ -515,6 +521,7 @@
         <p class="muted" style="margin-top:12px">note: all processing happens in your browser. large files may take a few seconds to tag.</p>
       </div>
     </main>
+
     <aside class="preview" id="preview">
       <div class="section-title">Live Preview</div>
       <div class="card">
@@ -524,7 +531,7 @@
           <div class="muted" id="pArtists">Artist</div>
           <div class="muted" id="pAlbum">Album • Year</div>
         </div>
-        
+
         <div class="player-controls">
           <div class="scrubber">
             <span id="currentTime">0:00</span>
@@ -551,80 +558,482 @@
   </div>
 
 <script>
-// Fixed selector functions
+/* ========= Helpers ========= */
 const $ = (q) => document.querySelector(q);
 const $$ = (q) => Array.from(document.querySelectorAll(q));
 
-// Global variables
-let coverArrayBuffer = null, currentCoverURL = null, currentAudioURL = null,
-    previewInterval = null, isCycling = true, userHasInteracted = false;
-
 const colorThief = new ColorThief();
+let coverArrayBuffer = null, currentCoverURL = null, currentAudioURL = null;
 
-// Navigation functionality
+const mp3File = $('#mp3File');
+const mp3FileName = $('#mp3FileName');
+const coverFile = $('#coverFile');
+const coverFileName = $('#coverFileName');
+const artImage = $('#artImage');
+const pTitle = $('#pTitle');
+const pArtists = $('#pArtists');
+const pAlbum = $('#pAlbum');
+const titleInput = $('#title');
+const albumInput = $('#album');
+const releaseDateInput = $('#releaseDate');
+const artistsArea = $('#artistsArea');
+const addArtistBtn = $('#addArtistBtn');
+const clearArtistsBtn = $('#clearArtistsBtn');
+const addArtistRow = $('#addArtistRow');
+const artistChips = $('#artistChips');
+const audio = $('#audioPlayer');
+const playPauseBtn = $('#playPauseBtn');
+const playIcon = $('#playIcon');
+const pauseIcon = $('#pauseIcon');
+const scrubber = $('#scrubber');
+const currentTimeEl = $('#currentTime');
+const durationEl = $('#duration');
+const volumeSlider = $('#volumeSlider');
+const previewPane = $('#preview');
+
+function formatTime(s){
+  s = Math.max(0, Math.floor(s||0));
+  const m = Math.floor(s/60), r = s%60;
+  return `${m}:${r.toString().padStart(2,'0')}`;
+}
+
+function revokeURL(url){ if(url){ URL.revokeObjectURL(url); } }
+
+function getArtists(){
+  const inputs = $$('.artistInput');
+  return inputs.map(i => i.value.trim()).filter(Boolean);
+}
+
+function updateChips(){
+  artistChips.innerHTML = '';
+  getArtists().forEach(name => {
+    const div = document.createElement('div');
+    div.className = 'chip';
+    div.textContent = name;
+    artistChips.appendChild(div);
+  });
+}
+
+function updatePreviewText(){
+  pTitle.textContent = titleInput.value.trim() || 'Song Title';
+  const artists = getArtists();
+  pArtists.textContent = artists.length ? artists.join(', ') : 'Artist';
+
+  const album = albumInput.value.trim();
+  const year = releaseDateInput.value ? new Date(releaseDateInput.value).getFullYear() : 'Year';
+  pAlbum.textContent = (album ? album : 'Album') + ' • ' + year;
+}
+
+function tryApplyDominantColor(imgEl){
+  try{
+    if (!imgEl.complete) return;
+    const rgb = colorThief.getColor(imgEl);
+    const [r,g,b] = rgb;
+    const overlay = `linear-gradient(0deg, rgba(${r},${g},${b},0.18), rgba(0,0,0,0))`;
+    previewPane.style.backgroundImage = overlay;
+  }catch(e){
+    // likely a CORS or canvas taint issue; silently ignore
+  }
+}
+
+function fileToArrayBuffer(file){
+  return new Promise((res, rej)=>{
+    const fr = new FileReader();
+    fr.onload = () => res(fr.result);
+    fr.onerror = rej;
+    fr.readAsArrayBuffer(file);
+  });
+}
+
+function urlToArrayBuffer(url){
+  return fetch(url).then(r=>r.arrayBuffer());
+}
+
+/* ========= Navigation ========= */
 function initNavigation() {
-    console.log('Setting up navigation...');
-    
-    const navButtons = $('.nav-btn');
-    const topbarSection = $('#topbarSection');
-    
-    console.log('Found navigation buttons:', navButtons.length);
-    
-    navButtons.forEach((button, index) => {
-        console.log(`Button ${index}:`, button, 'data-section:', button.dataset.section);
-        
-        button.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const section = button.dataset.section;
-            console.log('Navigation clicked:', section);
-            
-            // Update active button
-            navButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-            
-            // Update topbar
-            if (topbarSection) {
-                topbarSection.textContent = section;
-            }
-            
-            // Show corresponding content
-            showSection(section);
-        });
+  const navButtons = $$('.nav-btn'); // FIXED: select all
+  const topbarSection = $('#topbarSection');
+
+  navButtons.forEach(button => {
+    button.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const section = button.dataset.section;
+
+      // Update active button
+      navButtons.forEach(btn => btn.classList.remove('active'));
+      button.classList.add('active');
+
+      // Update topbar
+      topbarSection.textContent = section;
+
+      // Show corresponding content
+      showSection(section);
     });
+  });
 }
 
 function showSection(section) {
-    console.log('Showing section:', section);
-    
-    // Hide all sections
-    $$('.content-section').forEach(el => el.classList.remove('active'));
-    
-    // Show selected section
-    let targetId;
-    switch(section) {
-        case 'home':
-            targetId = 'homeContent';
-            break;
-        case 'liked':
-            targetId = 'likedContent';
-            break;
-        case 'profile':
-            targetId = 'profileContent';
-            break;
-        case 'admin':
-            targetId = 'adminContent';
-            break;
-        case 'upload':
-            targetId = 'uploadContent';
-            break;
-    }
-    
-    const target = $(`#${targetId}`);
-    if (target) {
-        target.classList.add('active');
-        console.log('Successfully showed:', targetId);
+  // Hide all sections
+  $$('.content-section').forEach(el => el.classList.remove('active'));
+
+  // Map section → content ID
+  let targetId;
+  switch(section) {
+    case 'home':    targetId = 'homeContent'; break;
+    case 'liked':   targetId = 'likedContent'; break;
+    case 'profile': targetId = 'profileContent'; break;
+    case 'admin':   targetId = 'adminContent'; break;
+    case 'upload':  targetId = 'uploadContent'; break;
+    default:        targetId = 'homeContent'; // fallback
+  }
+
+  const target = document.getElementById(targetId);
+  if (target) target.classList.add('active');
+}
+
+/* ========= Custom Selects & Presets ========= */
+const coverPresets = [
+  { label: 'No Cover', src: 'nocover.png' },
+  { label: 'Logo', src: 'logo.png' }
+];
+
+const albumSuggestions = [
+  'The College Dropout','Late Registration','Graduation','808s & Heartbreak',
+  'My Beautiful Dark Twisted Fantasy','Yeezus','The Life of Pablo','ye',
+  'JESUS IS KING','Donda'
+];
+
+const artistSuggestions = [
+  'Kanye West','Ye','Ty Dolla $ign','Kid Cudi','Pusha T',
+  'Jay-Z','Rihanna','Bon Iver','The Weeknd','Lil Wayne'
+];
+
+function buildDropdown(panel, items, onSelect){
+  panel.innerHTML = '';
+  items.forEach(item=>{
+    const el = document.createElement('div');
+    el.className = 'dropdown-option';
+    if (item.src){
+      const img = document.createElement('img');
+      img.src = item.src;
+      img.alt = item.label;
+      el.appendChild(img);
+      const span = document.createElement('span');
+      span.textContent = item.label;
+      el.appendChild(span);
     } else {
-        console.error('Could not find target:', targetId);
-    
+      el.textContent = item;
+    }
+    el.addEventListener('click', ()=> onSelect(item));
+    panel.appendChild(el);
+  });
+}
+
+function initCoverSelect(){
+  const wrapper = $('#coverSelect');
+  const display = $('#coverDisplay');
+  const panel = $('#coverDropdownPanel');
+
+  buildDropdown(panel, coverPresets, async (item)=>{
+    display.innerHTML = `<img src="${item.src}" alt="${item.label}"><span>${item.label}</span>`;
+    panel.classList.remove('open');
+    wrapper.classList.remove('open');
+
+    // set preview image
+    artImage.src = item.src;
+    tryApplyDominantColor(artImage);
+
+    // read as buffer for ID3 APIC
+    coverArrayBuffer = await urlToArrayBuffer(item.src);
+  });
+
+  const toggle = ()=> {
+    panel.classList.toggle('open');
+    wrapper.classList.toggle('open');
+  };
+
+  display.addEventListener('click', toggle);
+  wrapper.querySelector('.arrow').addEventListener('click', toggle);
+
+  // default to first preset
+  display.innerHTML = `<span class="muted">Select a preset or upload</span>`;
+}
+
+function initAlbumSelect(){
+  const wrapper = $('#albumSelect');
+  const input = $('#album');
+  const panel = $('#albumDropdownPanel');
+
+  const refresh = ()=>{
+    const q = input.value.trim().toLowerCase();
+    const items = albumSuggestions.filter(a=>a.toLowerCase().includes(q));
+    buildDropdown(panel, items, (val)=>{
+      input.value = val;
+      panel.classList.remove('open'); wrapper.classList.remove('open');
+      updatePreviewText();
+    });
+  };
+
+  input.addEventListener('focus', ()=>{ panel.classList.add('open'); wrapper.classList.add('open'); refresh(); });
+  input.addEventListener('input', refresh);
+  wrapper.querySelector('.arrow').addEventListener('click', ()=>{
+    panel.classList.toggle('open'); wrapper.classList.toggle('open'); if (panel.classList.contains('open')) refresh();
+  });
+  document.addEventListener('click', (e)=>{
+    if (!wrapper.contains(e.target)){ panel.classList.remove('open'); wrapper.classList.remove('open');}
+  });
+}
+
+function initArtistSelects(){
+  const seedDropdown = (container)=>{
+    const input = container.querySelector('.artistInput');
+    const panel = container.querySelector('.artistDropdownPanel');
+    const wrapper = container.closest('.custom-select');
+
+    const refresh = ()=>{
+      const q = input.value.trim().toLowerCase();
+      const items = artistSuggestions.filter(a=>a.toLowerCase().includes(q));
+      buildDropdown(panel, items, (val)=>{
+        input.value = val;
+        panel.classList.remove('open'); wrapper.classList.remove('open');
+        updateChips(); updatePreviewText();
+      });
+    };
+
+    input.addEventListener('focus', ()=>{ panel.classList.add('open'); wrapper.classList.add('open'); refresh(); });
+    input.addEventListener('input', ()=>{ refresh(); updateChips(); updatePreviewText(); });
+    wrapper.querySelector('.arrow').addEventListener('click', ()=>{
+      panel.classList.toggle('open'); wrapper.classList.toggle('open'); if (panel.classList.contains('open')) refresh();
+    });
+    document.addEventListener('click', (e)=>{
+      if (!wrapper.contains(e.target)){ panel.classList.remove('open'); wrapper.classList.remove('open');}
+    });
+  };
+
+  $$('.artistSelect').forEach(seedDropdown);
+
+  $('#multiToggle').addEventListener('change', (e)=>{
+    if (e.target.checked){
+      addArtistRow.style.display = 'flex';
+      if ($$('.artist-field').length === 1) addArtistInput();
+    } else {
+      addArtistRow.style.display = 'none';
+      // leave the first artist only
+      $$('.artist-field').slice(1).forEach(n=>n.remove());
+      updateChips(); updatePreviewText();
+    }
+  });
+
+  addArtistBtn.addEventListener('click', addArtistInput);
+  clearArtistsBtn.addEventListener('click', ()=>{
+    $$('.artist-field').slice(1).forEach(n=>n.remove());
+    updateChips(); updatePreviewText();
+  });
+
+  function addArtistInput(){
+    const tpl = document.createElement('div');
+    tpl.className = 'field artist-field';
+    tpl.innerHTML = `
+      <label>Artist</label>
+      <div class="custom-select artistSelect">
+        <input type="text" class="artistInput" placeholder="Featured artist" autocomplete="off" />
+        <div class="arrow">▼</div>
+        <div class="dropdown-panel artistDropdownPanel"></div>
+      </div>`;
+    artistsArea.appendChild(tpl);
+    // init dropdown on the new one
+    initArtistSelects();
+    updateChips();
+  }
+}
+
+/* ========= File Inputs & Cover handling ========= */
+function initFiles(){
+  mp3File.addEventListener('change', async ()=>{
+    const file = mp3File.files[0];
+    mp3FileName.textContent = file ? file.name : 'No file chosen';
+    if (!file) return;
+
+    // Load into audio element
+    revokeURL(currentAudioURL);
+    currentAudioURL = URL.createObjectURL(file);
+    audio.src = currentAudioURL;
+    audio.load();
+
+    playPauseBtn.disabled = true;
+    scrubber.disabled = true;
+
+    audio.addEventListener('loadedmetadata', ()=>{
+      scrubber.max = Math.floor(audio.duration || 0);
+      durationEl.textContent = formatTime(audio.duration);
+      currentTimeEl.textContent = '0:00';
+      scrubber.value = 0;
+      playPauseBtn.disabled = false;
+      scrubber.disabled = false;
+    }, { once: true });
+  });
+
+  coverFile.addEventListener('change', async ()=>{
+    const file = coverFile.files[0];
+    coverFileName.textContent = file ? file.name : 'No file chosen';
+    if (!file) return;
+
+    revokeURL(currentCoverURL);
+    currentCoverURL = URL.createObjectURL(file);
+    artImage.src = currentCoverURL;
+    artImage.onload = ()=> tryApplyDominantColor(artImage);
+
+    coverArrayBuffer = await fileToArrayBuffer(file);
+  });
+
+  // default cover buffer from nocover.png
+  urlToArrayBuffer('nocover.png').then(buf => coverArrayBuffer = buf).catch(()=>{});
+}
+
+/* ========= Audio Controls ========= */
+function initAudioControls(){
+  playPauseBtn.addEventListener('click', ()=>{
+    if (audio.paused){ audio.play(); } else { audio.pause(); }
+  });
+
+  audio.addEventListener('play', ()=>{
+    playIcon.style.display = 'none'; pauseIcon.style.display = 'block';
+  });
+  audio.addEventListener('pause', ()=>{
+    playIcon.style.display = 'block'; pauseIcon.style.display = 'none';
+  });
+
+  audio.addEventListener('timeupdate', ()=>{
+    if (!scrubber.dragging) scrubber.value = Math.floor(audio.currentTime || 0);
+    currentTimeEl.textContent = formatTime(audio.currentTime);
+    durationEl.textContent = formatTime(audio.duration);
+  });
+
+  scrubber.addEventListener('input', ()=>{
+    audio.currentTime = Number(scrubber.value || 0);
+  });
+
+  volumeSlider.addEventListener('input', ()=>{
+    audio.volume = Number(volumeSlider.value);
+  });
+}
+
+/* ========= ID3 Download ========= */
+async function handleDownload(){
+  const file = mp3File.files[0];
+  if (!file){
+    alert('Please choose an MP3 file first.');
+    return;
+  }
+  const title = titleInput.value.trim();
+  const artists = getArtists();
+  if (!title || artists.length === 0){
+    alert('Please fill in at least Title and Artist.');
+    return;
+  }
+
+  const album = albumInput.value.trim();
+  const year = releaseDateInput.value ? new Date(releaseDateInput.value).getFullYear().toString() : '';
+
+  const songBuffer = await fileToArrayBuffer(file);
+  const writer = new ID3Writer(songBuffer);
+
+  writer.setFrame('TIT2', title);
+  if (artists.length) writer.setFrame('TPE1', artists);
+  if (album) writer.setFrame('TALB', album);
+  if (year)  writer.setFrame('TYER', year);
+
+  if (coverArrayBuffer){
+    writer.setFrame('APIC', {
+      type: 3,
+      data: new Uint8Array(coverArrayBuffer),
+      description: 'Cover'
+    });
+  }
+
+  writer.addTag();
+
+  const taggedBlob = writer.getBlob();
+  const outURL = URL.createObjectURL(taggedBlob);
+  const a = document.createElement('a');
+  const safeArtist = artists.join(', ');
+  a.href = outURL;
+  a.download = `${title} - ${safeArtist}.mp3`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(outURL), 2000);
+}
+
+/* ========= Reset ========= */
+function resetAll(){
+  // inputs
+  mp3File.value = '';
+  coverFile.value = '';
+  mp3FileName.textContent = 'No file chosen';
+  coverFileName.textContent = 'No file chosen';
+  titleInput.value = '';
+  albumInput.value = '';
+  releaseDateInput.value = '';
+  $('#multiToggle').checked = false;
+
+  // artists: leave the first, clear others
+  $$('.artist-field').slice(1).forEach(n=>n.remove());
+  const firstArtist = $('.artistInput'); if (firstArtist) firstArtist.value = '';
+
+  // audio
+  audio.pause(); audio.removeAttribute('src'); audio.load();
+  playPauseBtn.disabled = true; scrubber.disabled = true;
+  scrubber.value = 0; currentTimeEl.textContent = '0:00'; durationEl.textContent = '0:00';
+  volumeSlider.value = 1; audio.volume = 1;
+
+  // cover
+  revokeURL(currentCoverURL); currentCoverURL = null;
+  artImage.src = 'nocover.png'; tryApplyDominantColor(artImage);
+  urlToArrayBuffer('nocover.png').then(buf => coverArrayBuffer = buf).catch(()=>{});
+
+  // preview text
+  pTitle.textContent = 'Song Title';
+  pArtists.textContent = 'Artist';
+  pAlbum.textContent = 'Album • Year';
+
+  // chips
+  updateChips();
+
+  // selects panels closed
+  $$('.dropdown-panel').forEach(p => p.classList.remove('open'));
+  $$('.custom-select').forEach(w => w.classList.remove('open'));
+}
+
+/* ========= Live binds ========= */
+function initLiveBinds(){
+  titleInput.addEventListener('input', updatePreviewText);
+  albumInput.addEventListener('input', updatePreviewText);
+  releaseDateInput.addEventListener('input', updatePreviewText);
+  artImage.addEventListener('load', ()=> tryApplyDominantColor(artImage));
+}
+
+/* ========= Boot ========= */
+function init(){
+  initNavigation();
+  initCoverSelect();
+  initAlbumSelect();
+  initArtistSelects();
+  initFiles();
+  initAudioControls();
+  initLiveBinds();
+
+  // buttons
+  $('#downloadBtn').addEventListener('click', handleDownload);
+  $('#resetBtn').addEventListener('click', resetAll);
+
+  // Initial text preview
+  updatePreviewText();
+  updateChips();
+}
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
