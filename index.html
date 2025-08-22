@@ -551,116 +551,11 @@
   </div>
 
 <script>
-// Simple test to see if JavaScript is working
-console.log('JavaScript is loading...');
-
+// Fixed selector functions
 const $ = (q) => document.querySelector(q);
-const $ = (q) => Array.from(document.querySelectorAll(q));
+const $$ = (q) => Array.from(document.querySelectorAll(q));
 
-// Navigation functionality - simplified version
-function initNavigation() {
-    console.log('Starting navigation setup...');
-    
-    const homeBtn = document.querySelector('[data-section="home"]');
-    const likedBtn = document.querySelector('[data-section="liked"]');
-    const profileBtn = document.querySelector('[data-section="profile"]');
-    const adminBtn = document.querySelector('[data-section="admin"]');
-    
-    console.log('Navigation elements:', { homeBtn, likedBtn, profileBtn, adminBtn });
-    
-    // Direct event listeners
-    if (homeBtn) {
-        homeBtn.addEventListener('click', () => {
-            console.log('Home clicked');
-            showSection('home');
-            updateActiveButton('home');
-        });
-    }
-    
-    if (likedBtn) {
-        likedBtn.addEventListener('click', () => {
-            console.log('Liked clicked');
-            showSection('liked');
-            updateActiveButton('liked');
-        });
-    }
-    
-    if (profileBtn) {
-        profileBtn.addEventListener('click', () => {
-            console.log('Profile clicked');
-            showSection('profile');
-            updateActiveButton('profile');
-        });
-    }
-    
-    if (adminBtn) {
-        adminBtn.addEventListener('click', () => {
-            console.log('Admin clicked');
-            showSection('admin');
-            updateActiveButton('admin');
-        });
-    }
-}
-
-function updateActiveButton(activeSection) {
-    const buttons = document.querySelectorAll('.nav-btn');
-    buttons.forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.dataset.section === activeSection) {
-            btn.classList.add('active');
-        }
-    });
-    
-    // Update topbar
-    const topbar = document.querySelector('#topbarSection');
-    if (topbar) {
-        topbar.textContent = activeSection;
-    }
-}
-
-function showSection(section) {
-    console.log('Showing section:', section);
-    
-    // Hide all sections
-    const sections = document.querySelectorAll('.content-section');
-    sections.forEach(s => s.classList.remove('active'));
-    
-    // Show target section
-    let target = null;
-    switch(section) {
-        case 'home':
-            target = document.querySelector('#homeContent');
-            break;
-        case 'liked':
-            target = document.querySelector('#likedContent');
-            break;
-        case 'profile':
-            target = document.querySelector('#profileContent');
-            break;
-        case 'admin':
-            target = document.querySelector('#adminContent');
-            break;
-    }
-    
-    if (target) {
-        target.classList.add('active');
-        console.log('Successfully showed:', target.id);
-    } else {
-        console.error('Could not find target for:', section);
-    }
-}
-
-const mp3Input = $('#mp3File'), coverInput = $('#coverFile'), titleInput = $('#title'),
-      albumInput = $('#album'), dateInput = $('#releaseDate'), multiToggle = $('#multiToggle'),
-      artistsArea = $('#artistsArea'), addArtistRow = $('#addArtistRow'),
-      addArtistBtn = $('#addArtistBtn'), clearArtistsBtn = $('#clearArtistsBtn'),
-      artBox = $('#artBox'), artImage = $('#artImage'), pTitle = $('#pTitle'), pArtists = $('#pArtists'),
-      pAlbum = $('#pAlbum'), artistChips = $('#artistChips'),
-      audioPlayer = $('#audioPlayer'), playPauseBtn = $('#playPauseBtn'),
-      playIcon = $('#playIcon'), pauseIcon = $('#pauseIcon'), scrubber = $('#scrubber'),
-      currentTimeEl = $('#currentTime'), durationEl = $('#duration'),
-      volumeSlider = $('#volumeSlider'), volumeIcon = $('#volumeIcon');
-
+// Global variables
 let coverArrayBuffer = null, currentCoverURL = null, currentAudioURL = null,
     previewInterval = null, isCycling = true, userHasInteracted = false;
 
@@ -668,508 +563,61 @@ const colorThief = new ColorThief();
 
 // Navigation functionality
 function initNavigation() {
-  const navButtons = $$('.nav-btn');
-  const topbarSection = $('#topbarSection');
-  
-  navButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      const section = button.dataset.section;
-      
-      // Update active button
-      navButtons.forEach(btn => btn.classList.remove('active'));
-      button.classList.add('active');
-      
-      // Update topbar
-      topbarSection.textContent = section;
-      
-      // Show corresponding content
-      showSection(section);
+    console.log('Setting up navigation...');
+    
+    const navButtons = $$('.nav-btn');
+    const topbarSection = $('#topbarSection');
+    
+    navButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const section = button.dataset.section;
+            console.log('Navigation clicked:', section);
+            
+            // Update active button
+            navButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            // Update topbar
+            if (topbarSection) {
+                topbarSection.textContent = section;
+            }
+            
+            // Show corresponding content
+            showSection(section);
+        });
     });
-  });
 }
 
 function showSection(section) {
-  // Hide all sections
-  $('.content-section').forEach(el => el.classList.remove('active'));
-  
-  // Show selected section
-  switch(section) {
-    case 'home':
-      $('#homeContent').classList.add('active');
-      break;
-    case 'liked':
-      $('#likedContent').classList.add('active');
-      break;
-    case 'profile':
-      $('#profileContent').classList.add('active');
-      break;
-    case 'admin':
-      $('#adminContent').classList.add('active');
-      break;
-    case 'upload':
-      $('#uploadContent').classList.add('active');
-      break;
-  }
-}
-
-async function imageURLToBuffer(url) {
-    try {
-        const response = await fetch(url);
-        if (!response.ok) { throw new Error(`HTTP error! Status: ${response.status}`); }
-        return await response.arrayBuffer();
-    } catch (error) { console.error(`Failed to fetch image '${url}':`, error); return null; }
-}
-
-function getID3Ctor() {
-    const g = window.ID3Writer; if (!g) throw new Error('ID3Writer not loaded.');
-    if (typeof g === 'function') return g; if (g?.ID3Writer) return g.ID3Writer; if (g?.default) return g.default;
-    throw new Error('ID3Writer constructor not found.');
-}
-
-const rawAlbumList = ["before college dropout", "the college dropout", "late registration", "graduation", "808's & Heartbreak", "good ass job", "my beautiful dark twisted fantasy", "watch the throne", "cruel summer", "Thank God For Drugs", "yeezus", "cruel winter", "yeezus 2", "so help me god", "SWISH", "the life of pablo", "cruel winter [V2]", "turbografx16", "LOVE EVERYONE", "DAYTONA", "ye", "KIDS SEE GHOSTS", "Nasir", "K.T.S.E.", "Good Ass Job (2018)", "Yandhi [V1]", "Yandhi [V2]", "JESUS IS KING", "JESUS IS LORD", "JESUS IS KING: The Dr. Dre Version", "DONDA: WITH CHILD", "DONDA [V2]", "DONDA [V3]", "DONDA 2", "WAR", "YEBU", "Bad Bitch Playbook", "VULTURES 1", "VULTURES 2", "VULTURES 3", "BULLY", "CUCK", "IN A PERFECT WORLD"];
-const allCaps = ["SWISH", "LOVE EVERYONE", "DAYTONA", "NASIR", "KIDS SEE GHOSTS", "K.T.S.E.", "JESUS IS KING", "DONDA: WITH CHILD", "DONDA [V2]", "DONDA [V3]", "DONDA 2", "WAR", "YEBU", "VULTURES 1", "VULTURES 2", "VULTURES 3", "BULLY", "CUCK", "IN A PERFECT WORLD"];
-const allLower = ["ye"];
-const albumsToExcludeFromCovers = ["before college dropout", "cruel winter [V2]", "Good Ass Job (2018)", "Yandhi [V2]"];
-
-function formatAlbumName(name) {
-    const upperName = name.toUpperCase();
-    if (allCaps.includes(upperName)) return upperName;
-    if (allLower.includes(name.toLowerCase())) return name.toLowerCase();
-    if (upperName.startsWith("JESUS IS KING:")) return "JESUS IS KING" + name.substring(13);
-    return name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-}
-const formattedAlbumList = rawAlbumList.map(formatAlbumName);
-const albumCoverList = formattedAlbumList.filter(name => !albumsToExcludeFromCovers.map(formatAlbumName).includes(name));
-const sanitizeForFilename = (text) => text.replace(/'/g, '').replace(/&/g, 'and').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-
-const randomPreviewTracks = [
-    { title: "Power", album: "My Beautiful Dark Twisted Fantasy", artists: ["Kanye West", "Dwele"] },
-    { title: "Heard 'Em Say", album: "Late Registration", artists: ["Kanye West", "Adam Levine"] },
-    { title: "Stronger", album: "Graduation", artists: ["Kanye West"] },
-    { title: "Heartless", album: "808's & Heartbreak", artists: ["Kanye West"] },
-    { title: "Famous", album: "The Life Of Pablo", artists: ["Kanye West", "Rihanna", "Swizz Beatz"] },
-    { title: "All Day", album: "So Help Me God", artists: ["Kanye West", "Theophilus London", "Allan Kingdom", "Paul McCartney"] },
-    { title: "City in the Sky", album: "Yandhi [V1]", artists: ["Kanye West", "Ty Dolla $ign", "Jeremih", "070 Shake"] },
-    { title: "80 Degrees", album: "Yandhi [V1]", artists: ["Kanye West", "Big Sean", "Ty Dolla $ign", "Ant Clemons"] },
-    { title: "Follow God", album: "JESUS IS KING", artists: ["Kanye West"] },
-    { title: "Future Sounds", album: "DONDA: WITH CHILD", artists: ["Kanye West", "Travis Scott", "Victory Boyd"] },
-    { title: "Come to Life", album: "DONDA [V2]", artists: ["Kanye West"] },
-    { title: "Can't Look In My Eyes", album: "Yeezus 2", artists: ["Kanye West", "Kid Cudi"] },
-    { title: "MISSION CONTROL", album: "IN A PERFECT WORLD", artists: ["Kanye West", "Tony Williams"] },
-    { title: "MATTHEW", album: "Vultures 1", artists: ["Kanye West", "North West", "Charlie Wilson"] },
-    { title: "See Me Now", album: "My Beautiful Dark Twisted Fantasy", artists: ["Kanye West", "Beyonce", "Charlie Wilson", "Big Sean"] },
-    { title: "Enjoy The Pain", album: "Cruel Winter", artists: ["Kanye West", "John Legend"] },
-    { title: "AWESOME [V4]", album: "Thank God For Drugs", artists: ["Kanye West", "Stevie Wonder", "Charles Wilson"] },
-    { title: "BELIEVER", album: "Vultures 2", artists: ["Kanye West", "Ty Dolla $ign", "Charlie Wilson"] },
-    { title: "THIS ONE HERE", album: "BULLY", artists: ["Kanye West", "Don Toliver"] },
-    { title: "Showtime ", album: "WAR", artists: ["Kanye West", "James Blake"] },
-    { title: "What I Would've Said At Virgil's Funeral", album: "WAR", artists: ["Kanye West", "James Blake", "Vory"] },
-    { title: "LA Monster [V11]", album: "JESUS IS KING: The Dr. Dre Version", artists: ["Kanye West", "A$AP FERG", "??? Choir"] },
-    { title: "Glory [V4]", album: "JESUS IS KING: The Dr. Dre Version", artists: ["Kanye West", "Dr. Dre", "Snoop Dogg", "Dem Jointz"] },
-    { title: "WHITE CHICKS", album: "CUCK", artists: ["Kanye West (AI)", "DAVE BLUNTS"] },
-    { title: "See Me Again [V3]", album: "Good Ass Job", artists: ["Kanye West", "Bon Iver", "Tony Williams", "The WRLDFMS", "Elly Jackson"] },
-];
-
-function updateArtAndBackground(imageUrl) {
-    artImage.src = imageUrl;
-    artImage.onerror = () => { artImage.src = 'nocover.png'; };
-
-    artImage.onload = () => {
-        try {
-            const color = colorThief.getColor(artImage);
-            $('#preview').style.backgroundColor = `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.2)`;
-        } catch(e) {
-             $('#preview').style.backgroundColor = 'rgba(11,13,16,0.6)';
-        }
-    }
-}
-
-function setupCustomSelect(containerId) {
-    const container = $(containerId), trigger = container.querySelector('input, .fake-input'), panel = container.querySelector('.dropdown-panel');
-    trigger.addEventListener('click', () => { const isOpen = container.classList.contains('open'); closeAllDropdowns(); if (!isOpen) { container.classList.add('open'); panel.classList.add('open'); } });
-}
-function closeAllDropdowns() { $('.custom-select.open').forEach(sel => sel.classList.remove('open')); $('.dropdown-panel.open').forEach(p => p.classList.remove('open')); }
-document.addEventListener('click', (e) => { if (!e.target.closest('.custom-select')) closeAllDropdowns(); });
-
-function populateDropdowns() {
-    const albumPanel = $('#albumDropdownPanel'), coverPanel = $('#coverDropdownPanel');
-    albumPanel.innerHTML = ''; coverPanel.innerHTML = '';
-    formattedAlbumList.forEach(albumName => {
-        const opt = document.createElement('div'); opt.className = 'dropdown-option'; opt.textContent = albumName;
-        opt.addEventListener('click', async () => { await stopCyclingAndUpdate(async () => { albumInput.value = albumName; await handlePresetCoverSelection(albumName); }); });
-        albumPanel.appendChild(opt);
-    });
-    albumCoverList.forEach(albumName => {
-        const cleanName = sanitizeForFilename(albumName);
-        const opt = document.createElement('div');
-        opt.className = 'dropdown-option';
-        opt.innerHTML = `<img src="${cleanName}.png" alt="${albumName} cover"><span>${albumName}</span>`;
-        opt.addEventListener('click', async () => {
-            await stopCyclingAndUpdate(async () => {
-                $('#coverDisplay').innerHTML = `<img src="${cleanName}.png" alt="${albumName} cover"><span>${albumName}</span>`;
-                await handlePresetCoverSelection(albumName);
-                closeAllDropdowns();
-            });
-        });
-        coverPanel.appendChild(opt);
-    });
-}
-
-async function handlePresetCoverSelection(albumName) {
-    const cleanName = sanitizeForFilename(albumName);
-    const imageUrl = `${cleanName}.png`;
-    coverArrayBuffer = await imageURLToBuffer(imageUrl);
-    if (coverArrayBuffer) {
-        updateArtAndBackground(imageUrl);
-        if (currentCoverURL) URL.revokeObjectURL(currentCoverURL);
-        currentCoverURL = imageUrl;
-    }
-    updatePreview();
-}
-
-function formatTime(seconds) {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-}
-
-function updatePreview() {
-    const title = titleInput.value || "Song Title";
-    const album = albumInput.value || "Album";
-    const releaseYear = dateInput.value ? new Date(dateInput.value).getFullYear() : "Year";
-    const artistInputs = $('.artistInput');
-    const artists = artistInputs.map(input => input.value).filter(val => val.trim());
+    console.log('Showing section:', section);
     
-    pTitle.textContent = title;
-    pArtists.textContent = artists.length > 0 ? artists.join(', ') : "Artist";
-    pAlbum.textContent = `${album} • ${releaseYear}`;
+    // Hide all sections
+    $$('.content-section').forEach(el => el.classList.remove('active'));
     
-    artistChips.innerHTML = '';
-    artists.forEach(artist => {
-        if (artist.trim()) {
-            const chip = document.createElement('div');
-            chip.className = 'chip';
-            chip.textContent = artist;
-            artistChips.appendChild(chip);
-        }
-    });
-}
-
-async function stopCyclingAndUpdate(updateFn) {
-    if (isCycling) {
-        isCycling = false;
-        clearInterval(previewInterval);
-    }
-    await updateFn();
-}
-
-function startPreviewCycling() {
-    if (!isCycling) return;
-    
-    let currentIndex = 0;
-    const cycleTracks = async () => {
-        if (!isCycling) return;
-        
-        const track = randomPreviewTracks[currentIndex];
-        titleInput.value = track.title;
-        albumInput.value = track.album;
-        
-        const artistsArea = $('#artistsArea');
-        artistsArea.innerHTML = '';
-        
-        track.artists.forEach((artist, index) => {
-            const field = document.createElement('div');
-            field.className = 'field artist-field';
-            field.innerHTML = `
-                <label>Artist ${index === 0 ? '*' : ''}</label>
-                <div class="custom-select">
-                    <input type="text" class="artistInput" value="${artist}" autocomplete="off" />
-                    <div class="arrow">▼</div>
-                    <div class="dropdown-panel"><div class="dropdown-option">Kanye West</div></div>
-                </div>
-            `;
-            artistsArea.appendChild(field);
-        });
-        
-        if (track.artists.length > 1) {
-            multiToggle.checked = true;
-            addArtistRow.style.display = 'flex';
-        } else {
-            multiToggle.checked = false;
-            addArtistRow.style.display = 'none';
-        }
-        
-        await handlePresetCoverSelection(track.album);
-        updatePreview();
-        
-        currentIndex = (currentIndex + 1) % randomPreviewTracks.length;
-    };
-    
-    cycleTracks();
-    previewInterval = setInterval(cycleTracks, 3000);
-}
-
-// Audio player functionality
-function setupAudioPlayer() {
-    audioPlayer.addEventListener('loadedmetadata', () => {
-        durationEl.textContent = formatTime(audioPlayer.duration);
-        scrubber.max = audioPlayer.duration;
-        scrubber.disabled = false;
-        playPauseBtn.disabled = false;
-    });
-    
-    audioPlayer.addEventListener('timeupdate', () => {
-        if (!scrubber.matches(':active')) {
-            scrubber.value = audioPlayer.currentTime;
-        }
-        currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
-    });
-    
-    audioPlayer.addEventListener('ended', () => {
-        playIcon.style.display = 'block';
-        pauseIcon.style.display = 'none';
-    });
-    
-    playPauseBtn.addEventListener('click', () => {
-        if (!userHasInteracted) {
-            userHasInteracted = true;
-            audioPlayer.volume = volumeSlider.value;
-        }
-        
-        if (audioPlayer.paused) {
-            audioPlayer.play();
-            playIcon.style.display = 'none';
-            pauseIcon.style.display = 'block';
-        } else {
-            audioPlayer.pause();
-            playIcon.style.display = 'block';
-            pauseIcon.style.display = 'none';
-        }
-    });
-    
-    scrubber.addEventListener('input', () => {
-        audioPlayer.currentTime = scrubber.value;
-    });
-    
-    volumeSlider.addEventListener('input', () => {
-        if (userHasInteracted) {
-            audioPlayer.volume = volumeSlider.value;
-        }
-    });
-}
-
-// File handling
-function setupFileHandling() {
-    mp3Input.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            $('#mp3FileName').textContent = file.name;
-            
-            if (currentAudioURL) URL.revokeObjectURL(currentAudioURL);
-            currentAudioURL = URL.createObjectURL(file);
-            audioPlayer.src = currentAudioURL;
-            
-            stopCyclingAndUpdate(() => {});
-        } else {
-            $('#mp3FileName').textContent = 'No file chosen';
-            audioPlayer.src = '';
-            scrubber.disabled = true;
-            playPauseBtn.disabled = true;
-        }
-    });
-    
-    coverInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            $('#coverFileName').textContent = file.name;
-            
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                coverArrayBuffer = e.target.result;
-                const imageUrl = URL.createObjectURL(file);
-                
-                $('#coverDisplay').innerHTML = `<img src="${imageUrl}"><span>Custom Upload</span>`;
-                await stopCyclingAndUpdate(() => updateArtAndBackground(imageUrl));
-                
-                if (currentCoverURL && !currentCoverURL.includes('.png')) {
-                    URL.revokeObjectURL(currentCoverURL);
-                }
-                currentCoverURL = imageUrl;
-            };
-            reader.readAsArrayBuffer(file);
-        } else {
-            $('#coverFileName').textContent = 'No file chosen';
-        }
-    });
-}
-
-// Multiple artists functionality
-function setupMultipleArtists() {
-    multiToggle.addEventListener('change', () => {
-        if (multiToggle.checked) {
-            addArtistRow.style.display = 'flex';
-        } else {
-            addArtistRow.style.display = 'none';
-            const extraFields = $('.artist-field:not(:first-child)');
-            extraFields.forEach(field => field.remove());
-            updatePreview();
-        }
-    });
-    
-    addArtistBtn.addEventListener('click', () => {
-        const newField = document.createElement('div');
-        newField.className = 'field artist-field';
-        newField.innerHTML = `
-            <label>Artist</label>
-            <div class="custom-select">
-                <input type="text" class="artistInput" placeholder="Artist Name" autocomplete="off" />
-                <div class="arrow">▼</div>
-                <div class="dropdown-panel"><div class="dropdown-option">Kanye West</div></div>
-            </div>
-        `;
-        artistsArea.appendChild(newField);
-        
-        const newInput = newField.querySelector('.artistInput');
-        newInput.addEventListener('input', updatePreview);
-        newInput.focus();
-    });
-    
-    clearArtistsBtn.addEventListener('click', () => {
-        const extraFields = $('.artist-field:not(:first-child)');
-        extraFields.forEach(field => field.remove());
-        updatePreview();
-    });
-}
-
-// Download functionality
-async function setupDownload() {
-    $('#downloadBtn').addEventListener('click', async () => {
-        const file = mp3Input.files[0];
-        if (!file) {
-            alert('Please select an MP3 file first.');
-            return;
-        }
-        
-        try {
-            const arrayBuffer = await file.arrayBuffer();
-            const ID3Writer = getID3Ctor();
-            const writer = new ID3Writer(arrayBuffer);
-            
-            const title = titleInput.value || 'Unknown Title';
-            const album = albumInput.value || 'Unknown Album';
-            const artistInputs = $('.artistInput');
-            const artists = artistInputs.map(input => input.value).filter(val => val.trim());
-            const mainArtist = artists.length > 0 ? artists[0] : 'Unknown Artist';
-            const releaseYear = dateInput.value ? new Date(dateInput.value).getFullYear() : null;
-            
-            writer.setFrame('TIT2', title).setFrame('TALB', album).setFrame('TPE1', mainArtist);
-            
-            if (releaseYear) writer.setFrame('TYER', releaseYear);
-            if (coverArrayBuffer) writer.setFrame('APIC', { type: 3, data: coverArrayBuffer, description: 'Cover' });
-            
-            writer.addTag();
-            const taggedBuffer = writer.arrayBuffer;
-            const blob = new Blob([taggedBuffer], { type: 'audio/mpeg' });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${title} - ${mainArtist}.mp3`;
-            a.click();
-            
-            URL.revokeObjectURL(url);
-        } catch (error) {
-            console.error('Download error:', error);
-            alert('Error processing file. Please try again.');
-        }
-    });
-}
-
-// Reset functionality
-function setupReset() {
-    $('#resetBtn').addEventListener('click', () => {
-        mp3Input.value = '';
-        coverInput.value = '';
-        titleInput.value = '';
-        albumInput.value = '';
-        dateInput.value = '';
-        multiToggle.checked = false;
-        
-        $('#mp3FileName').textContent = 'No file chosen';
-        $('#coverFileName').textContent = 'No file chosen';
-        $('#coverDisplay').innerHTML = '<span class="muted">Select a preset or upload</span>';
-        
-        const extraFields = $('.artist-field:not(:first-child)');
-        extraFields.forEach(field => field.remove());
-        $('.artistInput').value = '';
-        addArtistRow.style.display = 'none';
-        
-        audioPlayer.src = '';
-        scrubber.disabled = true;
-        playPauseBtn.disabled = true;
-        playIcon.style.display = 'block';
-        pauseIcon.style.display = 'none';
-        
-        if (currentAudioURL) {
-            URL.revokeObjectURL(currentAudioURL);
-            currentAudioURL = null;
-        }
-        
-        if (currentCoverURL && !currentCoverURL.includes('.png')) {
-            URL.revokeObjectURL(currentCoverURL);
-        }
-        currentCoverURL = null;
-        coverArrayBuffer = null;
-        
-        updateArtAndBackground('nocover.png');
-        
-        isCycling = true;
-        startPreviewCycling();
-        updatePreview();
-    });
-}
-
-// Initialize everything
-function init() {
-    console.log('Initializing app...');
-    
-    // Make sure DOM elements exist before initializing
-    const navButtons = $('.nav-btn');
-    console.log('Found', navButtons.length, 'navigation buttons');
-    
-    if (navButtons.length === 0) {
-        console.error('No navigation buttons found!');
-        return;
+    // Show selected section
+    let targetId;
+    switch(section) {
+        case 'home':
+            targetId = 'homeContent';
+            break;
+        case 'liked':
+            targetId = 'likedContent';
+            break;
+        case 'profile':
+            targetId = 'profileContent';
+            break;
+        case 'admin':
+            targetId = 'adminContent';
+            break;
+        case 'upload':
+            targetId = 'uploadContent';
+            break;
     }
     
-    initNavigation();
-    populateDropdowns();
-    setupCustomSelect('#albumSelect');
-    setupCustomSelect('#coverSelect');
-    setupCustomSelect('#artistSelect');
-    setupAudioPlayer();
-    setupFileHandling();
-    setupMultipleArtists();
-    setupDownload();
-    setupReset();
+    const target = $(`#${targetId}`);
+    if (target) {
+        target.classList.add('active');
+        console.log('Successfully showed:', targetId);
+    } else {
+        console.error('Could not find target:', targetId);
     
-    // Add input listeners
-    if (titleInput) titleInput.addEventListener('input', () => stopCyclingAndUpdate(updatePreview));
-    if (albumInput) albumInput.addEventListener('input', () => stopCyclingAndUpdate(updatePreview));
-    if (dateInput) dateInput.addEventListener('input', () => stopCyclingAndUpdate(updatePreview));
-    const firstArtistInput = $('.artistInput');
-    if (firstArtistInput) firstArtistInput.addEventListener('input', () => stopCyclingAndUpdate(updatePreview));
-    
-    // Start initial preview cycling
-    startPreviewCycling();
-    updatePreview();
-    
-    console.log('App initialized successfully');
-}
-
-// Start the app
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded, starting initialization...');
-    init();
-});
-      
