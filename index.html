@@ -1,6 +1,14 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script type="module">import { injectIntoGlobalHook } from "/@react-refresh";
+injectIntoGlobalHook(window);
+window.$RefreshReg$ = () => {};
+window.$RefreshSig$ = () => (type) => type;</script>
+
+  <script type="module" src="/@vite/client"></script>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Listen to Ye Unrsld | YZY</title>
@@ -155,7 +163,8 @@
     .track-cover img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      -o-object-fit: cover;
+         object-fit: cover;
     }
     .track-info {
       display: flex;
@@ -205,7 +214,7 @@
     .field label{font-size:.9rem;color:var(--muted);margin-bottom:8px}
     .row{display:flex;gap:12px;align-items:center}
 
-    input[type="text"],input[type="date"],.fake-input{
+    input[type="text"],input[type="date"],input[type="url"],input[type="password"],.fake-input{
       background:#171a20;border:1px solid var(--border);color:var(--text);
       padding:12px 12px;border-radius:12px;outline:none;width:100%;
       font-size: 1rem;
@@ -225,7 +234,7 @@
     .chip{background:#1a1f27;border:1px solid var(--border);padding:4px 10px;border-radius:999px;color:#cfd6df;font-size:.82rem}
     .card{background:linear-gradient(180deg,#141821 0,#10141b 100%);border:1px solid var(--border);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:14px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
     .art{width:100%;aspect-ratio:1/1;background:#0f1217;border-radius:15px;display:grid;place-items:center;overflow:hidden}
-    .art img{width:100%;height:100%;object-fit:cover;}
+    .art img{width:100%;height:100%;-o-object-fit:cover;object-fit:cover;}
     .song-title{font-size:1.25rem;font-weight:800}
     .muted{color:var(--muted)}
     .stack{display:flex;flex-direction:column;gap:4px}
@@ -242,7 +251,7 @@
     .dropdown-panel.open{opacity:1;visibility:visible;transform:translateY(0)}
     .dropdown-option{padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:.9rem}
     .dropdown-option:hover{background:var(--accent-2)}
-    .dropdown-option img, .fake-input img {width:32px;height:32px;border-radius:4px;object-fit:cover}
+    .dropdown-option img, .fake-input img {width:32px;height:32px;border-radius:4px;-o-object-fit:cover;object-fit:cover}
 
     .file-input-wrapper {
       position: relative;
@@ -293,12 +302,13 @@
       border-radius: 16px; border:1px solid var(--border);
       display: flex; align-items: center; justify-content: center;
       opacity:0; visibility:hidden; transition: .2s ease;
-      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+              backdrop-filter: blur(8px);
       padding: 8px 0;
     }
     .volume-control:hover .volume-slider-container{opacity:1;visibility:visible}
     .volume-slider {
-      -webkit-appearance: none; appearance: none;
+      -webkit-appearance: none; -moz-appearance: none; appearance: none;
       width: 100px; height: 6px; transform: rotate(-90deg);
       background: #444; border-radius: 3px; cursor: pointer;
     }
@@ -311,7 +321,7 @@
 
     .scrubber{ flex:1; display:flex; align-items:center; gap:8px }
     .scrubber input[type="range"]{
-      -webkit-appearance: none; appearance: none; width:100%; height:4px;
+      -webkit-appearance: none; -moz-appearance: none; appearance: none; width:100%; height:4px;
       background: #444; border-radius: 2px; cursor: pointer; outline: none;
     }
     .scrubber input[type="range"]::-webkit-slider-thumb{
@@ -436,8 +446,53 @@
 
       <!-- Admin Panel Section -->
       <div class="content-section" id="adminContent">
-        <div class="coming-soon">
-          coming soon &lt;3
+        <div style="padding: 20px 0;">
+          <div style="text-align: center; margin-bottom: 40px;">
+            <h2 id="adminHeading" style="color: var(--text); font-size: 1.3rem; font-weight: 800; margin-bottom: 8px;">login into the admin panel</h2>
+          </div>
+          
+          <div id="adminLogin" style="display: flex; flex-direction: column; align-items: center; gap: 20px; max-width: 400px; margin: 0 auto;">
+            <div class="field" style="width: 100%;">
+              <label>Admin Password</label>
+              <input type="password" id="adminPassword" placeholder="Enter admin password" style="text-align: center;"/>
+            </div>
+            <button class="btn" id="loginBtn" onclick="adminLogin()">Login</button>
+          </div>
+
+          <div id="adminPanel" style="display: none;">
+            <div class="section-title">upload files</div>
+            <div class="field">
+              <label>MP3 Link</label>
+              <input type="url" id="mp3Link" placeholder="https://example.com/song.mp3"/>
+            </div>
+
+            <div class="field">
+              <label>Album Art Link</label>
+              <input type="url" id="coverLink" placeholder="https://example.com/cover.jpg"/>
+            </div>
+
+            <div class="divider"></div>
+            <div class="section-title">track info</div>
+            <div class="row">
+              <div class="field" style="flex:1"><label>Song Title *</label><input type="text" id="adminTitle" placeholder="Paranoid"/></div>
+              <div class="field" style="flex:1">
+                <label>Album Name</label>
+                <input type="text" id="adminAlbum" placeholder="808s & Heartbreak"/>
+              </div>
+            </div>
+            <div class="row">
+              <div class="field" style="flex:1"><label>Release Date</label><input type="date" id="adminReleaseDate"/></div>
+              <div class="field" style="flex:1">
+                <label>Artist</label>
+                <input type="text" id="adminArtist" placeholder="Kanye West"/>
+              </div>
+            </div>
+            <div class="divider"></div>
+            <div class="row">
+              <button class="btn" id="addReleaseBtn" onclick="addRelease()">Add Release</button>
+              <button class="btn ghost" id="adminResetBtn" onclick="resetAdminForm()">Reset</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -690,7 +745,12 @@ function showSection(section) {
   }
 
   const target = document.getElementById(targetId);
-  if (target) target.classList.add('active');
+  if (target) {
+    target.classList.add('active');
+    if (targetId === 'homeContent') {
+      try { loadHomepageReleases(); } catch (e) {}
+    }
+  }
 }
 
 /* ========= Custom Selects & Presets ========= */
@@ -1032,7 +1092,156 @@ function init(){
   // Initial text preview
   updatePreviewText();
   updateChips();
+  
+  // Load releases on homepage
+  loadHomepageReleases();
 }
+
+/* ========= Admin Functions ========= */
+function adminLogin() {
+  const password = $('#adminPassword').value;
+  if (password === 'CUCK') {
+    $('#adminLogin').style.display = 'none';
+    $('#adminPanel').style.display = 'block';
+    const headingEl = $('#adminHeading'); if (headingEl) headingEl.textContent = 'admin panel';
+  } else {
+    alert('Incorrect password!');
+  }
+}
+
+function addRelease() {
+  const mp3Link = $('#mp3Link').value.trim();
+  const coverLink = $('#coverLink').value.trim();
+  const title = $('#adminTitle').value.trim();
+  const album = $('#adminAlbum').value.trim();
+  const artist = $('#adminArtist').value.trim();
+  const releaseDate = $('#adminReleaseDate').value;
+
+  if (!mp3Link || !title || !artist) {
+    alert('Please fill in MP3 Link, Song Title, and Artist fields.');
+    return;
+  }
+
+  const release = {
+    id: Date.now(),
+    mp3Link,
+    coverLink: coverLink || 'nocover.png',
+    title,
+    album: album || 'Single',
+    artist,
+    releaseDate: releaseDate || new Date().toISOString().split('T')[0],
+    type: album ? 'Album' : 'Single'
+  };
+
+  // Get existing releases or initialize array
+  const releases = JSON.parse(localStorage.getItem('yzyReleases') || '[]');
+  releases.push(release);
+  localStorage.setItem('yzyReleases', JSON.stringify(releases));
+
+  alert('Release added successfully!');
+  resetAdminForm();
+  
+  // Reload homepage
+  loadHomepageReleases();
+}
+
+function resetAdminForm() {
+  $('#mp3Link').value = '';
+  $('#coverLink').value = '';
+  $('#adminTitle').value = '';
+  $('#adminAlbum').value = '';
+  $('#adminArtist').value = '';
+  $('#adminReleaseDate').value = '';
+}
+
+function loadHomepageReleases() {
+  const releases = JSON.parse(localStorage.getItem('yzyReleases') || '[]');
+  
+  // Group releases by type
+  const albums = releases.filter(r => r.album && r.album !== 'Single');
+  const singles = releases.filter(r => !r.album || r.album === 'Single');
+
+  // Update Albums section
+  updateReleaseSection('Albums', albums, '.library-section:nth-child(1) .tracks-grid');
+  
+  // Update Singles section  
+  updateReleaseSection('Singles', singles, '.library-section:nth-child(3) .tracks-grid');
+}
+
+function updateReleaseSection(sectionName, releases, selector) {
+  const grid = $(selector);
+  if (!grid) return;
+  
+  grid.innerHTML = '';
+  
+  if (releases.length === 0) {
+    // Show placeholder if no releases
+    const placeholder = document.createElement('div');
+    placeholder.className = 'track-card';
+    placeholder.innerHTML = `
+      <div class="track-cover">
+        <img src="nocover.png" alt="${sectionName} cover">
+      </div>
+      <div class="track-info">
+        <div class="track-title">Placeholder ${sectionName.slice(0, -1)}</div>
+        <div class="track-artist">Kanye West</div>
+        <div class="track-album">${sectionName.slice(0, -1)} • 2024</div>
+        <div class="track-duration">${sectionName === 'Albums' ? '12 tracks' : '3:24'}</div>
+      </div>
+    `;
+    grid.appendChild(placeholder);
+    return;
+  }
+  
+  releases.forEach(release => {
+    const card = document.createElement('div');
+    card.className = 'track-card';
+    card.onclick = () => playRelease(release);
+    
+    const year = new Date(release.releaseDate).getFullYear();
+    card.innerHTML = `
+      <div class="track-cover">
+        <img src="${release.coverLink}" alt="${release.title} cover">
+      </div>
+      <div class="track-info">
+        <div class="track-title">${release.title}</div>
+        <div class="track-artist">${release.artist}</div>
+        <div class="track-album">${release.album} • ${year}</div>
+        <div class="track-duration">${release.type}</div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function playRelease(release) {
+  // Update preview with release info
+  pTitle.textContent = release.title;
+  pArtists.textContent = release.artist;
+  const year = new Date(release.releaseDate).getFullYear();
+  pAlbum.textContent = `${release.album} • ${year}`;
+  
+  // Update cover image
+  artImage.src = release.coverLink;
+  tryApplyDominantColor(artImage);
+  
+  // Load audio
+  audio.src = release.mp3Link;
+  audio.load();
+  
+  playPauseBtn.disabled = true;
+  scrubber.disabled = true;
+  
+  audio.addEventListener('loadedmetadata', () => {
+    scrubber.max = Math.floor(audio.duration || 0);
+    durationEl.textContent = formatTime(audio.duration);
+    currentTimeEl.textContent = '0:00';
+    scrubber.value = 0;
+    playPauseBtn.disabled = false;
+    scrubber.disabled = false;
+  }, { once: true });
+}
+
 document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
