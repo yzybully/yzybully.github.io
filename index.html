@@ -341,7 +341,7 @@
   <div class="app">
     <aside class="sidebar">
         <div class="brand">
-            <img src="logo.png" alt="Deepburn Logo" class="brand-logo">
+            <img src="logo.png" alt="YZY Logo" class="brand-logo">
             <div>yzy player | YZYBULLY</div>
         </div>
         <div class="divider"></div>
@@ -1179,17 +1179,33 @@ function addRelease() {
   };
 
   // Get existing releases or initialize array
-  const releases = JSON.parse(localStorage.getItem('yzyReleases') || '[]');
+  let releases = [];
+  try {
+    releases = JSON.parse(localStorage.getItem('yzyReleases') || '[]');
+  } catch (e) {
+    console.log('Error loading releases from localStorage:', e);
+    releases = [];
+  }
+  
   releases.push(release);
-  localStorage.setItem('yzyReleases', JSON.stringify(releases));
+  
+  try {
+    localStorage.setItem('yzyReleases', JSON.stringify(releases));
+    console.log('Release saved to localStorage:', release);
+  } catch (e) {
+    console.log('Error saving to localStorage:', e);
+    alert('Error saving release. Please check browser storage permissions.');
+    return;
+  }
 
   alert('Release added successfully!');
   resetAdminForm();
   
-  // Reload homepage if currently viewing it
-  if ($('#homeContent').classList.contains('active')) {
+  // Force reload homepage releases
+  console.log('Reloading releases after add...');
+  setTimeout(() => {
     loadHomepageReleases();
-  }
+  }, 100);
 }
 
 function resetAdminForm() {
@@ -1206,12 +1222,22 @@ function resetAdminForm() {
 }
 
 function loadHomepageReleases() {
-  const releases = JSON.parse(localStorage.getItem('yzyReleases') || '[]');
+  console.log('Loading homepage releases...');
+  let releases = [];
+  try {
+    releases = JSON.parse(localStorage.getItem('yzyReleases') || '[]');
+    console.log('Loaded releases:', releases);
+  } catch (e) {
+    console.log('Error loading releases:', e);
+    releases = [];
+  }
   
   // Group releases by type
   const albums = releases.filter(r => r.type === 'Album');
   const eps = releases.filter(r => r.type === 'EP');
   const singles = releases.filter(r => r.type === 'Single');
+
+  console.log('Albums:', albums.length, 'EPs:', eps.length, 'Singles:', singles.length);
 
   // Update each section
   updateReleaseSection('Albums', albums, '#albumsGrid');
