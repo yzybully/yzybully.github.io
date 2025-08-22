@@ -1035,6 +1035,17 @@ function setupReset() {
 
 // Initialize everything
 function init() {
+    console.log('Initializing app...');
+    
+    // Make sure DOM elements exist before initializing
+    const navButtons = $('.nav-btn');
+    console.log('Found', navButtons.length, 'navigation buttons');
+    
+    if (navButtons.length === 0) {
+        console.error('No navigation buttons found!');
+        return;
+    }
+    
     initNavigation();
     populateDropdowns();
     setupCustomSelect('#albumSelect');
@@ -1047,16 +1058,22 @@ function init() {
     setupReset();
     
     // Add input listeners
-    titleInput.addEventListener('input', () => stopCyclingAndUpdate(updatePreview));
-    albumInput.addEventListener('input', () => stopCyclingAndUpdate(updatePreview));
-    dateInput.addEventListener('input', () => stopCyclingAndUpdate(updatePreview));
-    $('.artistInput').addEventListener('input', () => stopCyclingAndUpdate(updatePreview));
+    if (titleInput) titleInput.addEventListener('input', () => stopCyclingAndUpdate(updatePreview));
+    if (albumInput) albumInput.addEventListener('input', () => stopCyclingAndUpdate(updatePreview));
+    if (dateInput) dateInput.addEventListener('input', () => stopCyclingAndUpdate(updatePreview));
+    const firstArtistInput = $('.artistInput');
+    if (firstArtistInput) firstArtistInput.addEventListener('input', () => stopCyclingAndUpdate(updatePreview));
     
     // Start initial preview cycling
     startPreviewCycling();
     updatePreview();
+    
+    console.log('App initialized successfully');
 }
 
 // Start the app
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, starting initialization...');
+    init();
+});
       
