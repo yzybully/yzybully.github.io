@@ -551,8 +551,104 @@
   </div>
 
 <script>
+// Simple test to see if JavaScript is working
+console.log('JavaScript is loading...');
+
 const $ = (q) => document.querySelector(q);
-const $$ = (q) => Array.from(document.querySelectorAll(q));
+const $ = (q) => Array.from(document.querySelectorAll(q));
+
+// Navigation functionality - simplified version
+function initNavigation() {
+    console.log('Starting navigation setup...');
+    
+    const homeBtn = document.querySelector('[data-section="home"]');
+    const likedBtn = document.querySelector('[data-section="liked"]');
+    const profileBtn = document.querySelector('[data-section="profile"]');
+    const adminBtn = document.querySelector('[data-section="admin"]');
+    
+    console.log('Navigation elements:', { homeBtn, likedBtn, profileBtn, adminBtn });
+    
+    // Direct event listeners
+    if (homeBtn) {
+        homeBtn.addEventListener('click', () => {
+            console.log('Home clicked');
+            showSection('home');
+            updateActiveButton('home');
+        });
+    }
+    
+    if (likedBtn) {
+        likedBtn.addEventListener('click', () => {
+            console.log('Liked clicked');
+            showSection('liked');
+            updateActiveButton('liked');
+        });
+    }
+    
+    if (profileBtn) {
+        profileBtn.addEventListener('click', () => {
+            console.log('Profile clicked');
+            showSection('profile');
+            updateActiveButton('profile');
+        });
+    }
+    
+    if (adminBtn) {
+        adminBtn.addEventListener('click', () => {
+            console.log('Admin clicked');
+            showSection('admin');
+            updateActiveButton('admin');
+        });
+    }
+}
+
+function updateActiveButton(activeSection) {
+    const buttons = document.querySelectorAll('.nav-btn');
+    buttons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.section === activeSection) {
+            btn.classList.add('active');
+        }
+    });
+    
+    // Update topbar
+    const topbar = document.querySelector('#topbarSection');
+    if (topbar) {
+        topbar.textContent = activeSection;
+    }
+}
+
+function showSection(section) {
+    console.log('Showing section:', section);
+    
+    // Hide all sections
+    const sections = document.querySelectorAll('.content-section');
+    sections.forEach(s => s.classList.remove('active'));
+    
+    // Show target section
+    let target = null;
+    switch(section) {
+        case 'home':
+            target = document.querySelector('#homeContent');
+            break;
+        case 'liked':
+            target = document.querySelector('#likedContent');
+            break;
+        case 'profile':
+            target = document.querySelector('#profileContent');
+            break;
+        case 'admin':
+            target = document.querySelector('#adminContent');
+            break;
+    }
+    
+    if (target) {
+        target.classList.add('active');
+        console.log('Successfully showed:', target.id);
+    } else {
+        console.error('Could not find target for:', section);
+    }
+}
 
 const mp3Input = $('#mp3File'), coverInput = $('#coverFile'), titleInput = $('#title'),
       albumInput = $('#album'), dateInput = $('#releaseDate'), multiToggle = $('#multiToggle'),
