@@ -565,11 +565,18 @@ const colorThief = new ColorThief();
 function initNavigation() {
     console.log('Setting up navigation...');
     
-    const navButtons = $$('.nav-btn');
+    const navButtons = $('.nav-btn');
     const topbarSection = $('#topbarSection');
     
-    navButtons.forEach(button => {
-        button.addEventListener('click', () => {
+    console.log('Found navigation buttons:', navButtons.length);
+    
+    navButtons.forEach((button, index) => {
+        console.log(`Button ${index}:`, button, 'data-section:', button.dataset.section);
+        
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
             const section = button.dataset.section;
             console.log('Navigation clicked:', section);
             
