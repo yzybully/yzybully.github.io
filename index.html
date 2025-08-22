@@ -1,14 +1,6 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script type="module">import { injectIntoGlobalHook } from "/@react-refresh";
-injectIntoGlobalHook(window);
-window.$RefreshReg$ = () => {};
-window.$RefreshSig$ = () => (type) => type;</script>
-
-  <script type="module" src="/@vite/client"></script>
-
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Listen to Ye Unrsld | YZY</title>
@@ -146,6 +138,7 @@ window.$RefreshSig$ = () => (type) => type;</script>
       gap: 12px;
       cursor: pointer;
       transition: all 0.2s ease;
+      min-width: 250px;
     }
     .track-card:hover {
       background: linear-gradient(180deg, #1a1f28 0%, #151920 100%);
@@ -379,7 +372,7 @@ window.$RefreshSig$ = () => (type) => type;</script>
         <div class="music-library">
           <div class="library-section">
             <div class="library-section-title">Albums</div>
-            <div class="tracks-grid">
+            <div class="tracks-grid" id="albumsGrid">
               <div class="track-card">
                 <div class="track-cover">
                   <img src="nocover.png" alt="Album cover">
@@ -396,7 +389,7 @@ window.$RefreshSig$ = () => (type) => type;</script>
 
           <div class="library-section">
             <div class="library-section-title">EPs</div>
-            <div class="tracks-grid">
+            <div class="tracks-grid" id="epsGrid">
               <div class="track-card">
                 <div class="track-cover">
                   <img src="nocover.png" alt="EP cover">
@@ -413,7 +406,7 @@ window.$RefreshSig$ = () => (type) => type;</script>
 
           <div class="library-section">
             <div class="library-section-title">Singles</div>
-            <div class="tracks-grid">
+            <div class="tracks-grid" id="singlesGrid">
               <div class="track-card">
                 <div class="track-cover">
                   <img src="nocover.png" alt="Single cover">
@@ -476,7 +469,7 @@ window.$RefreshSig$ = () => (type) => type;</script>
             <div class="row">
               <div class="field" style="flex:1"><label>Song Title *</label><input type="text" id="adminTitle" placeholder="Paranoid"/></div>
               <div class="field" style="flex:1">
-                <label>Album Name</label>
+                <label>Album/EP Name</label>
                 <input type="text" id="adminAlbum" placeholder="808s & Heartbreak"/>
               </div>
             </div>
@@ -487,10 +480,24 @@ window.$RefreshSig$ = () => (type) => type;</script>
                 <input type="text" id="adminArtist" placeholder="Kanye West"/>
               </div>
             </div>
+            <div class="field">
+              <label>Release Type</label>
+              <div class="custom-select" id="releaseTypeSelect">
+                <div class="fake-input" id="releaseTypeDisplay" style="cursor:pointer; padding-right:36px; display:flex; align-items:center; gap:10px">
+                  <span>Single</span>
+                </div>
+                <div class="arrow">▼</div>
+                <div class="dropdown-panel" id="releaseTypeDropdownPanel">
+                  <div class="dropdown-option" data-value="Single">Single</div>
+                  <div class="dropdown-option" data-value="EP">EP</div>
+                  <div class="dropdown-option" data-value="Album">Album</div>
+                </div>
+              </div>
+            </div>
             <div class="divider"></div>
             <div class="row">
-              <button class="btn" id="addReleaseBtn" onclick="addRelease()">Add Release</button>
-              <button class="btn ghost" id="adminResetBtn" onclick="resetAdminForm()">Reset</button>
+              <button class="btn" id="addReleaseBtn">Add Release</button>
+              <button class="btn ghost" id="adminResetBtn">Reset</button>
             </div>
           </div>
         </div>
@@ -619,6 +626,7 @@ const $$ = (q) => Array.from(document.querySelectorAll(q));
 
 const colorThief = new ColorThief();
 let coverArrayBuffer = null, currentCoverURL = null, currentAudioURL = null;
+let selectedReleaseType = 'Single'; // Track selected release type
 
 const mp3File = $('#mp3File');
 const mp3FileName = $('#mp3FileName');
@@ -706,7 +714,7 @@ function urlToArrayBuffer(url){
 
 /* ========= Navigation ========= */
 function initNavigation() {
-  const navButtons = $$('.nav-btn'); // FIXED: select all
+  const navButtons = $$('.nav-btn');
   const topbarSection = $('#topbarSection');
 
   navButtons.forEach(button => {
@@ -843,6 +851,39 @@ function initAlbumSelect(){
   });
   document.addEventListener('click', (e)=>{
     if (!wrapper.contains(e.target)){ panel.classList.remove('open'); wrapper.classList.remove('open');}
+  });
+}
+
+function initReleaseTypeSelect(){
+  const wrapper = $('#releaseTypeSelect');
+  const display = $('#releaseTypeDisplay');
+  const panel = $('#releaseTypeDropdownPanel');
+
+  const options = $$('#releaseTypeDropdownPanel .dropdown-option');
+  options.forEach(option => {
+    option.addEventListener('click', () => {
+      const value = option.dataset.value;
+      selectedReleaseType = value;
+      display.innerHTML = `<span>${value}</span>`;
+      panel.classList.remove('open');
+      wrapper.classList.remove('open');
+    });
+  });
+
+  const toggle = () => {
+    panel.classList.toggle('open');
+    wrapper.classList.toggle('open');
+  };
+
+  display.addEventListener('click', toggle);
+  wrapper.querySelector('.arrow').addEventListener('click', toggle);
+
+  // Close on outside click
+  document.addEventListener('click', (e) => {
+    if (!wrapper.contains(e.target)) {
+      panel.classList.remove('open');
+      wrapper.classList.remove('open');
+    }
   });
 }
 
@@ -1080,6 +1121,7 @@ function init(){
   initNavigation();
   initCoverSelect();
   initAlbumSelect();
+  initReleaseTypeSelect();
   initArtistSelects();
   initFiles();
   initAudioControls();
@@ -1088,6 +1130,8 @@ function init(){
   // buttons
   $('#downloadBtn').addEventListener('click', handleDownload);
   $('#resetBtn').addEventListener('click', resetAll);
+  $('#addReleaseBtn').addEventListener('click', addRelease);
+  $('#adminResetBtn').addEventListener('click', resetAdminForm);
 
   // Initial text preview
   updatePreviewText();
@@ -1103,7 +1147,8 @@ function adminLogin() {
   if (password === 'CUCK') {
     $('#adminLogin').style.display = 'none';
     $('#adminPanel').style.display = 'block';
-    const headingEl = $('#adminHeading'); if (headingEl) headingEl.textContent = 'admin panel';
+    const headingEl = $('#adminHeading'); 
+    if (headingEl) headingEl.textContent = 'admin panel';
   } else {
     alert('Incorrect password!');
   }
@@ -1127,10 +1172,10 @@ function addRelease() {
     mp3Link,
     coverLink: coverLink || 'nocover.png',
     title,
-    album: album || 'Single',
+    album: album || (selectedReleaseType === 'Single' ? 'Single' : selectedReleaseType),
     artist,
     releaseDate: releaseDate || new Date().toISOString().split('T')[0],
-    type: album ? 'Album' : 'Single'
+    type: selectedReleaseType
   };
 
   // Get existing releases or initialize array
@@ -1141,8 +1186,10 @@ function addRelease() {
   alert('Release added successfully!');
   resetAdminForm();
   
-  // Reload homepage
-  loadHomepageReleases();
+  // Reload homepage if currently viewing it
+  if ($('#homeContent').classList.contains('active')) {
+    loadHomepageReleases();
+  }
 }
 
 function resetAdminForm() {
@@ -1152,20 +1199,24 @@ function resetAdminForm() {
   $('#adminAlbum').value = '';
   $('#adminArtist').value = '';
   $('#adminReleaseDate').value = '';
+  
+  // Reset release type to Single
+  selectedReleaseType = 'Single';
+  $('#releaseTypeDisplay').innerHTML = '<span>Single</span>';
 }
 
 function loadHomepageReleases() {
   const releases = JSON.parse(localStorage.getItem('yzyReleases') || '[]');
   
   // Group releases by type
-  const albums = releases.filter(r => r.album && r.album !== 'Single');
-  const singles = releases.filter(r => !r.album || r.album === 'Single');
+  const albums = releases.filter(r => r.type === 'Album');
+  const eps = releases.filter(r => r.type === 'EP');
+  const singles = releases.filter(r => r.type === 'Single');
 
-  // Update Albums section
-  updateReleaseSection('Albums', albums, '.library-section:nth-child(1) .tracks-grid');
-  
-  // Update Singles section  
-  updateReleaseSection('Singles', singles, '.library-section:nth-child(3) .tracks-grid');
+  // Update each section
+  updateReleaseSection('Albums', albums, '#albumsGrid');
+  updateReleaseSection('EPs', eps, '#epsGrid'); 
+  updateReleaseSection('Singles', singles, '#singlesGrid');
 }
 
 function updateReleaseSection(sectionName, releases, selector) {
@@ -1178,15 +1229,16 @@ function updateReleaseSection(sectionName, releases, selector) {
     // Show placeholder if no releases
     const placeholder = document.createElement('div');
     placeholder.className = 'track-card';
+    const singleName = sectionName.slice(0, -1); // Remove 's' from end
     placeholder.innerHTML = `
       <div class="track-cover">
-        <img src="nocover.png" alt="${sectionName} cover">
+        <img src="nocover.png" alt="${singleName} cover">
       </div>
       <div class="track-info">
-        <div class="track-title">Placeholder ${sectionName.slice(0, -1)}</div>
+        <div class="track-title">Placeholder ${singleName}</div>
         <div class="track-artist">Kanye West</div>
-        <div class="track-album">${sectionName.slice(0, -1)} • 2024</div>
-        <div class="track-duration">${sectionName === 'Albums' ? '12 tracks' : '3:24'}</div>
+        <div class="track-album">${singleName} • 2024</div>
+        <div class="track-duration">${sectionName === 'Albums' ? '12 tracks' : sectionName === 'EPs' ? '6 tracks' : '3:24'}</div>
       </div>
     `;
     grid.appendChild(placeholder);
@@ -1199,6 +1251,9 @@ function updateReleaseSection(sectionName, releases, selector) {
     card.onclick = () => playRelease(release);
     
     const year = new Date(release.releaseDate).getFullYear();
+    const trackCount = release.type === 'Album' ? '12 tracks' : 
+                     release.type === 'EP' ? '6 tracks' : '3:24';
+    
     card.innerHTML = `
       <div class="track-cover">
         <img src="${release.coverLink}" alt="${release.title} cover">
@@ -1207,7 +1262,7 @@ function updateReleaseSection(sectionName, releases, selector) {
         <div class="track-title">${release.title}</div>
         <div class="track-artist">${release.artist}</div>
         <div class="track-album">${release.album} • ${year}</div>
-        <div class="track-duration">${release.type}</div>
+        <div class="track-duration">${trackCount}</div>
       </div>
     `;
     grid.appendChild(card);
