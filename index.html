@@ -1178,10 +1178,20 @@ function addRelease() {
     type: selectedReleaseType
   };
 
-  // Get existing releases or initialize array
+  // Get existing releases with better error handling
   let releases = [];
   try {
-    releases = JSON.parse(localStorage.getItem('yzyReleases') || '[]');
+    const storedData = localStorage.getItem('yzyReleases');
+    if (storedData) {
+      const parsed = JSON.parse(storedData);
+      // Ensure it's an array
+      if (Array.isArray(parsed)) {
+        releases = parsed;
+      } else {
+        console.log('Stored data is not an array, resetting to empty array');
+        releases = [];
+      }
+    }
   } catch (e) {
     console.log('Error loading releases from localStorage:', e);
     releases = [];
@@ -1207,7 +1217,6 @@ function addRelease() {
     loadHomepageReleases();
   }, 100);
 }
-
 function resetAdminForm() {
   $('#mp3Link').value = '';
   $('#coverLink').value = '';
