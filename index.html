@@ -760,7 +760,7 @@ function initNavigation() {
 
 function showSection(section) {
 
-  $$('.content-section').forEach(el => el.classList.remove('active'));
+  $$$('.content-section').forEach(el => el.classList.remove('active'));
 
   let targetId;
   switch(section) {
@@ -903,8 +903,8 @@ function initReleaseTypeSelect(){
   const display = $('#releaseTypeDisplay');
   const panel = $('#releaseTypeDropdownPanel');
 
-  const options = $('#releaseTypeDropdownPanel .dropdown-option');
-  options.forEach(option => {
+  const options = $$('#releaseTypeDropdownPanel .dropdown-option');
+    options.forEach(option => {
     option.addEventListener('click', () => {
       const value = option.dataset.value;
       selectedReleaseType = value;
@@ -956,7 +956,7 @@ function initArtistSelects(){
     });
   };
 
-  $('.artistSelect').forEach(seedDropdown);
+  $$('.artistSelect').forEach(seedDropdown);
 
   $('#multiToggle').addEventListener('change', (e)=>{
     if (e.target.checked){
@@ -1139,8 +1139,8 @@ function resetAll(){
 
   updateChips();
 
-  $$('.dropdown-panel').forEach(p => p.classList.remove('open'));
-  $$('.custom-select').forEach(w => w.classList.remove('open'));
+  $$$('.dropdown-panel').forEach(p => p.classList.remove('open'));
+  $$$('.custom-select').forEach(w => w.classList.remove('open'));
 }
 
 /* ========= Live binds ========= */
@@ -1167,7 +1167,7 @@ function init(){
   $('#addReleaseBtn').addEventListener('click', addRelease);
   $('#adminResetBtn').addEventListener('click', resetAdminForm);
 
-  $$('.theme-btn').forEach(btn => {
+  $$$('.theme-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       changeTheme(btn.dataset.theme);
     });
