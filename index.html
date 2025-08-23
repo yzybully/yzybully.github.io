@@ -687,7 +687,7 @@ function formatTime(s){
 function revokeURL(url){ if(url){ URL.revokeObjectURL(url); } }
 
 function getArtists(){
-  const inputs = $('.artistInput');
+  const inputs = $$('.artistInput');
   return inputs.map(i => i.value.trim()).filter(Boolean);
 }
 
@@ -719,7 +719,7 @@ function tryApplyDominantColor(imgEl){
     const overlay = `linear-gradient(0deg, rgba(${r},${g},${b},0.18), rgba(0,0,0,0))`;
     previewPane.style.backgroundImage = overlay;
   }catch(e){
-    // likely a CORS or canvas taint issue; silently ignore
+
   }
 }
 
@@ -738,7 +738,7 @@ function urlToArrayBuffer(url){
 
 /* ========= Navigation ========= */
 function initNavigation() {
-  const navButtons = $('.nav-btn');
+  const navButtons = $$('.nav-btn');
   const topbarSection = $('#topbarSection');
 
   navButtons.forEach(button => {
@@ -748,24 +748,20 @@ function initNavigation() {
 
       const section = button.dataset.section;
 
-      // Update active button
       navButtons.forEach(btn => btn.classList.remove('active'));
       button.classList.add('active');
 
-      // Update topbar
       topbarSection.textContent = section;
 
-      // Show corresponding content
       showSection(section);
     });
   });
 }
 
 function showSection(section) {
-  // Hide all sections
+
   $$('.content-section').forEach(el => el.classList.remove('active'));
 
-  // Map section → content ID
   let targetId;
   switch(section) {
     case 'home':    targetId = 'homeContent'; break;
@@ -804,13 +800,10 @@ function changeTheme(theme) {
   const selectedTheme = themes[theme];
   if (!selectedTheme) return;
 
-  // Update background
   document.body.style.backgroundImage = `linear-gradient(rgba(11, 13, 16, 0.7), rgba(11, 13, 16, 0.7)), url(${selectedTheme.bg})`;
 
-  // Update CSS custom properties for accent colors
   document.documentElement.style.setProperty('--accent', selectedTheme.color);
-  
-  // Calculate accent-2 as slightly lighter version
+
   const lighterColor = selectedTheme.color + '20'; // Add some transparency
   document.documentElement.style.setProperty('--accent-2', lighterColor);
 }
@@ -863,11 +856,9 @@ function initCoverSelect(){
     panel.classList.remove('open');
     wrapper.classList.remove('open');
 
-    // set preview image
     artImage.src = item.src;
     tryApplyDominantColor(artImage);
 
-    // read as buffer for ID3 APIC
     coverArrayBuffer = await urlToArrayBuffer(item.src);
   });
 
@@ -879,7 +870,6 @@ function initCoverSelect(){
   display.addEventListener('click', toggle);
   wrapper.querySelector('.arrow').addEventListener('click', toggle);
 
-  // default to first preset
   display.innerHTML = `<span class="muted">Select a preset or upload</span>`;
 }
 
@@ -932,7 +922,6 @@ function initReleaseTypeSelect(){
   display.addEventListener('click', toggle);
   wrapper.querySelector('.arrow').addEventListener('click', toggle);
 
-  // Close on outside click
   document.addEventListener('click', (e) => {
     if (!wrapper.contains(e.target)) {
       panel.classList.remove('open');
@@ -967,23 +956,23 @@ function initArtistSelects(){
     });
   };
 
-  $$('.artistSelect').forEach(seedDropdown);
+  $('.artistSelect').forEach(seedDropdown);
 
   $('#multiToggle').addEventListener('change', (e)=>{
     if (e.target.checked){
       addArtistRow.style.display = 'flex';
-      if ($('.artist-field').length === 1) addArtistInput();
+      if ($$('.artist-field').length === 1) addArtistInput();
     } else {
       addArtistRow.style.display = 'none';
-      // leave the first artist only
-      $('.artist-field').slice(1).forEach(n=>n.remove());
+
+      $$('.artist-field').slice(1).forEach(n=>n.remove());
       updateChips(); updatePreviewText();
     }
   });
 
   addArtistBtn.addEventListener('click', addArtistInput);
   clearArtistsBtn.addEventListener('click', ()=>{
-    $('.artist-field').slice(1).forEach(n=>n.remove());
+    $$('.artist-field').slice(1).forEach(n=>n.remove());
     updateChips(); updatePreviewText();
   });
 
@@ -998,7 +987,7 @@ function initArtistSelects(){
         <div class="dropdown-panel artistDropdownPanel"></div>
       </div>`;
     artistsArea.appendChild(tpl);
-    // init dropdown on the new one
+
     initArtistSelects();
     updateChips();
   }
@@ -1011,7 +1000,6 @@ function initFiles(){
     mp3FileName.textContent = file ? file.name : 'No file chosen';
     if (!file) return;
 
-    // Load into audio element
     revokeURL(currentAudioURL);
     currentAudioURL = URL.createObjectURL(file);
     audio.src = currentAudioURL;
@@ -1043,7 +1031,6 @@ function initFiles(){
     coverArrayBuffer = await fileToArrayBuffer(file);
   });
 
-  // default cover buffer from nocover.png
   urlToArrayBuffer('nocover.png').then(buf => coverArrayBuffer = buf).catch(()=>{});
 }
 
@@ -1124,7 +1111,7 @@ async function handleDownload(){
 
 /* ========= Reset ========= */
 function resetAll(){
-  // inputs
+
   mp3File.value = '';
   coverFile.value = '';
   mp3FileName.textContent = 'No file chosen';
@@ -1134,30 +1121,24 @@ function resetAll(){
   releaseDateInput.value = '';
   $('#multiToggle').checked = false;
 
-  // artists: leave the first, clear others
-  $('.artist-field').slice(1).forEach(n=>n.remove());
-  const firstArtist = $$('.artistInput')[0]; if (firstArtist) firstArtist.value = '';
+  $$('.artist-field').slice(1).forEach(n=>n.remove());
+  const firstArtist = $$('.artistInput'); if (firstArtist) firstArtist.value = '';
 
-  // audio
   audio.pause(); audio.removeAttribute('src'); audio.load();
   playPauseBtn.disabled = true; scrubber.disabled = true;
   scrubber.value = 0; currentTimeEl.textContent = '0:00'; durationEl.textContent = '0:00';
   volumeSlider.value = 1; audio.volume = 1;
 
-  // cover
   revokeURL(currentCoverURL); currentCoverURL = null;
   artImage.src = 'nocover.png'; tryApplyDominantColor(artImage);
   urlToArrayBuffer('nocover.png').then(buf => coverArrayBuffer = buf).catch(()=>{});
 
-  // preview text
   pTitle.textContent = 'Song Title';
   pArtists.textContent = 'Artist';
   pAlbum.textContent = 'Album • Year';
 
-  // chips
   updateChips();
 
-  // selects panels closed
   $$('.dropdown-panel').forEach(p => p.classList.remove('open'));
   $$('.custom-select').forEach(w => w.classList.remove('open'));
 }
@@ -1181,24 +1162,20 @@ function init(){
   initAudioControls();
   initLiveBinds();
 
-  // buttons
   $('#downloadBtn').addEventListener('click', handleDownload);
   $('#resetBtn').addEventListener('click', resetAll);
   $('#addReleaseBtn').addEventListener('click', addRelease);
   $('#adminResetBtn').addEventListener('click', resetAdminForm);
 
-  // theme buttons
   $$('.theme-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       changeTheme(btn.dataset.theme);
     });
   });
 
-  // Initial text preview
   updatePreviewText();
   updateChips();
-  
-  // Load releases on homepage
+
   loadHomepageReleases();
 }
 
@@ -1239,13 +1216,12 @@ function addRelease() {
     type: selectedReleaseType
   };
 
-  // Get existing releases with better error handling
   let releases = [];
   try {
     const storedData = localStorage.getItem('yzyReleases');
     if (storedData) {
       const parsed = JSON.parse(storedData);
-      // Ensure it's an array
+
       if (Array.isArray(parsed)) {
         releases = parsed;
       } else {
@@ -1271,8 +1247,7 @@ function addRelease() {
 
   alert('Release added successfully!');
   resetAdminForm();
-  
-  // Force reload homepage releases
+
   console.log('Reloading releases after add...');
   setTimeout(() => {
     loadHomepageReleases();
@@ -1286,8 +1261,7 @@ function resetAdminForm() {
   $('#adminAlbum').value = '';
   $('#adminArtist').value = '';
   $('#adminReleaseDate').value = '';
-  
-  // Reset release type to Single
+
   selectedReleaseType = 'Single';
   $('#releaseTypeDisplay').innerHTML = '<span>Single</span>';
 }
@@ -1302,15 +1276,13 @@ function loadHomepageReleases() {
     console.log('Error loading releases:', e);
     releases = [];
   }
-  
-  // Group releases by type
+
   const albums = releases.filter(r => r.type === 'Album');
   const eps = releases.filter(r => r.type === 'EP');
   const singles = releases.filter(r => r.type === 'Single');
 
   console.log('Albums:', albums.length, 'EPs:', eps.length, 'Singles:', singles.length);
 
-  // Update each section
   updateReleaseSection('Albums', albums, '#albumsGrid');
   updateReleaseSection('EPs', eps, '#epsGrid'); 
   updateReleaseSection('Singles', singles, '#singlesGrid');
@@ -1323,7 +1295,7 @@ function updateReleaseSection(sectionName, releases, selector) {
   grid.innerHTML = '';
   
   if (releases.length === 0) {
-    // Show placeholder if no releases
+
     const placeholder = document.createElement('div');
     placeholder.className = 'track-card';
     const singleName = sectionName.slice(0, -1); // Remove 's' from end
@@ -1367,17 +1339,15 @@ function updateReleaseSection(sectionName, releases, selector) {
 }
 
 function playRelease(release) {
-  // Update preview with release info
+
   pTitle.textContent = release.title;
   pArtists.textContent = release.artist;
   const year = new Date(release.releaseDate).getFullYear();
   pAlbum.textContent = `${release.album} • ${year}`;
-  
-  // Update cover image
+
   artImage.src = release.coverLink;
   tryApplyDominantColor(artImage);
-  
-  // Load audio
+
   audio.src = release.mp3Link;
   audio.load();
   
