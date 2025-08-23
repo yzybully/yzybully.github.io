@@ -2,6 +2,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script type="module">import { injectIntoGlobalHook } from "/@react-refresh";
+injectIntoGlobalHook(window);
+window.$RefreshReg$ = () => {};
+window.$RefreshSig$ = () => (type) => type;</script>
+
+  <script type="module" src="/@vite/client"></script>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Listen to Ye Unrsld | YZY</title>
@@ -760,7 +767,7 @@ function initNavigation() {
 
 function showSection(section) {
 
-  $$$('.content-section').forEach(el => el.classList.remove('active'));
+  $$('.content-section').forEach(el => el.classList.remove('active'));
 
   let targetId;
   switch(section) {
@@ -1139,8 +1146,8 @@ function resetAll(){
 
   updateChips();
 
-  $$$('.dropdown-panel').forEach(p => p.classList.remove('open'));
-  $$$('.custom-select').forEach(w => w.classList.remove('open'));
+  $$('.dropdown-panel').forEach(p => p.classList.remove('open'));
+  $$('.custom-select').forEach(w => w.classList.remove('open'));
 }
 
 /* ========= Live binds ========= */
@@ -1167,7 +1174,7 @@ function init(){
   $('#addReleaseBtn').addEventListener('click', addRelease);
   $('#adminResetBtn').addEventListener('click', resetAdminForm);
 
-  $$$('.theme-btn').forEach(btn => {
+  $$('.theme-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       changeTheme(btn.dataset.theme);
     });
