@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -645,7 +646,7 @@
 <script>
 /* ========= Helpers ========= */
 const $ = (q) => document.querySelector(q);
-const $ = (q) => Array.from(document.querySelectorAll(q));
+const $$ = (q) => Array.from(document.querySelectorAll(q));
 
 const colorThief = new ColorThief();
 let coverArrayBuffer = null, currentCoverURL = null, currentAudioURL = null;
@@ -762,7 +763,7 @@ function initNavigation() {
 
 function showSection(section) {
   // Hide all sections
-  $('.content-section').forEach(el => el.classList.remove('active'));
+  $$('.content-section').forEach(el => el.classList.remove('active'));
 
   // Map section → content ID
   let targetId;
@@ -966,7 +967,7 @@ function initArtistSelects(){
     });
   };
 
-  $('.artistSelect').forEach(seedDropdown);
+  $$('.artistSelect').forEach(seedDropdown);
 
   $('#multiToggle').addEventListener('change', (e)=>{
     if (e.target.checked){
@@ -1135,7 +1136,7 @@ function resetAll(){
 
   // artists: leave the first, clear others
   $('.artist-field').slice(1).forEach(n=>n.remove());
-  const firstArtist = $('.artistInput'); if (firstArtist) firstArtist.value = '';
+  const firstArtist = $$('.artistInput')[0]; if (firstArtist) firstArtist.value = '';
 
   // audio
   audio.pause(); audio.removeAttribute('src'); audio.load();
@@ -1157,8 +1158,8 @@ function resetAll(){
   updateChips();
 
   // selects panels closed
-  $('.dropdown-panel').forEach(p => p.classList.remove('open'));
-  $('.custom-select').forEach(w => w.classList.remove('open'));
+  $$('.dropdown-panel').forEach(p => p.classList.remove('open'));
+  $$('.custom-select').forEach(w => w.classList.remove('open'));
 }
 
 /* ========= Live binds ========= */
@@ -1187,7 +1188,7 @@ function init(){
   $('#adminResetBtn').addEventListener('click', resetAdminForm);
 
   // theme buttons
-  $('.theme-btn').forEach(btn => {
+  $$('.theme-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       changeTheme(btn.dataset.theme);
     });
