@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -352,6 +351,7 @@
             <button class="nav-btn" data-section="liked">Liked Songs</button>
             <button class="nav-btn" data-section="profile">Profile</button>
             <button class="nav-btn" data-section="admin">Admin Panel</button>
+            <button class="nav-btn" data-section="themes">Themes</button>
         </div>
 
         <div style="margin-top: auto; margin-bottom: 16px;">
@@ -504,6 +504,28 @@
         </div>
       </div>
 
+      <!-- Themes Section -->
+      <div class="content-section" id="themesContent">
+        <div style="padding: 20px 0;">
+          <div style="text-align: center; margin-bottom: 40px;">
+            <h2 style="color: var(--text); font-size: 1.3rem; font-weight: 800; margin-bottom: 8px;">Pick a theme</h2>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+            <button class="btn theme-btn" data-theme="ye">ye</button>
+            <button class="btn theme-btn" data-theme="tcd">the college dropout</button>
+            <button class="btn theme-btn" data-theme="lr">late registration</button>
+            <button class="btn theme-btn" data-theme="graduation">graduation</button>
+            <button class="btn theme-btn" data-theme="808s">808s and heart break</button>
+            <button class="btn theme-btn" data-theme="mbdtf">my beautiful dark twisted fantasy</button>
+            <button class="btn theme-btn" data-theme="yeezus">yeezus</button>
+            <button class="btn theme-btn" data-theme="tlop">the life of pablo</button>
+            <button class="btn theme-btn" data-theme="jik">jesus is king</button>
+            <button class="btn theme-btn" data-theme="donda">donda</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Upload Form Section (hidden by default; no button added) -->
       <div class="content-section" id="uploadContent">
         <div class="section-title">upload files</div>
@@ -623,7 +645,7 @@
 <script>
 /* ========= Helpers ========= */
 const $ = (q) => document.querySelector(q);
-const $$ = (q) => Array.from(document.querySelectorAll(q));
+const $ = (q) => Array.from(document.querySelectorAll(q));
 
 const colorThief = new ColorThief();
 let coverArrayBuffer = null, currentCoverURL = null, currentAudioURL = null;
@@ -664,7 +686,7 @@ function formatTime(s){
 function revokeURL(url){ if(url){ URL.revokeObjectURL(url); } }
 
 function getArtists(){
-  const inputs = $$('.artistInput');
+  const inputs = $('.artistInput');
   return inputs.map(i => i.value.trim()).filter(Boolean);
 }
 
@@ -715,7 +737,7 @@ function urlToArrayBuffer(url){
 
 /* ========= Navigation ========= */
 function initNavigation() {
-  const navButtons = $$('.nav-btn');
+  const navButtons = $('.nav-btn');
   const topbarSection = $('#topbarSection');
 
   navButtons.forEach(button => {
@@ -740,7 +762,7 @@ function initNavigation() {
 
 function showSection(section) {
   // Hide all sections
-  $$('.content-section').forEach(el => el.classList.remove('active'));
+  $('.content-section').forEach(el => el.classList.remove('active'));
 
   // Map section → content ID
   let targetId;
@@ -749,6 +771,7 @@ function showSection(section) {
     case 'liked':   targetId = 'likedContent'; break;
     case 'profile': targetId = 'profileContent'; break;
     case 'admin':   targetId = 'adminContent'; break;
+    case 'themes':  targetId = 'themesContent'; break;
     case 'upload':  targetId = 'uploadContent'; break;
     default:        targetId = 'homeContent'; // fallback
   }
@@ -760,6 +783,35 @@ function showSection(section) {
       try { loadHomepageReleases(); } catch (e) {}
     }
   }
+}
+
+/* ========= Theme Functions ========= */
+function changeTheme(theme) {
+  const themes = {
+    'ye': { bg: 'bg.png', color: '#4a50a3' },
+    'graduation': { bg: 'gradbg.png', color: '#8B4B8A' },
+    'tcd': { bg: 'tcdbg.png', color: '#CC6633' },
+    'lr': { bg: 'lr.png', color: '#B8860B' },
+    '808s': { bg: '808s.png', color: '#696969' },
+    'mbdtf': { bg: 'mbdtf.png', color: '#CD5C5C' },
+    'yeezus': { bg: 'yeezus.png', color: '#DCDCDC' },
+    'tlop': { bg: 'TLOP.png', color: '#FF8C00' },
+    'jik': { bg: 'jik.png', color: '#87CEEB' },
+    'donda': { bg: 'donda.png', color: '#2F4F4F' }
+  };
+
+  const selectedTheme = themes[theme];
+  if (!selectedTheme) return;
+
+  // Update background
+  document.body.style.backgroundImage = `linear-gradient(rgba(11, 13, 16, 0.7), rgba(11, 13, 16, 0.7)), url(${selectedTheme.bg})`;
+
+  // Update CSS custom properties for accent colors
+  document.documentElement.style.setProperty('--accent', selectedTheme.color);
+  
+  // Calculate accent-2 as slightly lighter version
+  const lighterColor = selectedTheme.color + '20'; // Add some transparency
+  document.documentElement.style.setProperty('--accent-2', lighterColor);
 }
 
 /* ========= Custom Selects & Presets ========= */
@@ -860,7 +912,7 @@ function initReleaseTypeSelect(){
   const display = $('#releaseTypeDisplay');
   const panel = $('#releaseTypeDropdownPanel');
 
-  const options = $$('#releaseTypeDropdownPanel .dropdown-option');
+  const options = $('#releaseTypeDropdownPanel .dropdown-option');
   options.forEach(option => {
     option.addEventListener('click', () => {
       const value = option.dataset.value;
@@ -914,23 +966,23 @@ function initArtistSelects(){
     });
   };
 
-  $$('.artistSelect').forEach(seedDropdown);
+  $('.artistSelect').forEach(seedDropdown);
 
   $('#multiToggle').addEventListener('change', (e)=>{
     if (e.target.checked){
       addArtistRow.style.display = 'flex';
-      if ($$('.artist-field').length === 1) addArtistInput();
+      if ($('.artist-field').length === 1) addArtistInput();
     } else {
       addArtistRow.style.display = 'none';
       // leave the first artist only
-      $$('.artist-field').slice(1).forEach(n=>n.remove());
+      $('.artist-field').slice(1).forEach(n=>n.remove());
       updateChips(); updatePreviewText();
     }
   });
 
   addArtistBtn.addEventListener('click', addArtistInput);
   clearArtistsBtn.addEventListener('click', ()=>{
-    $$('.artist-field').slice(1).forEach(n=>n.remove());
+    $('.artist-field').slice(1).forEach(n=>n.remove());
     updateChips(); updatePreviewText();
   });
 
@@ -1082,7 +1134,7 @@ function resetAll(){
   $('#multiToggle').checked = false;
 
   // artists: leave the first, clear others
-  $$('.artist-field').slice(1).forEach(n=>n.remove());
+  $('.artist-field').slice(1).forEach(n=>n.remove());
   const firstArtist = $('.artistInput'); if (firstArtist) firstArtist.value = '';
 
   // audio
@@ -1105,8 +1157,8 @@ function resetAll(){
   updateChips();
 
   // selects panels closed
-  $$('.dropdown-panel').forEach(p => p.classList.remove('open'));
-  $$('.custom-select').forEach(w => w.classList.remove('open'));
+  $('.dropdown-panel').forEach(p => p.classList.remove('open'));
+  $('.custom-select').forEach(w => w.classList.remove('open'));
 }
 
 /* ========= Live binds ========= */
@@ -1133,6 +1185,13 @@ function init(){
   $('#resetBtn').addEventListener('click', resetAll);
   $('#addReleaseBtn').addEventListener('click', addRelease);
   $('#adminResetBtn').addEventListener('click', resetAdminForm);
+
+  // theme buttons
+  $('.theme-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      changeTheme(btn.dataset.theme);
+    });
+  });
 
   // Initial text preview
   updatePreviewText();
@@ -1218,6 +1277,7 @@ function addRelease() {
     loadHomepageReleases();
   }, 100);
 }
+
 function resetAdminForm() {
   $('#mp3Link').value = '';
   $('#coverLink').value = '';
