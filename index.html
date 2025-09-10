@@ -327,9 +327,13 @@
                         </div>
                     </header>
                     
-                    <main className="relative flex flex-col items-center justify-center min-h-[calc(100vh-120px)] px-8 py-12">
-                        {currentPage === 'home' && <Home />}
-                        {currentPage === 'plans' && <Plans />}
+                    <main className="relative flex flex-col items-center justify-center min-h-[calc(100vh-100px)] px-8 py-12 transition-all duration-500 ease-in-out">
+                        <div className={`transition-all duration-500 ease-in-out ${currentPage === 'home' ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-8 pointer-events-none absolute'}`}>
+                            {currentPage === 'home' && <Home />}
+                        </div>
+                        <div className={`transition-all duration-500 ease-in-out ${currentPage === 'plans' ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-8 pointer-events-none absolute'}`}>
+                            {currentPage === 'plans' && <Plans />}
+                        </div>
                     </main>
                 </div>
             );
