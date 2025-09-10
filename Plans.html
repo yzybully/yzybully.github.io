@@ -1,0 +1,88 @@
+import React from 'react';
+import { Check, X } from 'lucide-react';
+
+const PlanFeature = ({ text, included = true }) => (
+  <li className="flex items-center gap-3">
+    {included ? (
+      <Check className="w-5 h-5 text-green-400 flex-shrink-0" />
+    ) : (
+      <X className="w-5 h-5 text-red-400 flex-shrink-0" />
+    )}
+    <span className="text-white/80">{text}</span>
+  </li>
+);
+
+export default function Plans() {
+  return (
+    <div className="w-full max-w-7xl mx-auto px-4">
+      <div className="text-center mb-12">
+        <p className="text-sm text-white/60 font-medium tracking-wider uppercase">
+          PLANS
+        </p>
+        <h2 className="text-3xl mt-4 font-bold bg-gradient-to-r from-blue-400 via-blue-300 to-slate-900 bg-clip-text text-transparent">
+          Explore Our Plans
+        </h2>
+      </div>
+
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* Card 1: Free */}
+        <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-8 flex flex-col">
+          <div className="flex-grow">
+            <h3 className="text-2xl font-bold text-white">FREE / Key</h3>
+            <p className="mt-2 text-white/60">Test the waters of what wave can do</p>
+            <ul className="mt-8 space-y-4">
+              <PlanFeature text="Free Recoil Control" />
+              <PlanFeature text="Custom Recoil Strength" />
+              <PlanFeature text="Custom Crosshair" />
+              <PlanFeature text="Ai Powered Recoil Control" included={false} />
+              <PlanFeature text="No Key Required" included={false} />
+            </ul>
+          </div>
+          <button className="mt-8 w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors">
+            PURCHASE
+          </button>
+        </div>
+
+        {/* Card 2: Recommended */}
+        <div className="relative bg-slate-900 border border-slate-700 rounded-2xl p-8 flex flex-col">
+            <div className="absolute -inset-px bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 rounded-2xl blur-md opacity-50 animate-pulse"></div>
+            <div className="absolute inset-0 bg-white/10 rounded-2xl"></div>
+            <div className="relative z-10 flex flex-col flex-grow">
+              <div className="flex-grow">
+                <h3 className="text-2xl font-bold text-white">6.99 $</h3>
+                <p className="mt-2 text-white/60">Best for occasional and constant use</p>
+                <ul className="mt-8 space-y-4">
+                  <PlanFeature text="Free Recoil Control" />
+                  <PlanFeature text="Custom Recoil Strength" />
+                  <PlanFeature text="Custom Crosshair" />
+                  <PlanFeature text="Ai Powered Recoil Control" />
+                  <PlanFeature text="No Key Required" />
+                </ul>
+              </div>
+              <button className="mt-8 w-full py-3 bg-blue-500 hover:bg-blue-600 rounded-lg font-semibold transition-colors">
+                PURCHASE
+              </button>
+            </div>
+        </div>
+
+        {/* Card 3: Coming Soon */}
+        <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-8 flex flex-col">
+          <div className="flex-grow">
+            <h3 className="text-2xl font-bold text-white">6.99 $</h3>
+            <p className="mt-2 text-white/60">Best for occasional and constant use</p>
+            <ul className="mt-8 space-y-4">
+              <PlanFeature text="Free Recoil Control" />
+              <PlanFeature text="Custom Recoil Strength" />
+              <PlanFeature text="Custom Crosshair" />
+              <PlanFeature text="Ai Powered Recoil Control" />
+              <PlanFeature text="No Key Required" />
+            </ul>
+          </div>
+          <button disabled className="mt-8 w-full py-3 bg-slate-700 rounded-lg font-semibold text-white/50 cursor-not-allowed">
+            COMING SOON
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
